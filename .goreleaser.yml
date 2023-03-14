@@ -58,9 +58,9 @@ dockers:
       - dex
     dockerfile: Dockerfile
     image_templates:
-      - 'docker.io/goto/{{.ProjectName}}:latest'
-      - 'docker.io/goto/{{.ProjectName}}:{{ .Version }}'
-      - 'docker.io/goto/{{.ProjectName}}:{{ .Version }}-amd64'
+      - 'docker.io/gotocompany/{{.ProjectName}}:latest'
+      - 'docker.io/gotocompany/{{.ProjectName}}:{{ .Version }}'
+      - 'docker.io/gotocompany/{{.ProjectName}}:{{ .Version }}-amd64'
 
 brews:
   - name: dex
