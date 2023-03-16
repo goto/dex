@@ -9,13 +9,13 @@ import (
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-openapi/strfmt"
+	entropyFirehose "github.com/goto/entropy/modules/firehose"
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/pkg/errors"
-	entropyFirehose "github.com/goto/entropy/modules/firehose"
 )
 
 const kubeClusterDependencyKey = "kube_cluster"
