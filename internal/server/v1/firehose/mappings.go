@@ -1,6 +1,7 @@
 package firehose
 
 import (
+	"github.com/goto/dex/odin"
 	"regexp"
 	"strings"
 	"time"
@@ -31,6 +32,8 @@ const (
 )
 
 var nonAlphaNumPattern = regexp.MustCompile("[^a-zA-Z0-9]+")
+
+const sourceKafkaBrokersKey = "SOURCE_KAFKA_BROKERS"
 
 func mapFirehoseEntropyResource(def models.Firehose, prj *shieldv1beta1.Project) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(def.Configs)
@@ -80,7 +83,7 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 	})
 }
 
-func mapEntropyResourceToFirehose(res *entropyv1beta1.Resource, onlyMeta bool) (*models.Firehose, error) {
+func mapEntropyResourceToFirehose(res *entropyv1beta1.Resource, onlyMeta bool, odinAddr string) (*models.Firehose, error) {
 	if res == nil || res.GetSpec() == nil {
 		return nil, errors.ErrInternal.WithCausef("spec is nil")
 	}
@@ -124,6 +127,13 @@ func mapEntropyResourceToFirehose(res *entropyv1beta1.Resource, onlyMeta bool) (
 		if modConf.StopTime != nil {
 			stopTime = strfmt.DateTime(*modConf.StopTime)
 		}
+
+		streamURN := res.GetProject() + streamName
+		sourceKafkaBroker, err := odin.GetOdinStream(odinAddr, streamURN)
+		if err != nil {
+			return nil, err
+		}
+		modConf.EnvVariables[sourceKafkaBrokersKey] = sourceKafkaBroker
 
 		firehoseDef.Configs = &models.FirehoseConfig{
 			Image:        modConf.ChartValues.ImageTag,
