@@ -2,6 +2,7 @@ package firehose
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -129,7 +130,7 @@ func mapEntropyResourceToFirehose(ctx context.Context, res *entropyv1beta1.Resou
 			stopTime = strfmt.DateTime(*modConf.StopTime)
 		}
 
-		streamURN := res.GetProject() + streamName
+		streamURN := fmt.Sprintf("%s-%s", res.GetProject(), streamName)
 		sourceKafkaBroker, err := odin.GetOdinStream(ctx, odinAddr, streamURN)
 		if err != nil {
 			return nil, err
