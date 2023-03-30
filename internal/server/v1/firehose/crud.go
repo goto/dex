@@ -84,7 +84,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource(), false, api.OdinAddr)
+	createdFirehose, err := mapEntropyResourceToFirehose(r.Context(), rpcResp.GetResource(), false, api.OdinAddr)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -137,7 +137,7 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 
 	var arr []models.Firehose
 	for _, res := range rpcResp.GetResources() {
-		def, err := mapEntropyResourceToFirehose(res, true, api.OdinAddr)
+		def, err := mapEntropyResourceToFirehose(r.Context(), res, true, api.OdinAddr)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
@@ -199,7 +199,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource(), false, api.OdinAddr)
+	updatedFirehose, err := mapEntropyResourceToFirehose(r.Context(), rpcResp.GetResource(), false, api.OdinAddr)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return

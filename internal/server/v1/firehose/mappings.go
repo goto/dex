@@ -1,7 +1,7 @@
 package firehose
 
 import (
-	"github.com/goto/dex/odin"
+	"context"
 	"regexp"
 	"strings"
 	"time"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/utils"
+	"github.com/goto/dex/odin"
 	"github.com/goto/dex/pkg/errors"
 )
 
@@ -83,7 +84,7 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 	})
 }
 
-func mapEntropyResourceToFirehose(res *entropyv1beta1.Resource, onlyMeta bool, odinAddr string) (*models.Firehose, error) {
+func mapEntropyResourceToFirehose(ctx context.Context, res *entropyv1beta1.Resource, onlyMeta bool, odinAddr string) (*models.Firehose, error) {
 	if res == nil || res.GetSpec() == nil {
 		return nil, errors.ErrInternal.WithCausef("spec is nil")
 	}
@@ -129,7 +130,7 @@ func mapEntropyResourceToFirehose(res *entropyv1beta1.Resource, onlyMeta bool, o
 		}
 
 		streamURN := res.GetProject() + streamName
-		sourceKafkaBroker, err := odin.GetOdinStream(odinAddr, streamURN)
+		sourceKafkaBroker, err := odin.GetOdinStream(ctx, odinAddr, streamURN)
 		if err != nil {
 			return nil, err
 		}

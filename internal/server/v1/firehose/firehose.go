@@ -87,7 +87,7 @@ func (api *firehoseAPI) getFirehose(ctx context.Context, firehoseURN string) (*m
 		return nil, errFirehoseNotFound
 	}
 
-	return mapEntropyResourceToFirehose(resp.GetResource(), false, api.OdinAddr)
+	return mapEntropyResourceToFirehose(ctx, resp.GetResource(), false, api.OdinAddr)
 }
 
 func jsonDiff(left, right []byte) (string, error) {

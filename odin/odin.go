@@ -1,6 +1,7 @@
 package odin
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -33,9 +34,9 @@ type broker struct {
 	Address string `json:"address"`
 }
 
-func GetOdinStream(odinAddr, urn string) (string, error) {
+func GetOdinStream(ctx context.Context, odinAddr, urn string) (string, error) {
 	url := fmt.Sprintf("%s/streams/%s", odinAddr, urn)
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", err
 	}
