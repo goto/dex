@@ -3,7 +3,6 @@ package firehose
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
@@ -66,8 +65,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// resolve stream_name to kafka clusters.
-	streamURN := fmt.Sprintf("%s-%s", prj.GetSlug(), *def.Configs.StreamName)
-	sourceKafkaBroker, err := odin.GetOdinStream(r.Context(), api.OdinAddr, streamURN)
+	sourceKafkaBroker, err := odin.GetOdinStream(r.Context(), api.OdinAddr, *def.Configs.StreamName)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
