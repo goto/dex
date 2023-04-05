@@ -714,7 +714,6 @@ definitions:
       - configs
       - title
       - group
-      - kube_cluster
     properties:
       urn:
         type: string
@@ -727,6 +726,10 @@ definitions:
         type: string
         example: "booking-events-ingester"
         pattern: "^[A-Za-z][\\w-]+[A-Za-z0-9]$"
+      project:
+        type: string
+        example: "g-goto-id"
+        readOnly: true
       created_at:
         type: string
         format: date-time
@@ -744,9 +747,6 @@ definitions:
         type: string
         format: uuid
         example: "e144ea5e-c7d6-48c4-a580-db31cb3389aa"
-      kube_cluster:
-        type: string
-        example: "orn:entropy:kubernetes:sample_project:sample_name"
       configs:
         $ref: "#/definitions/FirehoseConfig"
       state:
@@ -761,6 +761,7 @@ definitions:
     required:
       - stream_name
       - env_vars
+      - kube_cluster
     properties:
       stopped:
         type: boolean
@@ -769,6 +770,9 @@ definitions:
         example: "gotocompany/firehose:0.1.0"
       stream_name:
         type: string
+      kube_cluster:
+        type: string
+        example: "orn:entropy:kubernetes:sample_project:sample_name"
       replicas:
         type: number
         default: 1

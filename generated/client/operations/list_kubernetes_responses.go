@@ -48,7 +48,7 @@ func NewListKubernetesOK() *ListKubernetesOK {
 /*
 ListKubernetesOK describes a response with status code 200, with default header values.
 
-successful operation
+Successful Operation.
 */
 type ListKubernetesOK struct {
 	Payload *models.KubernetesArray
@@ -111,7 +111,7 @@ func NewListKubernetesInternalServerError() *ListKubernetesInternalServerError {
 /*
 ListKubernetesInternalServerError describes a response with status code 500, with default header values.
 
-internal error
+Internal Error
 */
 type ListKubernetesInternalServerError struct {
 	Payload *models.ErrorResponse

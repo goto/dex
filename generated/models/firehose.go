@@ -39,11 +39,6 @@ type Firehose struct {
 	// Format: uuid
 	Group *strfmt.UUID `json:"group"`
 
-	// kube cluster
-	// Example: orn:entropy:kubernetes:sample_project:sample_name
-	// Required: true
-	KubeCluster *string `json:"kube_cluster"`
-
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
 
@@ -51,6 +46,11 @@ type Firehose struct {
 	// Example: booking-events-ingester
 	// Pattern: ^[A-Za-z][\w-]+[A-Za-z0-9]$
 	Name string `json:"name,omitempty"`
+
+	// project
+	// Example: g-goto-id
+	// Read Only: true
+	Project string `json:"project,omitempty"`
 
 	// state
 	State *FirehoseState `json:"state,omitempty"`
@@ -85,10 +85,6 @@ func (m *Firehose) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateGroup(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateKubeCluster(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -159,15 +155,6 @@ func (m *Firehose) validateGroup(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Firehose) validateKubeCluster(formats strfmt.Registry) error {
-
-	if err := validate.Required("kube_cluster", "body", m.KubeCluster); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *Firehose) validateName(formats strfmt.Registry) error {
 	if swag.IsZero(m.Name) { // not required
 		return nil
@@ -232,6 +219,10 @@ func (m *Firehose) ContextValidate(ctx context.Context, formats strfmt.Registry)
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateProject(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateState(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -269,6 +260,15 @@ func (m *Firehose) contextValidateConfigs(ctx context.Context, formats strfmt.Re
 func (m *Firehose) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "created_at", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Firehose) contextValidateProject(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "project", "body", string(m.Project)); err != nil {
 		return err
 	}
 
