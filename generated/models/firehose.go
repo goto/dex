@@ -49,7 +49,6 @@ type Firehose struct {
 
 	// project
 	// Example: g-goto-id
-	// Read Only: true
 	Project string `json:"project,omitempty"`
 
 	// state
@@ -219,10 +218,6 @@ func (m *Firehose) ContextValidate(ctx context.Context, formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateProject(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateState(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -260,15 +255,6 @@ func (m *Firehose) contextValidateConfigs(ctx context.Context, formats strfmt.Re
 func (m *Firehose) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "created_at", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Firehose) contextValidateProject(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "project", "body", string(m.Project)); err != nil {
 		return err
 	}
 
