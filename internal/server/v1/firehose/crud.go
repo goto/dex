@@ -106,7 +106,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource(), nil)
+	createdFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource())
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -186,7 +186,7 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 	sinkTypes := sinkTypeSet(q.Get("sink_type"))
 	var arr []models.Firehose
 	for _, res := range rpcResp.GetResources() {
-		def, err := mapEntropyResourceToFirehose(res, includeEnv)
+		def, err := mapEntropyResourceToFirehose(res)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
@@ -204,6 +204,13 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 		if len(sinkTypes) > 0 && !include {
 			continue
 		}
+
+		// only return selected keys to reduce list response-size.
+		returnEnv := map[string]string{}
+		for _, key := range includeEnv {
+			returnEnv[key] = def.Configs.EnvVars[key]
+		}
+		def.Configs.EnvVars = returnEnv
 
 		arr = append(arr, *def)
 	}
@@ -262,7 +269,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource(), nil)
+	updatedFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource())
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
