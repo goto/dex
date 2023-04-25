@@ -90,7 +90,7 @@ func (svc *Service) GetAlertPolicy(ctx context.Context, projectSlug, resource, r
 	var alertPolicy *Policy
 	alertPolicy, err = svc.getAlertPolicyForResource(ctx, ns.ID, resource)
 	if err != nil {
-		if err == errors.ErrNotFound.WithMsgf(alertPolicyNotFound) {
+		if errors.Is(err, errors.ErrNotFound) {
 			templates, err := svc.ListAlertTemplates(ctx, resourceTag)
 			if err != nil {
 				return nil, err
