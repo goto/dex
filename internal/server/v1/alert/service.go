@@ -81,15 +81,41 @@ func (svc *Service) UpsertAlertPolicy(ctx context.Context, projectSlug string, u
 	return alertPolicy, nil
 }
 
-func (svc *Service) GetAlertPolicy(ctx context.Context, projectSlug string, resource string) (*Policy, error) {
+func (svc *Service) GetAlertPolicy(ctx context.Context, projectSlug, resource, resourceTag string) (*Policy, error) {
 	ns, err := svc.getNamespaceForProject(ctx, projectSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	alertPolicy, err := svc.getAlertPolicyForResource(ctx, ns.ID, resource)
+	var alertPolicy *Policy
+	alertPolicy, err = svc.getAlertPolicyForResource(ctx, ns.ID, resource)
 	if err != nil {
-		return nil, err
+		if err == errors.ErrNotFound.WithMsgf(alertPolicyNotFound) {
+			templates, err := svc.ListAlertTemplates(ctx, resourceTag)
+			if err != nil {
+				return nil, err
+			}
+
+			var rules []Rule
+			for _, template := range templates {
+				rule := Rule{
+					Variables: template.Variables,
+					Enabled:   false,
+					ID:        template.Name,
+					CreatedAt: template.CreatedAt,
+					UpdatedAt: template.UpdatedAt,
+				}
+
+				rules = append(rules, rule)
+			}
+
+			alertPolicy = &Policy{
+				Rules:    rules,
+				Resource: resource,
+			}
+		} else {
+			return nil, err
+		}
 	}
 
 	return alertPolicy, nil
