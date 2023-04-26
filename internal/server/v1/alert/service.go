@@ -101,7 +101,7 @@ func (svc *Service) GetAlertPolicy(ctx context.Context, projectSlug, resource, r
 				rule := Rule{
 					Variables: template.Variables,
 					Enabled:   false,
-					ID:        template.Name,
+					Template:  template.Name,
 					CreatedAt: template.CreatedAt,
 					UpdatedAt: template.UpdatedAt,
 				}
