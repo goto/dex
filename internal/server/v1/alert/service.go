@@ -108,18 +108,17 @@ func (svc *Service) GetAlertPolicy(ctx context.Context, projectSlug, resource, r
 		if alertPolicy != nil {
 			for _, rule := range alertPolicy.Rules {
 				if rule.Template == template.Name {
-					rule.Variables = filterVariables(ctx, rule.Variables)
+					rule.Variables = filterVariables(rule.Variables)
 					rules = append(rules, rule)
 					alertExist = true
 					break
 				}
 			}
-
 		}
 
 		if !alertExist {
 			rule := Rule{
-				Variables: filterVariables(ctx, template.Variables),
+				Variables: filterVariables(template.Variables),
 				Enabled:   false,
 				Template:  template.Name,
 				CreatedAt: template.CreatedAt,
@@ -128,7 +127,6 @@ func (svc *Service) GetAlertPolicy(ctx context.Context, projectSlug, resource, r
 
 			rules = append(rules, rule)
 		}
-
 	}
 
 	alertPolicy = &Policy{
@@ -234,7 +232,7 @@ func (svc *Service) GetProjectDataSource(ctx context.Context, projectSlug string
 	return ns.Name, nil
 }
 
-func filterVariables(ctx context.Context, variables []Variable) []Variable {
+func filterVariables(variables []Variable) []Variable {
 	var allowedVariables []Variable
 	for _, variable := range variables {
 		for _, sirenTemplateVariable := range sirenTemplateVariables {
