@@ -256,6 +256,12 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
+	} else if updates.Configs.DeploymentID != existingFirehose.Configs.DeploymentID {
+		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("deployment_id cannot be updated"))
+		return
+	} else if updates.Configs.KubeCluster != existingFirehose.Configs.KubeCluster {
+		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("kube_cluster cannot be updated"))
+		return
 	}
 
 	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
@@ -263,6 +269,25 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	})
 	if updates.Description != "" {
 		labels[labelDescription] = updates.Description
+	}
+
+	streamURN := fmt.Sprintf("%s-%s", existingFirehose.Project, *updates.Configs.StreamName)
+	if updates.Configs.EnvVars[confStencilURL] == "" {
+		// resolve stencil URL.
+		schema, err := compass.GetTopicSchema(
+			r.Context(),
+			api.Compass,
+			reqCtx.UserID,
+			existingFirehose.Project,
+			streamURN,
+			updates.Configs.EnvVars[confTopicName],
+			strings.Split(updates.Configs.EnvVars[confProtoClassName], ","),
+		)
+		if err != nil {
+			utils.WriteErr(w, err)
+			return
+		}
+		updates.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
 	}
 
 	cfgStruct, err := makeConfigStruct(&updates.Configs)
@@ -304,8 +329,11 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	urn := chi.URLParam(r, pathParamURN)
 	reqCtx := reqctx.From(r.Context())
 
-	var updates firehoseUpdates
-	if err := utils.ReadJSON(r, &updates); err != nil {
+	var updateRequest struct {
+		Description string                       `json:"description"`
+		Configs     models.FirehosePartialConfig `json:"configs"`
+	}
+	if err := utils.ReadJSON(r, &updateRequest); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
@@ -319,30 +347,36 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
 		labelUpdatedBy: reqCtx.UserEmail,
 	})
-	if updates.Description != "" {
-		labels[labelDescription] = updates.Description
+	if updateRequest.Description != "" {
+		labels[labelDescription] = updateRequest.Description
 	}
 
-	streamURN := fmt.Sprintf("%s-%s", existingFirehose.Project, *updates.Configs.StreamName)
-	if updates.Configs.EnvVars[confStencilURL] == "" {
-		// resolve stencil URL.
-		schema, err := compass.GetTopicSchema(
-			r.Context(),
-			api.Compass,
-			reqCtx.UserID,
-			existingFirehose.Project,
-			streamURN,
-			updates.Configs.EnvVars[confTopicName],
-			strings.Split(updates.Configs.EnvVars[confProtoClassName], ","),
-		)
-		if err != nil {
-			utils.WriteErr(w, err)
-			return
-		}
-		updates.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
+	if updateRequest.Configs.StopTime == nil || *updateRequest.Configs.StopTime != (strfmt.DateTime{}) {
+		existingFirehose.Configs.StopTime = updateRequest.Configs.StopTime
 	}
 
-	cfgStruct, err := makeConfigStruct(&updates.Configs)
+	if updateRequest.Configs.Stopped != nil {
+		existingFirehose.Configs.Stopped = *updateRequest.Configs.Stopped
+	}
+
+	if updateRequest.Configs.Image != "" {
+		existingFirehose.Configs.Image = updateRequest.Configs.Image
+	}
+
+	if updateRequest.Configs.StreamName != "" {
+		existingFirehose.Configs.StreamName = &updateRequest.Configs.StreamName
+	}
+
+	if updateRequest.Configs.Replicas > 0 {
+		existingFirehose.Configs.Replicas = updateRequest.Configs.Replicas
+	}
+
+	existingFirehose.Configs.EnvVars = cloneAndMergeMaps(
+		existingFirehose.Configs.EnvVars,
+		updateRequest.Configs.EnvVars,
+	)
+
+	cfgStruct, err := makeConfigStruct(existingFirehose.Configs)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
