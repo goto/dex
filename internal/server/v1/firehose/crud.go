@@ -247,6 +247,9 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	if err := utils.ReadJSON(r, &updates); err != nil {
 		utils.WriteErr(w, err)
 		return
+	} else if err := updates.Configs.Validate(nil); err != nil {
+		utils.WriteErr(w, err)
+		return
 	}
 
 	existingFirehose, err := api.getFirehose(r.Context(), urn)
@@ -260,6 +263,83 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	})
 	if updates.Description != "" {
 		labels[labelDescription] = updates.Description
+	}
+
+	cfgStruct, err := makeConfigStruct(&updates.Configs)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	rpcReq := &entropyv1beta1.UpdateResourceRequest{
+		Urn:    existingFirehose.Urn,
+		Labels: labels,
+		NewSpec: &entropyv1beta1.ResourceSpec{
+			Configs: cfgStruct,
+		},
+	}
+
+	rpcResp, err := api.Entropy.UpdateResource(r.Context(), rpcReq)
+	if err != nil {
+		st := status.Convert(err)
+		if st.Code() == codes.InvalidArgument {
+			utils.WriteErr(w, errors.ErrInvalid.WithCausef(st.Message()))
+		} else if st.Code() == codes.NotFound {
+			utils.WriteErr(w, errFirehoseNotFound.WithCausef(st.Message()))
+		} else {
+			utils.WriteErr(w, err)
+		}
+		return
+	}
+
+	updatedFirehose, err := mapEntropyResourceToFirehose(rpcResp.GetResource())
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, updatedFirehose)
+}
+
+func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Request) {
+	urn := chi.URLParam(r, pathParamURN)
+	reqCtx := reqctx.From(r.Context())
+
+	var updates firehoseUpdates
+	if err := utils.ReadJSON(r, &updates); err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
+		labelUpdatedBy: reqCtx.UserEmail,
+	})
+	if updates.Description != "" {
+		labels[labelDescription] = updates.Description
+	}
+
+	streamURN := fmt.Sprintf("%s-%s", existingFirehose.Project, *updates.Configs.StreamName)
+	if updates.Configs.EnvVars[confStencilURL] == "" {
+		// resolve stencil URL.
+		schema, err := compass.GetTopicSchema(
+			r.Context(),
+			api.Compass,
+			reqCtx.UserID,
+			existingFirehose.Project,
+			streamURN,
+			updates.Configs.EnvVars[confTopicName],
+			strings.Split(updates.Configs.EnvVars[confProtoClassName], ","),
+		)
+		if err != nil {
+			utils.WriteErr(w, err)
+			return
+		}
+		updates.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
 	}
 
 	cfgStruct, err := makeConfigStruct(&updates.Configs)
