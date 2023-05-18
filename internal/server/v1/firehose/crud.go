@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
@@ -329,61 +330,73 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	urn := chi.URLParam(r, pathParamURN)
 	reqCtx := reqctx.From(r.Context())
 
-	var updateRequest struct {
-		Description string                       `json:"description"`
-		Configs     models.FirehosePartialConfig `json:"configs"`
-	}
-	if err := utils.ReadJSON(r, &updateRequest); err != nil {
-		utils.WriteErr(w, err)
-		return
-	}
-
-	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	existing, err := api.getFirehose(r.Context(), urn)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 
-	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
+	var req struct {
+		Description string                       `json:"description"`
+		Configs     models.FirehosePartialConfig `json:"configs"`
+	}
+	if err := utils.ReadJSON(r, &req); err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	labels := cloneAndMergeMaps(existing.Labels, map[string]string{
 		labelUpdatedBy: reqCtx.UserEmail,
 	})
-	if updateRequest.Description != "" {
-		labels[labelDescription] = updateRequest.Description
+	if req.Description != "" {
+		labels[labelDescription] = req.Description
 	}
 
-	if updateRequest.Configs.StopTime == nil || *updateRequest.Configs.StopTime != (strfmt.DateTime{}) {
-		existingFirehose.Configs.StopTime = updateRequest.Configs.StopTime
+	if req.Configs.Stopped != nil {
+		existing.Configs.Stopped = *req.Configs.Stopped
 	}
 
-	if updateRequest.Configs.Stopped != nil {
-		existingFirehose.Configs.Stopped = *updateRequest.Configs.Stopped
+	if req.Configs.Image != "" {
+		existing.Configs.Image = req.Configs.Image
 	}
 
-	if updateRequest.Configs.Image != "" {
-		existingFirehose.Configs.Image = updateRequest.Configs.Image
+	if req.Configs.StreamName != "" {
+		existing.Configs.StreamName = &req.Configs.StreamName
 	}
 
-	if updateRequest.Configs.StreamName != "" {
-		existingFirehose.Configs.StreamName = &updateRequest.Configs.StreamName
+	if req.Configs.Replicas > 0 {
+		existing.Configs.Replicas = req.Configs.Replicas
 	}
 
-	if updateRequest.Configs.Replicas > 0 {
-		existingFirehose.Configs.Replicas = updateRequest.Configs.Replicas
+	if req.Configs.StopTime != nil {
+		if *req.Configs.StopTime == "" {
+			existing.Configs.StopTime = nil
+		} else {
+			t, err := time.Parse(time.RFC3339, *req.Configs.StopTime)
+			if err != nil {
+				utils.WriteErr(w, errors.ErrInvalid.
+					WithMsgf("stop_time must be valid RFC3339 timestamp").
+					WithCausef(err.Error()))
+				return
+			}
+			dt := strfmt.DateTime(t)
+			existing.Configs.StopTime = &dt
+		}
 	}
 
-	existingFirehose.Configs.EnvVars = cloneAndMergeMaps(
-		existingFirehose.Configs.EnvVars,
-		updateRequest.Configs.EnvVars,
+	existing.Configs.EnvVars = cloneAndMergeMaps(
+		existing.Configs.EnvVars,
+		req.Configs.EnvVars,
 	)
 
-	cfgStruct, err := makeConfigStruct(existingFirehose.Configs)
+	cfgStruct, err := makeConfigStruct(existing.Configs)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 
 	rpcReq := &entropyv1beta1.UpdateResourceRequest{
-		Urn:    existingFirehose.Urn,
+		Urn:    existing.Urn,
 		Labels: labels,
 		NewSpec: &entropyv1beta1.ResourceSpec{
 			Configs: cfgStruct,

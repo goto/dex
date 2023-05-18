@@ -8,10 +8,8 @@ package models
 import (
 	"context"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // FirehosePartialConfig firehose partial config
@@ -29,12 +27,11 @@ type FirehosePartialConfig struct {
 	// Set to a value greater than 0 to update.
 	Replicas float64 `json:"replicas,omitempty"`
 
-	// - Set to null to remove the existing stop time.
-	// - Setting a value will do an update.
 	// - Omit this field to not update.
+	// - Setting it to a non-empty string to update.
+	// - Set it to empty string to remove the current stop_time.
 	//
-	// Format: date-time
-	StopTime *strfmt.DateTime `json:"stop_time,omitempty"`
+	StopTime *string `json:"stop_time,omitempty"`
 
 	// Set to true/false to stop or start the firehose.
 	Stopped *bool `json:"stopped,omitempty"`
@@ -45,27 +42,6 @@ type FirehosePartialConfig struct {
 
 // Validate validates this firehose partial config
 func (m *FirehosePartialConfig) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateStopTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *FirehosePartialConfig) validateStopTime(formats strfmt.Registry) error {
-	if swag.IsZero(m.StopTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("stop_time", "body", "date-time", m.StopTime.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

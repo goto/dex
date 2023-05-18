@@ -761,13 +761,11 @@ definitions:
         description: Set to a value greater than 0 to update.
       stop_time:
         type: string
-        format: date-time
         x-nullable: true
-        default: "0001-01-01T00:00:00Z"
         description: |
-          - Set to null to remove the existing stop time. 
-          - Setting a value will do an update.
           - Omit this field to not update.
+          - Setting it to a non-empty string to update.
+          - Set it to empty string to remove the current stop_time.
       env_vars:
         type: object
         description: If specified, it will be merged with the current configs.
