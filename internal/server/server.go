@@ -1,6 +1,7 @@
 package server
 
 import (
+	optimusv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	"context"
 	"net/http"
 	"time"
@@ -19,6 +20,7 @@ import (
 	alertsv1 "github.com/goto/dex/internal/server/v1/alert"
 	firehosev1 "github.com/goto/dex/internal/server/v1/firehose"
 	kubernetesv1 "github.com/goto/dex/internal/server/v1/kubernetes"
+	optimusv1 "github.com/goto/dex/internal/server/v1/optimus"
 	projectsv1 "github.com/goto/dex/internal/server/v1/project"
 )
 
@@ -30,6 +32,7 @@ func Serve(ctx context.Context, addr string,
 	entropyClient entropyv1beta1.ResourceServiceClient,
 	sirenClient sirenv1beta1.SirenServiceClient,
 	compassClient compassv1beta1grpc.CompassServiceClient,
+	optimusClient optimusv1beta1rpc.JobSpecificationServiceClient,
 	odinAddr string,
 	stencilAddr string,
 ) error {
@@ -53,7 +56,7 @@ func Serve(ctx context.Context, addr string,
 
 	router.Route("/dex", func(r chi.Router) {
 		r.Get("/alertTemplates", alertSvc.HandleListTemplates())
-
+		r.Route("/optimus", optimusv1.Routes(optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))

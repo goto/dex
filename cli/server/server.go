@@ -1,13 +1,13 @@
 package server
 
 import (
-	"context"
-
 	"buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
+	"context"
 	"github.com/MakeNowJust/heredoc"
+	optimusv1beta1 "github.com/goto/optimus/protos/gotocompany/optimus/core/v1beta1"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -94,11 +94,16 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		return err
 	}
 
+	optimusConn, err := grpc.Dial(cfg.Optimus.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,
 		shieldv1beta1.NewShieldServiceClient(shieldConn),
 		entropyv1beta1.NewResourceServiceClient(entropyConn),
 		sirenv1beta1.NewSirenServiceClient(sirenConn),
 		compassv1beta1grpc.NewCompassServiceClient(compassConn),
+		optimusv1beta1.NewJobSpecificationServiceClient(optimusConn),
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
 	)

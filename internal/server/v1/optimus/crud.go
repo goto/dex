@@ -1,47 +1,23 @@
-package project
+package optimus
 
 import (
+	optimusv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 
-	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
-	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
-	"github.com/go-chi/chi/v5"
-
-	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/utils"
 )
 
-func handleGetProject(shield shieldv1beta1rpc.ShieldServiceClient) http.HandlerFunc {
+func handleGetOptimus(client optimusv1beta1rpc.JobSpecificationServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		idOrSlug := chi.URLParam(r, pathParamSlug)
+		jobName := chi.URLParam(r, "job_name")
+		projectName := chi.URLParam(r, "project_name")
 
-		prj, err := GetProject(r.Context(), idOrSlug, shield)
+		res, err := getOptimus(r.Context(), client, jobName, projectName)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, mapShieldProjectToProject(prj))
-	}
-}
-
-func handleListProjects(shield shieldv1beta1rpc.ShieldServiceClient) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		listReq := &shieldv1beta1.ListProjectsRequest{}
-
-		resp, err := shield.ListProjects(r.Context(), listReq)
-		if err != nil {
-			utils.WriteErr(w, err)
-			return
-		}
-
-		projects := utils.ListResponse[models.Project]{Items: []models.Project{}}
-		for _, p := range resp.Projects {
-			if p == nil {
-				continue
-			}
-			projects.Items = append(projects.Items, mapShieldProjectToProject(p))
-		}
-
-		utils.WriteJSON(w, http.StatusOK, projects)
+		utils.WriteJSON(w, http.StatusOK, res)
 	}
 }
