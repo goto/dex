@@ -1,14 +1,15 @@
 package optimus
 
 import (
-	optimusv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
-	"github.com/go-chi/chi/v5"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	optimusv1beta1 "github.com/goto/optimus/protos/gotocompany/optimus/core/v1beta1"
 
 	"github.com/goto/dex/internal/server/utils"
 )
 
-func handleGetOptimus(client optimusv1beta1rpc.JobSpecificationServiceClient) http.HandlerFunc {
+func handleGetOptimus(client optimusv1beta1.JobSpecificationServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		jobName := chi.URLParam(r, "job_name")
 		projectName := chi.URLParam(r, "project_name")

@@ -1,10 +1,11 @@
 package server
 
 import (
-	optimusv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	"context"
 	"net/http"
 	"time"
+
+	optimusv1beta1 "github.com/goto/optimus/protos/gotocompany/optimus/core/v1beta1"
 
 	"buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
@@ -32,7 +33,7 @@ func Serve(ctx context.Context, addr string,
 	entropyClient entropyv1beta1.ResourceServiceClient,
 	sirenClient sirenv1beta1.SirenServiceClient,
 	compassClient compassv1beta1grpc.CompassServiceClient,
-	optimusClient optimusv1beta1rpc.JobSpecificationServiceClient,
+	optimusClient optimusv1beta1.JobSpecificationServiceClient,
 	odinAddr string,
 	stencilAddr string,
 ) error {
