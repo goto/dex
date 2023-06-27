@@ -3,8 +3,8 @@ package optimus
 import (
 	"net/http"
 
+	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	"github.com/go-chi/chi/v5"
-	optimusv1beta1 "github.com/goto/optimus/protos/gotocompany/optimus/core/v1beta1"
 
 	"github.com/goto/dex/internal/server/utils"
 )

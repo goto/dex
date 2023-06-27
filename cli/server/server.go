@@ -5,10 +5,10 @@ import (
 
 	"buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
+	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	"github.com/MakeNowJust/heredoc"
-	optimusv1beta1 "github.com/goto/optimus/protos/gotocompany/optimus/core/v1beta1"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
