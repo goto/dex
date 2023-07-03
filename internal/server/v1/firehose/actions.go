@@ -24,6 +24,8 @@ const (
 	actionResetOffset = "reset"
 )
 
+const logSinkType = "LOG"
+
 func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
 	var reqBody struct {
 		To       string     `json:"to"`
@@ -92,7 +94,8 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, err)
 		return
 	}
-	if existingFirehose.Configs.EnvVars[confSinkType] == "LOG" {
+	// for LOG sinkType, updating stop_time
+	if existingFirehose.Configs.EnvVars[confSinkType] == logSinkType {
 		t := time.Now().Add(logSinkTTL)
 		reqBody.StopTime = &t
 	}

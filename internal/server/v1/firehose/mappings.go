@@ -73,7 +73,6 @@ func makeConfigStruct(cfg *models.FirehoseConfig, createdAt time.Time) (*structp
 	if strings.ToUpper(cfg.EnvVars[confSinkType]) == "LOG" {
 		t := createdAt.Add(logSinkTTL)
 		stopTime = &t
-
 	} else if cfg.StopTime != nil {
 		t := time.Time(*cfg.StopTime)
 		stopTime = &t
