@@ -657,10 +657,13 @@ paths:
         "200":
           description: Successful Operation.
           schema:
-            type: array
-            items: 
-              type: object
-              description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+            type: object
+            properties: 
+              subscriptions:
+                type: array
+                items: 
+                  type: object
+                  description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
         "400":
           description: Validation Error
           schema:
@@ -683,7 +686,10 @@ paths:
           description: Successful Operation.
           schema:
             type: object
-            description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+            properties: 
+              subscription:
+                type: object
+                description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
         "400":
           description: Validation Error
           schema:
@@ -697,6 +703,32 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   /dex/subscriptions/{id}:
+    get:
+      summary: Get existing Siren subscription
+      description: Get an existing Siren's alert subscription.
+      operationId: getAlertSubscription
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+      responses:
+        "200":
+          description: Successful Operation.
+          schema:
+            type: object
+            properties: 
+              subscription:
+                type: object
+                description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+        "404":
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: Internal Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
     put:
       summary: Update existing Siren subscription
       description: Update an existing Siren's alert subscription.
@@ -715,7 +747,10 @@ paths:
           description: Successful Operation.
           schema:
             type: object
-            description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+            properties: 
+              subscription:
+                type: object
+                description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
         "404":
           description: Not Found Error
           schema:

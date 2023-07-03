@@ -3,8 +3,8 @@ module github.com/goto/dex
 go 1.18
 
 require (
-	buf.build/gen/go/gotocompany/proton/grpc/go v1.3.0-20230313074656-d6636a3710b8.1
-	buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.30.0-20230412083631-aad8cd1ac433.1
+	buf.build/gen/go/gotocompany/proton/grpc/go v1.3.0-20230620050157-297942e6ee8b.1
+	buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230620050157-297942e6ee8b.1
 	contrib.go.opencensus.io/exporter/ocagent v0.7.0
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
 	github.com/BurntSushi/toml v1.0.0
@@ -31,13 +31,13 @@ require (
 	golang.org/x/exp v0.0.0-20221111204811-129d8d6c17ab
 	golang.org/x/oauth2 v0.4.0
 	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
-	buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.30.0-20220812150255-45685e052c7e.1 // indirect
-	buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.30.0-20220906183531-bc28b723cd77.1 // indirect
+	buf.build/gen/go/envoyproxy/protoc-gen-validate/protocolbuffers/go v1.31.0-20221025150516-6607b10f00ed.1 // indirect
+	buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.31.0-20221127060915-a1ecdc58eccd.1 // indirect
 	cloud.google.com/go/compute v1.15.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
@@ -171,6 +171,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

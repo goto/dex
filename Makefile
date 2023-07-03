@@ -34,6 +34,10 @@ generate:
 	@mkdir generated
 	@swagger generate client -t generated -f swagger.yml
 
+generate-mocks:
+	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc --name=SirenServiceClient
+	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc --name=ShieldServiceClient
+
 clean: tidy
 	@echo "Cleaning up build directories..."
 	@rm -rf ${COVERAGE_DIR} ${BUILD_DIR}
