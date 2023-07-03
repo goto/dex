@@ -36,7 +36,13 @@ func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urn := chi.URLParam(r, pathParamURN)
-	updatedFirehose, err := api.executeAction(r.Context(), urn, actionResetOffset, reqBody)
+	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionResetOffset, reqBody)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -54,8 +60,15 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ensure that the URN refers to a valid firehose resource.
 	urn := chi.URLParam(r, pathParamURN)
-	updatedFirehose, err := api.executeAction(r.Context(), urn, actionScale, reqBody)
+	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionScale, reqBody)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -64,14 +77,27 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct{}
+	var reqBody struct {
+		StopTime *time.Time `json:"stop_time,omitempty"`
+	}
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 
+	// Ensure that the URN refers to a valid firehose resource.
 	urn := chi.URLParam(r, pathParamURN)
-	updatedFirehose, err := api.executeAction(r.Context(), urn, actionStart, reqBody)
+	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+	if existingFirehose.Configs.EnvVars[confSinkType] == "LOG" {
+		t := time.Now().Add(logSinkTTL)
+		reqBody.StopTime = &t
+	}
+
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, reqBody)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -86,8 +112,15 @@ func (api *firehoseAPI) handleStop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ensure that the URN refers to a valid firehose resource.
 	urn := chi.URLParam(r, pathParamURN)
-	updatedFirehose, err := api.executeAction(r.Context(), urn, actionStop, reqBody)
+	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStop, reqBody)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -108,8 +141,15 @@ func (api *firehoseAPI) handleUpgrade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ensure that the URN refers to a valid firehose resource.
 	urn := chi.URLParam(r, pathParamURN)
-	updatedFirehose, err := api.executeAction(r.Context(), urn, actionUpgrade, reqBody)
+	existingFirehose, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionUpgrade, reqBody)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -117,16 +157,10 @@ func (api *firehoseAPI) handleUpgrade(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, updatedFirehose)
 }
 
-func (api *firehoseAPI) executeAction(ctx context.Context, urn, actionType string, params any) (*models.Firehose, error) {
+func (api *firehoseAPI) executeAction(ctx context.Context, existingFirehose *models.Firehose, actionType string, params any) (*models.Firehose, error) {
 	reqCtx := reqctx.From(ctx)
 
 	paramStruct, err := utils.GoValToProtoStruct(params)
-	if err != nil {
-		return nil, err
-	}
-
-	// Ensure that the URN refers to a valid firehose resource.
-	existingFirehose, err := api.getFirehose(ctx, urn)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +170,7 @@ func (api *firehoseAPI) executeAction(ctx context.Context, urn, actionType strin
 	})
 
 	rpcReq := &entropyv1beta1.ApplyActionRequest{
-		Urn:    urn,
+		Urn:    existingFirehose.Urn,
 		Action: actionType,
 		Params: paramStruct,
 		Labels: labels,
