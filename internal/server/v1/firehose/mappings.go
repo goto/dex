@@ -39,10 +39,12 @@ const (
 	labelDescription = "description"
 )
 
+const logSinkTTL = 24 * time.Hour
+
 var nonAlphaNumPattern = regexp.MustCompile("[^a-zA-Z0-9]+")
 
-func mapFirehoseEntropyResource(def models.Firehose, prj *shieldv1beta1.Project) (*entropyv1beta1.Resource, error) {
-	cfgStruct, err := makeConfigStruct(def.Configs)
+func mapFirehoseEntropyResource(def models.Firehose, prj *shieldv1beta1.Project, createdAt time.Time) (*entropyv1beta1.Resource, error) {
+	cfgStruct, err := makeConfigStruct(def.Configs, createdAt)
 	if err != nil {
 		return nil, err
 	}
@@ -66,9 +68,13 @@ func mapFirehoseEntropyResource(def models.Firehose, prj *shieldv1beta1.Project)
 	}, nil
 }
 
-func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
+func makeConfigStruct(cfg *models.FirehoseConfig, createdAt time.Time) (*structpb.Value, error) {
 	var stopTime *time.Time
-	if cfg.StopTime != nil {
+	if strings.ToUpper(cfg.EnvVars[confSinkType]) == "LOG" {
+		t := createdAt.Add(logSinkTTL)
+		stopTime = &t
+
+	} else if cfg.StopTime != nil {
 		t := time.Time(*cfg.StopTime)
 		stopTime = &t
 	}
