@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/goto/dex/internal/server/v1/alert"
 	"github.com/goto/dex/mocks"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSubscriptionServiceFindSubscription(t *testing.T) {
-	var ctx = context.TODO()
+	ctx := context.TODO()
 
 	t.Run("should return subscription on success", func(t *testing.T) {
 		subscriptionID := 102

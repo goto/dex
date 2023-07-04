@@ -54,10 +54,12 @@ func NewNewAlertSubscriptionParamsWithHTTPClient(client *http.Client) *NewAlertS
 	}
 }
 
-/* NewAlertSubscriptionParams contains all the parameters to send to the API endpoint
-   for the new alert subscription operation.
+/*
+NewAlertSubscriptionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the new alert subscription operation.
+
+	Typically these are written to a http.Request.
 */
 type NewAlertSubscriptionParams struct {
 

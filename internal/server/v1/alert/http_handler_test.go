@@ -8,6 +8,9 @@ import (
 	"testing"
 
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -15,9 +18,6 @@ import (
 	"github.com/goto/dex/mocks"
 	"github.com/goto/dex/pkg/errors"
 	"github.com/goto/dex/tests"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 func TestHandlerFindSubscription(t *testing.T) {
@@ -51,7 +51,7 @@ func TestHandlerFindSubscription(t *testing.T) {
 		handler.FindSubscription(response, request)
 
 		// assert status
-		assert.Equal(t, http.StatusOK, response.Result().StatusCode)
+		assert.Equal(t, http.StatusOK, response.Code)
 
 		// assert response
 		resultJSON := response.Body.Bytes()
@@ -83,7 +83,7 @@ func TestHandlerFindSubscription(t *testing.T) {
 		handler.FindSubscription(response, request)
 
 		// assert status
-		assert.Equal(t, http.StatusNotFound, response.Result().StatusCode)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 
 		// assert body
 		resultJSON := response.Body.Bytes()

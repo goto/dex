@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"strings"
 
+	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
+	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-chi/chi/v5"
+
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
-
-	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
-	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 )
 
 type Handler struct {
@@ -180,7 +180,7 @@ func (h *Handler) DeleteSubscription(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) getSlackChannelByCriticality(ctx context.Context, groupID string, criticality ChannelCriticality) (channelName string, err error) {
+func (h *Handler) getSlackChannelByCriticality(ctx context.Context, groupID string, criticality ChannelCriticality) (string, error) {
 	resp, err := h.shieldClient.GetGroup(ctx, &shieldv1beta1.GetGroupRequest{
 		Id: groupID,
 	})
@@ -194,22 +194,22 @@ func (h *Handler) getSlackChannelByCriticality(ctx context.Context, groupID stri
 	// get slack metadata
 	slack, exists := groupMetadata["slack"]
 	if !exists {
-		return "", errors.New("could not find slack metadata")
+		return "", ErrNoShieldSlackMetadata
 	}
 	slackMap, ok := slack.(map[string]interface{})
 	if !ok {
-		return "", errors.New("invalid slack metadata format")
+		return "", ErrInvalidShieldSlackMetadata
 	}
 
 	// get channel name
 	channelNameAny, exists := slackMap[string(criticality)]
 	if !exists {
-		return "", errors.New("could not find channel with given severity")
+		return "", ErrNoShieldSlackChannel
 	}
-	channelName, ok = channelNameAny.(string)
+	channelName, ok := channelNameAny.(string)
 	if !ok {
-		return "", errors.New("invalid channel name format")
+		return "", ErrInvalidSlackChannelFormat
 	}
 
-	return
+	return channelName, nil
 }

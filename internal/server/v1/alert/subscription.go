@@ -6,10 +6,11 @@ import (
 
 	sirenv1beta1grpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
-	"github.com/goto/dex/generated/models"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
+
+	"github.com/goto/dex/generated/models"
 )
 
 type SubscriptionService struct {
@@ -48,7 +49,7 @@ func (svc *SubscriptionService) GetSubscriptions(ctx context.Context, groupID, r
 		request.Metadata[groupMetadataKey] = groupID
 	}
 	if resourceID != "" {
-		request.Metadata[resourceIdMetadataKey] = resourceID
+		request.Metadata[resourceIDMetadataKey] = resourceID
 	}
 	if resourceType != "" {
 		request.Metadata[resourceTypeMetadataKey] = resourceType
@@ -62,7 +63,7 @@ func (svc *SubscriptionService) GetSubscriptions(ctx context.Context, groupID, r
 	return resp.Subscriptions, nil
 }
 
-func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form models.SubscriptionForm, channelName, userID string) (subscriptionID int, err error) {
+func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form models.SubscriptionForm, channelName, userID string) (int, error) {
 	configuration, err := structpb.NewStruct(map[string]interface{}{
 		"channel_name": channelName,
 	})
@@ -77,7 +78,7 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form mod
 	}
 
 	request := &sirenv1beta1.CreateSubscriptionRequest{
-		Urn:       svc.buildSubscriptionURN(form),
+		Urn:       buildSubscriptionURN(form),
 		Namespace: 1,
 		Receivers: []*sirenv1beta1.ReceiverMetadata{
 			{
@@ -117,7 +118,7 @@ func (svc *SubscriptionService) UpdateSubscription(ctx context.Context, subscrip
 
 	request := &sirenv1beta1.UpdateSubscriptionRequest{
 		Id:        uint64(subscriptionID),
-		Urn:       svc.buildSubscriptionURN(form),
+		Urn:       buildSubscriptionURN(form),
 		Namespace: 1,
 		Receivers: []*sirenv1beta1.ReceiverMetadata{
 			{
@@ -153,6 +154,6 @@ func (svc *SubscriptionService) DeleteSubscription(ctx context.Context, subscrip
 	return nil
 }
 
-func (svc *SubscriptionService) buildSubscriptionURN(form models.SubscriptionForm) string {
+func buildSubscriptionURN(form models.SubscriptionForm) string {
 	return fmt.Sprintf("%s:%s:%s:%s", *form.GroupID, *form.AlertSeverity, *form.ResourceType, *form.ResourceID)
 }
