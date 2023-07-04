@@ -21,6 +21,8 @@ install:
 format:
 	@echo "Running gofumpt..."
 	@gofumpt -l -w .
+	@echo "Running gci..."
+	@gci write --skip-generated -s standard -s default -s "prefix(github.com/goto/dex)" .
 
 lint:
 	@echo "Running lint checks using golangci-lint..."

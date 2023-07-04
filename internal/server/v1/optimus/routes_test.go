@@ -8,15 +8,15 @@ import (
 	"testing"
 
 	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/optimus/core/v1beta1"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/go-chi/chi/v5"
-	"github.com/goto/dex/internal/server/v1/optimus"
-	"github.com/goto/dex/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/goto/dex/internal/server/v1/optimus"
+	"github.com/goto/dex/mocks"
 )
 
 func TestRoutesFindJobSpec(t *testing.T) {

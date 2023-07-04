@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/optimus/core/v1beta1"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/goto/dex/internal/server/v1/optimus"
 	"github.com/goto/dex/mocks"
 	"github.com/goto/dex/pkg/errors"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestServiceFindJobSpec(t *testing.T) {
