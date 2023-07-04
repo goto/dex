@@ -34,6 +34,9 @@ generate:
 	@mkdir generated
 	@swagger generate client -t generated -f swagger.yml
 
+generate-mocks:
+	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc --name=JobSpecificationServiceClient
+
 clean: tidy
 	@echo "Cleaning up build directories..."
 	@rm -rf ${COVERAGE_DIR} ${BUILD_DIR}
@@ -56,4 +59,4 @@ download:
 	@go mod download
 
 setup:
-	@go install github.com/vektra/mockery/v2@v2.10.4
+	@go install github.com/vektra/mockery/v2@v2.30.1
