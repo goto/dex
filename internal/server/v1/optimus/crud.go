@@ -9,7 +9,7 @@ import (
 	"github.com/goto/dex/internal/server/utils"
 )
 
-func handleGetOptimus(client optimusv1beta1.JobSpecificationServiceClient) http.HandlerFunc {
+func handleGetJob(client optimusv1beta1.JobSpecificationServiceClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		jobName := chi.URLParam(r, "job_name")
 		projectName := chi.URLParam(r, "project_name")
@@ -19,6 +19,11 @@ func handleGetOptimus(client optimusv1beta1.JobSpecificationServiceClient) http.
 			utils.WriteErr(w, err)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, res)
+		if len(res.JobSpecificationResponses) > 0 {
+			utils.WriteJSON(w, http.StatusOK, res.JobSpecificationResponses[0])
+		} else {
+			utils.WriteJSON(w, http.StatusNotFound, nil)
+		}
+
 	}
 }

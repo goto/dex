@@ -14,15 +14,14 @@ import (
 
 func Routes(optimus optimusv1beta1grpc.JobSpecificationServiceClient) func(r chi.Router) {
 	return func(r chi.Router) {
-		r.Get("/projects/{project_name}/jobs/{job_name}", handleGetOptimus(optimus))
+		r.Get("/projects/{project_name}/jobs/{job_name}", handleGetJob(optimus))
 	}
 }
 
-func getOptimus(ctx context.Context, optimusClient optimusv1beta1grpc.JobSpecificationServiceClient, jobName, projectName string) (*optimusv1beta1.GetJobSpecificationResponse, error) {
-	res, err := optimusClient.GetJobSpecification(ctx, &optimusv1beta1.GetJobSpecificationRequest{
-		ProjectName:   projectName,
-		JobName:       jobName,
-		NamespaceName: "smoke_test",
+func getOptimus(ctx context.Context, optimusClient optimusv1beta1grpc.JobSpecificationServiceClient, jobName, projectName string) (*optimusv1beta1.GetJobSpecificationsResponse, error) {
+	res, err := optimusClient.GetJobSpecifications(ctx, &optimusv1beta1.GetJobSpecificationsRequest{
+		ProjectName: projectName,
+		JobName:     jobName,
 	})
 	if err != nil {
 		st := status.Convert(err)
