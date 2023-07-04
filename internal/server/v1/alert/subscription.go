@@ -148,6 +148,11 @@ func (svc *SubscriptionService) DeleteSubscription(ctx context.Context, subscrip
 	}
 	_, err := svc.sirenClient.DeleteSubscription(ctx, request)
 	if err != nil {
+		stat := status.Convert(err)
+		if stat.Code() == codes.NotFound {
+			return ErrSubscriptionNotFound
+		}
+
 		return err
 	}
 

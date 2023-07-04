@@ -52,10 +52,12 @@ func NewGetSubscriptionListParamsWithHTTPClient(client *http.Client) *GetSubscri
 	}
 }
 
-/* GetSubscriptionListParams contains all the parameters to send to the API endpoint
-   for the get subscription list operation.
+/*
+GetSubscriptionListParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get subscription list operation.
+
+	Typically these are written to a http.Request.
 */
 type GetSubscriptionListParams struct {
 

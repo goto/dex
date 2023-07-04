@@ -15,11 +15,11 @@ func SubscriptionRoutes(
 
 	return func(r chi.Router) {
 		// CRUD operations
-		r.Get("/", handler.GetSubscriptions)
-		r.Get("/{subscription_id}", handler.FindSubscription)
+		r.Get("/", handler.getSubscriptions)
+		r.Get("/{subscription_id}", handler.findSubscription)
 
-		r.Post("/", handler.CreateSubscription)
-		r.Put("/{subscription_id}", handler.UpdateSubscription)
-		r.Delete("/{subscription_id}", handler.DeleteSubscription)
+		r.Post("/", handler.createSubscription)
+		r.Put("/{subscription_id}", handler.updateSubscription)
+		r.Delete("/{subscription_id}", handler.deleteSubscription)
 	}
 }

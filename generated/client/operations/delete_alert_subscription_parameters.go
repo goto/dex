@@ -52,10 +52,12 @@ func NewDeleteAlertSubscriptionParamsWithHTTPClient(client *http.Client) *Delete
 	}
 }
 
-/* DeleteAlertSubscriptionParams contains all the parameters to send to the API endpoint
-   for the delete alert subscription operation.
+/*
+DeleteAlertSubscriptionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the delete alert subscription operation.
+
+	Typically these are written to a http.Request.
 */
 type DeleteAlertSubscriptionParams struct {
 

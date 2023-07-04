@@ -51,7 +51,8 @@ func NewDeleteAlertSubscriptionOK() *DeleteAlertSubscriptionOK {
 	return &DeleteAlertSubscriptionOK{}
 }
 
-/* DeleteAlertSubscriptionOK describes a response with status code 200, with default header values.
+/*
+	DeleteAlertSubscriptionOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -83,7 +84,8 @@ func NewDeleteAlertSubscriptionNotFound() *DeleteAlertSubscriptionNotFound {
 	return &DeleteAlertSubscriptionNotFound{}
 }
 
-/* DeleteAlertSubscriptionNotFound describes a response with status code 404, with default header values.
+/*
+	DeleteAlertSubscriptionNotFound describes a response with status code 404, with default header values.
 
 Not Found Error
 */
@@ -115,7 +117,8 @@ func NewDeleteAlertSubscriptionInternalServerError() *DeleteAlertSubscriptionInt
 	return &DeleteAlertSubscriptionInternalServerError{}
 }
 
-/* DeleteAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
+/*
+	DeleteAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */

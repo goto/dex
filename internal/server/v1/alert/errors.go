@@ -2,8 +2,10 @@ package alert
 
 import "errors"
 
-var ErrSubscriptionNotFound = errors.New("could not find subscription")
-var ErrNoShieldSlackMetadata = errors.New("could not find slack metadata")
-var ErrInvalidShieldSlackMetadata = errors.New("invalid slack metadata format")
-var ErrNoShieldSlackChannel = errors.New("could not find channel with given severity")
-var ErrInvalidSlackChannelFormat = errors.New("invalid channel name format")
+var (
+	ErrSubscriptionNotFound       = errors.New("could not find subscription")
+	ErrNoShieldSlackMetadata      = errors.New("could not find slack metadata")
+	ErrInvalidShieldSlackMetadata = errors.New("invalid slack metadata format")
+	ErrNoShieldSlackChannel       = errors.New("could not find channel with given severity")
+	ErrInvalidSlackChannelFormat  = errors.New("invalid channel name format")
+)

@@ -29,7 +29,7 @@ func NewHandler(subscriptionService *SubscriptionService, shieldClient shieldv1b
 	}
 }
 
-func (h *Handler) FindSubscription(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) findSubscription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	subscriptionIDStr := chi.URLParam(r, "subscription_id")
@@ -54,7 +54,7 @@ func (h *Handler) FindSubscription(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) GetSubscriptions(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) getSubscriptions(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	groupID := strings.TrimSpace(r.URL.Query().Get("group_id"))
 	resourceID := strings.TrimSpace(r.URL.Query().Get("resource_id"))
@@ -62,10 +62,6 @@ func (h *Handler) GetSubscriptions(w http.ResponseWriter, r *http.Request) {
 
 	if groupID == "" && resourceID == "" {
 		utils.WriteErrMsg(w, http.StatusBadRequest, "requires either groupID or a combination of resource_id and resource_type")
-		return
-	}
-	if groupID == "" && resourceID != "" && resourceType == "" {
-		utils.WriteErrMsg(w, http.StatusBadRequest, "resource_type is required to use resource_id")
 		return
 	}
 
@@ -80,7 +76,7 @@ func (h *Handler) GetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) CreateSubscription(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) createSubscription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
 
@@ -117,7 +113,7 @@ func (h *Handler) CreateSubscription(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) UpdateSubscription(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
 
@@ -160,7 +156,7 @@ func (h *Handler) UpdateSubscription(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) DeleteSubscription(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) deleteSubscription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	subscriptionIDStr := chi.URLParam(r, "subscription_id")
@@ -171,7 +167,12 @@ func (h *Handler) DeleteSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.subscriptionService.DeleteSubscription(ctx, subscriptionID); err != nil {
-		utils.WriteErr(w, err)
+		if errors.Is(err, ErrSubscriptionNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+		} else {
+			utils.WriteErr(w, err)
+		}
+
 		return
 	}
 
