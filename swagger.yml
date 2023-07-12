@@ -698,6 +698,10 @@ paths:
           description: Duplicate subscription
           schema:
             $ref: "#/definitions/ErrorResponse"
+        "422":
+          description: "Missing namespace and slack channel in shield"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
         "500":
           description: Internal Error
           schema:
@@ -751,16 +755,20 @@ paths:
               subscription:
                 type: object
                 description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
-        "404":
-          description: Not Found Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
         "400":
           description: Validation Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+        "404":
+          description: Not Found Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
         "409":
           description: Duplicate subscription
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "422":
+          description: "Missing namespace and slack channel in shield"
           schema:
             $ref: "#/definitions/ErrorResponse"
         "500":
@@ -1161,6 +1169,8 @@ definitions:
         default: firehose
         enum:
           - firehose
+          - dagger
+          - optimus
       group_id:
         type: string
         description: Shield's group id
@@ -1174,8 +1184,8 @@ definitions:
           - CRITICAL
       channel_criticality:
         type: string
-        default: CRITICAL
+        default: critical
         enum:
-          - INFO
-          - WARNING
-          - CRITICAL
+          - info
+          - warning
+          - critical

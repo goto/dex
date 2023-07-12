@@ -1,15 +1,12 @@
 package alert
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
-	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
-	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/goto/dex/generated/models"
@@ -19,13 +16,11 @@ import (
 
 type Handler struct {
 	subscriptionService *SubscriptionService
-	shieldClient        shieldv1beta1rpc.ShieldServiceClient
 }
 
-func NewHandler(subscriptionService *SubscriptionService, shieldClient shieldv1beta1rpc.ShieldServiceClient) *Handler {
+func NewHandler(subscriptionService *SubscriptionService) *Handler {
 	return &Handler{
 		subscriptionService: subscriptionService,
-		shieldClient:        shieldClient,
 	}
 }
 
@@ -80,25 +75,40 @@ func (h *Handler) createSubscription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
 
-	var form models.SubscriptionForm
-	if err := utils.ReadJSON(r, &form); err != nil {
-		utils.WriteErr(w, err)
-		return
-	}
-	if err := form.Validate(nil); err != nil {
-		utils.WriteErr(w, err)
+	userEmail := reqCtx.UserEmail
+	if userEmail == "" {
+		utils.WriteErrMsg(w, http.StatusUnauthorized, "identity headers are required")
 		return
 	}
 
-	channelName, err := h.getSlackChannelByCriticality(ctx, *form.GroupID, ChannelCriticality(*form.ChannelCriticality))
-	if err != nil {
-		utils.WriteErr(w, fmt.Errorf("error getting slack channel: %w", err))
+	var requestPayload models.SubscriptionForm
+	if err := utils.ReadJSON(r, &requestPayload); err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+	if err := requestPayload.Validate(nil); err != nil {
+		utils.WriteErrMsg(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	subscriptionID, err := h.subscriptionService.CreateSubscription(ctx, form, channelName, reqCtx.UserEmail)
+	form := SubscriptionForm{
+		UserID:             userEmail,
+		ChannelCriticality: ChannelCriticality(*requestPayload.ChannelCriticality),
+		AlertSeverity:      AlertSeverity(*requestPayload.AlertSeverity),
+		ProjectID:          *requestPayload.ProjectID,
+		GroupID:            *requestPayload.GroupID,
+		ResourceID:         *requestPayload.ResourceID,
+		ResourceType:       *requestPayload.ResourceType,
+	}
+	subscriptionID, err := h.subscriptionService.CreateSubscription(ctx, form)
 	if err != nil {
-		utils.WriteErr(w, err)
+		if errors.Is(err, ErrNoShieldSirenNamespace) {
+			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
+		} else if errors.Is(err, ErrNoShieldSlackChannel) {
+			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
+		} else {
+			utils.WriteErr(w, err)
+		}
 		return
 	}
 
@@ -117,6 +127,12 @@ func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
 
+	userEmail := reqCtx.UserEmail
+	if userEmail == "" {
+		utils.WriteErrMsg(w, http.StatusUnauthorized, "identity headers are required")
+		return
+	}
+
 	subscriptionIDStr := chi.URLParam(r, "subscription_id")
 	subscriptionID, err := strconv.Atoi(subscriptionIDStr)
 	if err != nil {
@@ -124,24 +140,34 @@ func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var form models.SubscriptionForm
-	if err := utils.ReadJSON(r, &form); err != nil {
+	var requestPayload models.SubscriptionForm
+	if err := utils.ReadJSON(r, &requestPayload); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
-	if err := form.Validate(nil); err != nil {
-		utils.WriteErr(w, err)
-		return
-	}
-
-	channelName, err := h.getSlackChannelByCriticality(ctx, *form.GroupID, ChannelCriticality(*form.ChannelCriticality))
-	if err != nil {
-		utils.WriteErr(w, fmt.Errorf("error getting slack channel: %w", err))
+	if err := requestPayload.Validate(nil); err != nil {
+		utils.WriteErrMsg(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := h.subscriptionService.UpdateSubscription(ctx, subscriptionID, form, channelName, reqCtx.UserEmail); err != nil {
-		utils.WriteErr(w, err)
+	form := SubscriptionForm{
+		UserID:             reqCtx.UserEmail,
+		ChannelCriticality: ChannelCriticality(*requestPayload.ChannelCriticality),
+		AlertSeverity:      AlertSeverity(*requestPayload.AlertSeverity),
+		ProjectID:          *requestPayload.ProjectID,
+		GroupID:            *requestPayload.GroupID,
+		ResourceID:         *requestPayload.ResourceID,
+		ResourceType:       *requestPayload.ResourceType,
+	}
+
+	if err := h.subscriptionService.UpdateSubscription(ctx, subscriptionID, form); err != nil {
+		if errors.Is(err, ErrNoShieldSirenNamespace) {
+			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
+		} else if errors.Is(err, ErrNoShieldSlackChannel) {
+			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
+		} else {
+			utils.WriteErr(w, err)
+		}
 		return
 	}
 
@@ -179,38 +205,4 @@ func (h *Handler) deleteSubscription(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message": "subscription removed",
 	})
-}
-
-func (h *Handler) getSlackChannelByCriticality(ctx context.Context, groupID string, criticality ChannelCriticality) (string, error) {
-	resp, err := h.shieldClient.GetGroup(ctx, &shieldv1beta1.GetGroupRequest{
-		Id: groupID,
-	})
-	if err != nil {
-		return "", fmt.Errorf("error getting a group: %w", err)
-	}
-
-	group := resp.GetGroup()
-	groupMetadata := group.GetMetadata().AsMap()
-
-	// get slack metadata
-	slack, exists := groupMetadata["slack"]
-	if !exists {
-		return "", ErrNoShieldSlackMetadata
-	}
-	slackMap, ok := slack.(map[string]interface{})
-	if !ok {
-		return "", ErrInvalidShieldSlackMetadata
-	}
-
-	// get channel name
-	channelNameAny, exists := slackMap[string(criticality)]
-	if !exists {
-		return "", ErrNoShieldSlackChannel
-	}
-	channelName, ok := channelNameAny.(string)
-	if !ok {
-		return "", ErrInvalidSlackChannelFormat
-	}
-
-	return channelName, nil
 }

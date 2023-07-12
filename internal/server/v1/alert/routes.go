@@ -10,8 +10,8 @@ func SubscriptionRoutes(
 	siren sirenv1beta1rpc.SirenServiceClient,
 	shield shieldv1beta1rpc.ShieldServiceClient,
 ) func(chi.Router) {
-	subSrv := NewSubscriptionService(siren)
-	handler := NewHandler(subSrv, shield)
+	subSrv := NewSubscriptionService(siren, shield)
+	handler := NewHandler(subSrv)
 
 	return func(r chi.Router) {
 		// CRUD operations

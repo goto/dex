@@ -27,7 +27,7 @@ type SubscriptionForm struct {
 
 	// channel criticality
 	// Required: true
-	// Enum: [INFO WARNING CRITICAL]
+	// Enum: [info warning critical]
 	ChannelCriticality *string `json:"channel_criticality"`
 
 	// Shield's group id
@@ -46,7 +46,7 @@ type SubscriptionForm struct {
 
 	// resource type
 	// Required: true
-	// Enum: [firehose]
+	// Enum: [firehose dagger optimus]
 	ResourceType *string `json:"resource_type"`
 }
 
@@ -134,7 +134,7 @@ var subscriptionFormTypeChannelCriticalityPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["INFO","WARNING","CRITICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["info","warning","critical"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -144,14 +144,14 @@ func init() {
 
 const (
 
-	// SubscriptionFormChannelCriticalityINFO captures enum value "INFO"
-	SubscriptionFormChannelCriticalityINFO string = "INFO"
+	// SubscriptionFormChannelCriticalityInfo captures enum value "info"
+	SubscriptionFormChannelCriticalityInfo string = "info"
 
-	// SubscriptionFormChannelCriticalityWARNING captures enum value "WARNING"
-	SubscriptionFormChannelCriticalityWARNING string = "WARNING"
+	// SubscriptionFormChannelCriticalityWarning captures enum value "warning"
+	SubscriptionFormChannelCriticalityWarning string = "warning"
 
-	// SubscriptionFormChannelCriticalityCRITICAL captures enum value "CRITICAL"
-	SubscriptionFormChannelCriticalityCRITICAL string = "CRITICAL"
+	// SubscriptionFormChannelCriticalityCritical captures enum value "critical"
+	SubscriptionFormChannelCriticalityCritical string = "critical"
 )
 
 // prop value enum
@@ -207,7 +207,7 @@ var subscriptionFormTypeResourceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["firehose"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["firehose","dagger","optimus"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -219,6 +219,12 @@ const (
 
 	// SubscriptionFormResourceTypeFirehose captures enum value "firehose"
 	SubscriptionFormResourceTypeFirehose string = "firehose"
+
+	// SubscriptionFormResourceTypeDagger captures enum value "dagger"
+	SubscriptionFormResourceTypeDagger string = "dagger"
+
+	// SubscriptionFormResourceTypeOptimus captures enum value "optimus"
+	SubscriptionFormResourceTypeOptimus string = "optimus"
 )
 
 // prop value enum

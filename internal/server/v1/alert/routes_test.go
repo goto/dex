@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
@@ -15,9 +17,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/v1/alert"
 	"github.com/goto/dex/mocks"
 	"github.com/goto/dex/pkg/errors"
+)
+
+const (
+	emailHeaderKey = "X-Auth-Email"
 )
 
 func TestRoutesFindSubscription(t *testing.T) {
@@ -45,7 +52,7 @@ func TestRoutesFindSubscription(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -72,7 +79,7 @@ func TestRoutesFindSubscription(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -99,7 +106,7 @@ func TestRoutesFindSubscription(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -153,7 +160,7 @@ func TestRoutesGetSubscriptions(t *testing.T) {
 			fmt.Sprintf("/?group_id=%s&resource_id=%s&resource_type=%s", groupID, resourceID, resourceType),
 			nil,
 		)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -175,7 +182,7 @@ func TestRoutesGetSubscriptions(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, "/", nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -202,12 +209,526 @@ func TestRoutesGetSubscriptions(t *testing.T) {
 			fmt.Sprintf("/?group_id=%s&resource_id=%s&resource_type=%s", groupID, resourceID, resourceType),
 			nil,
 		)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
 		// assert status
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
+
+func TestRoutesCreateSubscriptions(t *testing.T) {
+	var (
+		method             = http.MethodPost
+		channelCriticality = alert.ChannelCriticalityInfo
+		projectID          = "5dab4194-9516-421a-aafe-72fd3d96ec56"
+		groupID            = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		userEmail          = "jane.doe@example.com"
+		validJSONPayload   = fmt.Sprintf(`{
+			"project_id": "%s",
+      "resource_id": "test-pipeline-job",
+      "resource_type": "optimus",
+      "group_id": "%s",
+      "alert_severity": "CRITICAL",
+      "channel_criticality": "%s"
+		}`, projectID, groupID, channelCriticality)
+	)
+
+	t.Run("should return 401 on empty user header", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+	})
+
+	t.Run("should return 400 on validation error", func(t *testing.T) {
+		tests := []struct {
+			jsonString string
+		}{
+			{jsonString: ``},
+			{jsonString: `{}`},
+			{jsonString: `{
+				"project_id": "",
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "critical",
+				"channel_criticality": "info"
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": "INFO"
+			}`},
+		}
+
+		for i, test := range tests {
+			t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
+				requestBody := strings.NewReader(test.jsonString)
+
+				shieldClient := new(mocks.ShieldServiceClient)
+				sirenClient := new(mocks.SirenServiceClient)
+
+				response := httptest.NewRecorder()
+				request := httptest.NewRequest(method, "/", requestBody)
+				request.Header.Set(emailHeaderKey, userEmail)
+				router := getRouter()
+				alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+				router.ServeHTTP(response, request)
+
+				// assert status
+				assert.Equal(t, http.StatusBadRequest, response.Code)
+			})
+		}
+	})
+
+	t.Run("should return 422 on namespace could not be found on shield project", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldProject := &shieldv1beta1.Project{
+			Slug:     "test-project",
+			Metadata: nil,
+		}
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 422 on channel name could not be found on shield group", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldProject := &shieldv1beta1.Project{
+			Slug: "test-project",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace": 3,
+			}),
+		}
+		shieldGroup := &shieldv1beta1.Group{
+			Slug:     "test-group",
+			Metadata: nil,
+		}
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 201 on success", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		channelName := "test-channel"
+		sirenNamespace := 13
+		subscriptionID := 200
+
+		shieldProject := &shieldv1beta1.Project{
+			Slug: "test-project",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace": sirenNamespace,
+			}),
+		}
+		shieldGroup := &shieldv1beta1.Group{
+			Slug: "test-group",
+			Metadata: newStruct(t, map[string]interface{}{
+				"alerting": map[string]interface{}{
+					string(channelCriticality): map[string]interface{}{
+						"slack": map[string]interface{}{
+							"channel": channelName,
+						},
+					},
+				},
+			}),
+		}
+
+		expectedSirenPayload := &sirenv1beta1.CreateSubscriptionRequest{
+			Urn: fmt.Sprintf(
+				"%s:%s:%s:%s",
+				groupID, "CRITICAL", "optimus", "test-pipeline-job",
+			),
+			Namespace: uint64(sirenNamespace),
+			Receivers: []*sirenv1beta1.ReceiverMetadata{
+				{
+					Id: 1,
+					Configuration: newStruct(t, map[string]interface{}{
+						"channel_name": channelName,
+					}),
+				},
+			},
+			Match: map[string]string{
+				"severity":   "CRITICAL",
+				"identifier": "test-pipeline-job",
+			},
+			Metadata: newStruct(t, map[string]interface{}{
+				"group_id":            groupID,
+				"group_slug":          shieldGroup.Slug,
+				"resource_type":       "optimus",
+				"resource_id":         "test-pipeline-job",
+				"channel_criticality": string(channelCriticality),
+				"project_id":          projectID,
+				"project_slug":        shieldProject.Slug,
+			}),
+			CreatedBy: userEmail,
+		}
+		sirenSubscription := &sirenv1beta1.Subscription{
+			Namespace: uint64(sirenNamespace),
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.
+			On("CreateSubscription", mock.Anything, expectedSirenPayload).
+			Return(&sirenv1beta1.CreateSubscriptionResponse{Id: uint64(subscriptionID)}, nil)
+		sirenClient.
+			On("GetSubscription", mock.Anything, &sirenv1beta1.GetSubscriptionRequest{
+				Id: uint64(subscriptionID),
+			}).
+			Return(&sirenv1beta1.GetSubscriptionResponse{
+				Subscription: sirenSubscription,
+			}, nil)
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, http.StatusCreated, response.Code)
+		resultJSON := response.Body.Bytes()
+		expectedJSON, err := json.Marshal(map[string]interface{}{
+			"subscription": sirenSubscription,
+		})
+		require.NoError(t, err)
+		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
+	})
+}
+
+func TestRoutesUpdateSubscriptions(t *testing.T) {
+	var (
+		method             = http.MethodPut
+		subscriptionID     = 305
+		urlPath            = fmt.Sprintf("/%d", subscriptionID)
+		channelCriticality = alert.ChannelCriticalityInfo
+		projectID          = "5dab4194-9516-421a-aafe-72fd3d96ec56"
+		groupID            = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		userEmail          = "jane.doe@example.com"
+		validJSONPayload   = fmt.Sprintf(`{
+			"project_id": "%s",
+      "resource_id": "test-pipeline-job",
+      "resource_type": "optimus",
+      "group_id": "%s",
+      "alert_severity": "CRITICAL",
+      "channel_criticality": "%s"
+		}`, projectID, groupID, channelCriticality)
+	)
+
+	t.Run("should return 401 on empty user header", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+	})
+
+	t.Run("should return 400 on validation error", func(t *testing.T) {
+		tests := []struct {
+			jsonString string
+		}{
+			{jsonString: ``},
+			{jsonString: `{}`},
+			{jsonString: `{
+				"project_id": "",
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "critical",
+				"channel_criticality": "info"
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": "INFO"
+			}`},
+		}
+
+		for i, test := range tests {
+			t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
+				requestBody := strings.NewReader(test.jsonString)
+
+				shieldClient := new(mocks.ShieldServiceClient)
+				sirenClient := new(mocks.SirenServiceClient)
+
+				response := httptest.NewRecorder()
+				request := httptest.NewRequest(method, urlPath, requestBody)
+				request.Header.Set(emailHeaderKey, userEmail)
+				router := getRouter()
+				alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+				router.ServeHTTP(response, request)
+
+				// assert status
+				assert.Equal(t, http.StatusBadRequest, response.Code)
+			})
+		}
+	})
+
+	t.Run("should return 422 on namespace could not be found on shield project", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldProject := &shieldv1beta1.Project{
+			Slug:     "test-project",
+			Metadata: nil,
+		}
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 422 on channel name could not be found on shield group", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldProject := &shieldv1beta1.Project{
+			Slug: "test-project",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace": 3,
+			}),
+		}
+		shieldGroup := &shieldv1beta1.Group{
+			Slug:     "test-group",
+			Metadata: nil,
+		}
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 200 on success", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		channelName := "test-channel"
+		sirenNamespace := 13
+
+		shieldProject := &shieldv1beta1.Project{
+			Slug: "test-project",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace": sirenNamespace,
+			}),
+		}
+		shieldGroup := &shieldv1beta1.Group{
+			Slug: "test-group",
+			Metadata: newStruct(t, map[string]interface{}{
+				"alerting": map[string]interface{}{
+					string(channelCriticality): map[string]interface{}{
+						"slack": map[string]interface{}{
+							"channel": channelName,
+						},
+					},
+				},
+			}),
+		}
+
+		expectedSirenPayload := &sirenv1beta1.UpdateSubscriptionRequest{
+			Id: uint64(subscriptionID),
+			Urn: fmt.Sprintf(
+				"%s:%s:%s:%s",
+				groupID, "CRITICAL", "optimus", "test-pipeline-job",
+			),
+			Namespace: uint64(sirenNamespace),
+			Receivers: []*sirenv1beta1.ReceiverMetadata{
+				{
+					Id: 1,
+					Configuration: newStruct(t, map[string]interface{}{
+						"channel_name": channelName,
+					}),
+				},
+			},
+			Match: map[string]string{
+				"severity":   "CRITICAL",
+				"identifier": "test-pipeline-job",
+			},
+			Metadata: newStruct(t, map[string]interface{}{
+				"group_id":            groupID,
+				"group_slug":          shieldGroup.Slug,
+				"resource_type":       "optimus",
+				"resource_id":         "test-pipeline-job",
+				"channel_criticality": string(channelCriticality),
+				"project_id":          projectID,
+				"project_slug":        shieldProject.Slug,
+			}),
+			UpdatedBy: userEmail,
+		}
+		sirenSubscription := &sirenv1beta1.Subscription{
+			Namespace: uint64(sirenNamespace),
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.
+			On("UpdateSubscription", mock.Anything, expectedSirenPayload).
+			Return(nil, nil)
+		sirenClient.
+			On("GetSubscription", mock.Anything, &sirenv1beta1.GetSubscriptionRequest{
+				Id: uint64(subscriptionID),
+			}).
+			Return(&sirenv1beta1.GetSubscriptionResponse{
+				Subscription: sirenSubscription,
+			}, nil)
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, http.StatusOK, response.Code)
+		resultJSON := response.Body.Bytes()
+		expectedJSON, err := json.Marshal(map[string]interface{}{
+			"subscription": sirenSubscription,
+		})
+		require.NoError(t, err)
+		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
 	})
 }
 
@@ -225,7 +746,7 @@ func TestRoutesDeleteSubscription(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -244,7 +765,7 @@ func TestRoutesDeleteSubscription(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -271,7 +792,7 @@ func TestRoutesDeleteSubscription(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		router := chi.NewRouter()
+		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
 
@@ -279,4 +800,11 @@ func TestRoutesDeleteSubscription(t *testing.T) {
 		expectedStatusCode := http.StatusInternalServerError
 		assert.Equal(t, expectedStatusCode, response.Code)
 	})
+}
+
+func getRouter() *chi.Mux {
+	router := chi.NewRouter()
+	router.Use(reqctx.WithRequestCtx())
+
+	return router
 }
