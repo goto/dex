@@ -151,7 +151,7 @@ func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := SubscriptionForm{
-		UserID:             reqCtx.UserEmail,
+		UserID:             userEmail,
 		ChannelCriticality: ChannelCriticality(*requestPayload.ChannelCriticality),
 		AlertSeverity:      AlertSeverity(*requestPayload.AlertSeverity),
 		ProjectID:          *requestPayload.ProjectID,

@@ -625,6 +625,8 @@ func TestSubscriptionServiceDeleteSubscription(t *testing.T) {
 }
 
 func newStruct(t *testing.T, d map[string]interface{}) *structpb.Struct {
+	t.Helper()
+
 	strct, err := structpb.NewStruct(d)
 	require.NoError(t, err)
 	return strct

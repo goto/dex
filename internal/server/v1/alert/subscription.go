@@ -199,7 +199,7 @@ func (svc *SubscriptionService) setupForm(
 	return project, group, namespaceID, nil
 }
 
-func (svc *SubscriptionService) getSlackChannelByCriticality(group *shieldv1beta1.Group, criticality ChannelCriticality) (string, error) {
+func (*SubscriptionService) getSlackChannelByCriticality(group *shieldv1beta1.Group, criticality ChannelCriticality) (string, error) {
 	groupMetadata := group.GetMetadata().AsMap()
 
 	valueMap := groupMetadata
@@ -251,7 +251,7 @@ func (svc *SubscriptionService) getProject(ctx context.Context, projectID string
 	return resp.Project, nil
 }
 
-func (svc *SubscriptionService) getSirenNamespaceID(project *shieldv1beta1.Project) (uint64, error) {
+func (*SubscriptionService) getSirenNamespaceID(project *shieldv1beta1.Project) (uint64, error) {
 	projectMetadata := project.GetMetadata().AsMap()
 
 	namespaceIDAny, exists := projectMetadata["siren_namespace"]
