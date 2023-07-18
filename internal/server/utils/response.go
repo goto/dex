@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
@@ -16,6 +17,9 @@ type ListResponse[T any] struct {
 
 func ReadJSON(r *http.Request, into any) error {
 	if err := json.NewDecoder(r.Body).Decode(into); err != nil {
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
 		return errors.ErrInvalid.
 			WithMsgf("json body is not valid").WithCausef(err.Error())
 	}

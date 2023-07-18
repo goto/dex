@@ -64,7 +64,10 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct{}
+	var reqBody struct {
+		StopTime *time.Time `json:"stop_time"`
+	}
+
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
 		return
