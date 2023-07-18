@@ -94,7 +94,7 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		req.StopTime = &t
 	}
 
-	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, reqBody)
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, req)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
