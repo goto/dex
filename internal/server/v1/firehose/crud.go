@@ -105,7 +105,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		def.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
 	}
 
-	res, err := mapFirehoseEntropyResource(def, prj, time.Now())
+	res, err := mapFirehoseEntropyResource(def, prj)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -292,7 +292,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		updates.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
 	}
 
-	cfgStruct, err := makeConfigStruct(&updates.Configs, time.Time(existingFirehose.CreatedAt))
+	cfgStruct, err := makeConfigStruct(&updates.Configs)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -390,7 +390,7 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		req.Configs.EnvVars,
 	)
 
-	cfgStruct, err := makeConfigStruct(existing.Configs, time.Time(existing.CreatedAt))
+	cfgStruct, err := makeConfigStruct(existing.Configs)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return

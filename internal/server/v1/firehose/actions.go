@@ -24,8 +24,6 @@ const (
 	actionResetOffset = "reset"
 )
 
-const logSinkType = "LOG"
-
 func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
 	var reqBody struct {
 		To       string     `json:"to"`
@@ -79,12 +77,8 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct {
+	var req struct {
 		StopTime *time.Time `json:"stop_time,omitempty"`
-	}
-	if err := utils.ReadJSON(r, &reqBody); err != nil {
-		utils.WriteErr(w, err)
-		return
 	}
 
 	// Ensure that the URN refers to a valid firehose resource.
@@ -97,7 +91,7 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[confSinkType] == logSinkType {
 		t := time.Now().Add(logSinkTTL)
-		reqBody.StopTime = &t
+		req.StopTime = &t
 	}
 
 	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, reqBody)
