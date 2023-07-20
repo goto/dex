@@ -77,10 +77,6 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
-	var newStopTime struct {
-		StopTime *time.Time `json:"stop_time,omitempty"`
-	}
-
 	// Ensure that the URN refers to a valid firehose resource.
 	urn := chi.URLParam(r, pathParamURN)
 	existingFirehose, err := api.getFirehose(r.Context(), urn)
@@ -88,13 +84,18 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, err)
 		return
 	}
+
+	params := struct {
+		StopTime *time.Time
+	}{}
+
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[confSinkType] == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)
-		newStopTime.StopTime = &t
+		params.StopTime = &t
 	}
 
-	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, newStopTime)
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, params)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
