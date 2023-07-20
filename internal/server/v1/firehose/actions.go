@@ -77,7 +77,7 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
-	var req struct {
+	var newStopTime struct {
 		StopTime *time.Time `json:"stop_time,omitempty"`
 	}
 
@@ -90,11 +90,11 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 	}
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[confSinkType] == logSinkType {
-		t := time.Now().Add(logSinkTTL)
-		req.StopTime = &t
+		t := time.Now().UTC().Add(logSinkTTL)
+		newStopTime.StopTime = &t
 	}
 
-	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, req)
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, newStopTime)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
