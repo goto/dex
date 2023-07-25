@@ -7,6 +7,7 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
+	entropyFirehose "github.com/goto/entropy/modules/firehose"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -54,7 +55,6 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 	var reqBody struct {
 		Replicas int `json:"replicas"`
 	}
-
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -68,7 +68,10 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionScale, reqBody)
+	params := entropyFirehose.ScaleParams{
+		Replicas: reqBody.Replicas,
+	}
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionScale, params)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -85,10 +88,7 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := struct {
-		StopTime *time.Time `json:"stop_time"`
-	}{}
-
+	params := entropyFirehose.StartParams{}
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[confSinkType] == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)
