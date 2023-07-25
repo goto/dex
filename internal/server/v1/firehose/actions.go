@@ -124,7 +124,7 @@ func (api *firehoseAPI) handleStop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.stopAlerts(r.Context(), *updatedFirehose, projectSlugFromURN(urn)); err != nil {
+	if err := api.stopAlerts(r.Context(), updatedFirehose, projectSlugFromURN(urn)); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
@@ -155,12 +155,12 @@ func (api *firehoseAPI) handleUpgrade(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, updatedFirehose)
 }
 
-func (api *firehoseAPI) executeAction(ctx context.Context, existingFirehose *models.Firehose, actionType string, params any) (*models.Firehose, error) {
+func (api *firehoseAPI) executeAction(ctx context.Context, existingFirehose models.Firehose, actionType string, params any) (models.Firehose, error) {
 	reqCtx := reqctx.From(ctx)
 
 	paramStruct, err := utils.GoValToProtoStruct(params)
 	if err != nil {
-		return nil, err
+		return models.Firehose{}, err
 	}
 
 	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
@@ -178,11 +178,11 @@ func (api *firehoseAPI) executeAction(ctx context.Context, existingFirehose *mod
 	if err != nil {
 		st := status.Convert(err)
 		if st.Code() == codes.InvalidArgument {
-			return nil, errors.ErrInvalid.WithMsgf(st.Message())
+			return models.Firehose{}, errors.ErrInvalid.WithMsgf(st.Message())
 		} else if st.Code() == codes.NotFound {
-			return nil, errFirehoseNotFound.WithMsgf(st.Message())
+			return models.Firehose{}, errFirehoseNotFound.WithMsgf(st.Message())
 		}
-		return nil, err
+		return models.Firehose{}, err
 	}
 
 	return mapEntropyResourceToFirehose(rpcResp.GetResource())

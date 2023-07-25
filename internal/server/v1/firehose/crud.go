@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/goto/dex/compass"
 	"github.com/goto/dex/generated/models"
@@ -234,7 +232,7 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 		}
 		def.Configs.EnvVars = returnEnv
 
-		arr = append(arr, *def)
+		arr = append(arr, def)
 	}
 
 	utils.WriteJSON(w, http.StatusOK,
@@ -433,7 +431,9 @@ func (api *firehoseAPI) handleGetHistory(w http.ResponseWriter, r *http.Request)
 		utils.WriteErr(w, err)
 		return
 	}
-	utils.WriteJSON(w, http.StatusOK, diffs)
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"history": diffs,
+	})
 }
 
 func (api *firehoseAPI) getRevisions(ctx context.Context, urn string) ([]models.RevisionDiff, error) {
@@ -447,43 +447,41 @@ func (api *firehoseAPI) getRevisions(ctx context.Context, urn string) ([]models.
 		return nil, err
 	}
 
-	prevRevision := []byte("{}")
-	var rh []models.RevisionDiff
-
-	marshaller := protojson.MarshalOptions{
-		UseProtoNames: true,
-	}
-
 	revisions := rpcResp.GetRevisions()
+	revisionsLen := len(revisions)
 
-	sort.Slice(revisions, func(i, j int) bool {
-		return revisions[i].CreatedAt.AsTime().Before(revisions[j].CreatedAt.AsTime())
-	})
-
-	for _, revision := range revisions {
-		var rd models.RevisionDiff
-		fd := new(entropyv1beta1.ResourceRevision)
-		fd.Spec = revision.GetSpec()
-		fd.Labels = revision.GetLabels()
-
-		currentRevision, err := marshaller.Marshal(fd)
+	patches := make([]models.RevisionDiff, revisionsLen)
+	prevFirehoseJSON := []byte("{}")
+	for i := revisionsLen - 1; i >= 0; i-- {
+		revision := revisions[i]
+		firehose, err := mapEntropySpecAndLabels(models.Firehose{}, revision.GetSpec(), revision.GetLabels())
+		if err != nil {
+			return nil, err
+		}
+		currentJSON, err := json.Marshal(firehose)
 		if err != nil {
 			return nil, err
 		}
 
-		revisionDiff, err := jsonDiff(prevRevision, currentRevision)
-		if err != nil {
-			return nil, err
+		var revisionDiff map[string]interface{}
+		if revision.Reason != "action:create" {
+			revisionDiff, err = jsonDiff(prevFirehoseJSON, currentJSON)
+			if err != nil {
+				return nil, err
+			}
 		}
-		rd.Reason = revision.GetReason()
-		rd.Diff = json.RawMessage(revisionDiff)
-		rd.UpdatedAt = strfmt.DateTime(revision.GetCreatedAt().AsTime())
 
-		rh = append(rh, rd)
-		prevRevision = currentRevision
+		patch := models.RevisionDiff{
+			Reason:    revision.GetReason(),
+			UpdatedAt: strfmt.DateTime(revision.GetCreatedAt().AsTime()),
+			Diff:      revisionDiff,
+		}
+		patches[i] = patch
+
+		prevFirehoseJSON = currentJSON
 	}
 
-	return rh, nil
+	return patches, nil
 }
 
 func sinkTypeSet(sinkTypes string) map[string]struct{} {

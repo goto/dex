@@ -580,7 +580,7 @@ paths:
         "200":
           description: History for given firehose URN.
           schema:
-            $ref: "#/definitions/History"
+            $ref: "#/definitions/HistoryResponse"
         "404":
           description: Firehose with given URN was not found
           schema:
@@ -959,10 +959,10 @@ definitions:
         items:
           $ref: "#/definitions/AlertTemplate"
 
-  History:
+  HistoryResponse:
     type: object
     properties:
-      items:
+      history:
         type: array
         items:
           $ref: "#/definitions/RevisionDiff"
@@ -970,15 +970,29 @@ definitions:
     type: object
     properties:
       diff:
-        type: object
+        allOf:
+          - $ref: "#/definitions/Diff"
+          - $ref: "#/definitions/DiffPatch"
       reason:
+        type: string
+      updated_by:
         type: string
       updated_at:
         type: string
         format: date-time
         example: "2022-06-23T16:49:15.885541Z"
         readOnly: true
-
+  Diff:
+    type: object
+    items: 
+      $ref: "#/definitions/DiffPatch"
+  DiffPatch:
+    type: array
+    items: 
+      type:
+        - string
+        - number
+        - boolean
   KubernetesArray:
     type: object
     properties:

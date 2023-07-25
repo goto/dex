@@ -36,7 +36,7 @@ func (api *firehoseAPI) handleListAlerts(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	name, err := getFirehoseReleaseName(*firehoseDef)
+	name, err := getFirehoseReleaseName(firehoseDef)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -68,7 +68,7 @@ func (api *firehoseAPI) handleGetAlertPolicy(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	releaseName, err := getFirehoseReleaseName(*firehoseDef)
+	releaseName, err := getFirehoseReleaseName(firehoseDef)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -100,7 +100,7 @@ func (api *firehoseAPI) handleUpsertAlertPolicy(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	name, err := getFirehoseReleaseName(*firehoseDef)
+	name, err := getFirehoseReleaseName(firehoseDef)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
