@@ -9,6 +9,8 @@ buf.build/gen/go/gotocompany/proton/grpc/go v1.3.0-20230620050157-297942e6ee8b.1
 buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.28.1-20230620050157-297942e6ee8b.4/go.mod h1:kGzYZ0MytkZHp4V8klJ+W5+jb0dfv34w49zOmk5CQRU=
 buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230718052110-03805041556c.1 h1:AL62pfesiwBYdz0oc2/yea7S5GcCl08rZD+phNDvL2M=
 buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230718052110-03805041556c.1/go.mod h1:UeYpDNWYzdb/1L3xMRhTkjLOk5fim7KBCB6esOtxLIo=
+buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230725115611-90c010176a25.1 h1:XPv2d71O2fMD1MsevmLpZuqOQC7yv4vW84wPKtuqxZs=
+buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230725115611-90c010176a25.1/go.mod h1:UeYpDNWYzdb/1L3xMRhTkjLOk5fim7KBCB6esOtxLIo=
 buf.build/gen/go/grpc-ecosystem/grpc-gateway/grpc/go v1.3.0-20221127060915-a1ecdc58eccd.1/go.mod h1:AyYRpZBNAzxOhzaY02jFxL+P7eINiIju6BdSZyi1q7o=
 buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.28.1-20221127060915-a1ecdc58eccd.4/go.mod h1:92ejKVTiuvnKoAtRlpJpIxKfloI935DDqhs0NCRx+KM=
 buf.build/gen/go/grpc-ecosystem/grpc-gateway/protocolbuffers/go v1.31.0-20221127060915-a1ecdc58eccd.1 h1:zCkYVgsA5rHchZAZB+e+isdYDzbHBdtEX77TBKsAnps=

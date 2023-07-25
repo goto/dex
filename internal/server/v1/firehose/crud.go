@@ -473,6 +473,7 @@ func (api *firehoseAPI) getRevisions(ctx context.Context, urn string) ([]models.
 
 		patch := models.RevisionDiff{
 			Reason:    revision.GetReason(),
+			UpdatedBy: revision.GetCreatedBy(),
 			UpdatedAt: strfmt.DateTime(revision.GetCreatedAt().AsTime()),
 			Diff:      revisionDiff,
 		}

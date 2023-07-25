@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	buf.build/gen/go/gotocompany/proton/grpc/go v1.3.0-20230620050157-297942e6ee8b.1
-	buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230718052110-03805041556c.1
+	buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230725115611-90c010176a25.1
 	contrib.go.opencensus.io/exporter/ocagent v0.7.0
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
 	github.com/BurntSushi/toml v1.0.0
