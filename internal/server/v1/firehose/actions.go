@@ -7,6 +7,8 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
+	firehose "github.com/goto/entropy/modules/firehose"
+	kafka "github.com/goto/entropy/pkg/kafka"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -24,11 +26,9 @@ const (
 	actionResetOffset = "reset"
 )
 
+//nolint:dupl
 func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct {
-		To       string     `json:"to"`
-		DateTime *time.Time `json:"datetime"`
-	}
+	var reqBody kafka.ResetParams
 
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
@@ -50,10 +50,9 @@ func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, updatedFirehose)
 }
 
+//nolint:dupl
 func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct {
-		Replicas int `json:"replicas"`
-	}
+	var reqBody firehose.ScaleParams
 
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
@@ -77,6 +76,8 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
+	var reqBody firehose.StartParams
+
 	// Ensure that the URN refers to a valid firehose resource.
 	urn := chi.URLParam(r, pathParamURN)
 	existingFirehose, err := api.getFirehose(r.Context(), urn)
@@ -85,17 +86,13 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := struct {
-		StopTime *time.Time `json:"stop_time"`
-	}{}
-
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[confSinkType] == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)
-		params.StopTime = &t
+		reqBody.StopTime = &t
 	}
 
-	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, params)
+	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionStart, reqBody)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
