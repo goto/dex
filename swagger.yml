@@ -970,29 +970,32 @@ definitions:
     type: object
     properties:
       diff:
-        allOf:
-          - $ref: "#/definitions/Diff"
-          - $ref: "#/definitions/DiffPatch"
+        type: object
+        example: {
+          configs: {
+            replicas: [3, 2]
+          },
+          labels: {
+            title: ["old-title", "new-title"]
+          }
+        }
       reason:
         type: string
+        enum:
+          - action:create
+          - action:update
+          - action:reset
+          - action:start
+          - action:stop
+          - action:upgrade
       updated_by:
         type: string
+        example: john.doe@example.com
       updated_at:
         type: string
         format: date-time
         example: "2022-06-23T16:49:15.885541Z"
         readOnly: true
-  Diff:
-    type: object
-    items: 
-      $ref: "#/definitions/DiffPatch"
-  DiffPatch:
-    type: array
-    items: 
-      type:
-        - string
-        - number
-        - boolean
   KubernetesArray:
     type: object
     properties:
