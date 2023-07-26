@@ -56,6 +56,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("project must be specified"))
 		return
 	}
+	def.Configs.StopTime = sanitizeFirehoseStopTime(def.Configs.StopTime)
 
 	groupID := def.Group.String()
 	groupSlug, err := api.getGroupSlug(ctx, groupID)
@@ -264,6 +265,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("group is required"))
 		return
 	}
+	updates.Configs.StopTime = sanitizeFirehoseStopTime(updates.Configs.StopTime)
 
 	existingFirehose, err := api.getFirehose(r.Context(), urn)
 	if err != nil {
@@ -351,18 +353,18 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
 
-	existing, err := api.getFirehose(r.Context(), urn)
-	if err != nil {
+	var req struct {
+		Group       string                        `json:"group"`
+		Description string                        `json:"description"`
+		Configs     *models.FirehosePartialConfig `json:"configs"`
+	}
+	if err := utils.ReadJSON(r, &req); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 
-	var req struct {
-		Group       string                       `json:"group"`
-		Description string                       `json:"description"`
-		Configs     models.FirehosePartialConfig `json:"configs"`
-	}
-	if err := utils.ReadJSON(r, &req); err != nil {
+	existing, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
