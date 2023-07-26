@@ -54,8 +54,8 @@ func Routes(entropy entropyv1beta1rpc.ResourceServiceClient,
 		r.Get("/{urn}/history", api.handleGetHistory)
 
 		// Firehose Actions
-		r.Post("/{urn}/reset", api.handleReset)
-		r.Post("/{urn}/scale", api.handleScale)
+		r.Put("/{urn}/reset", api.handleReset)
+		r.Put("/{urn}/scale", api.handleScale)
 		r.Put("/{urn}/start", api.handleStart)
 		r.Put("/{urn}/stop", api.handleStop)
 		r.Put("/{urn}/upgrade", api.handleUpgrade)

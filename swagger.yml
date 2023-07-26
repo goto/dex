@@ -245,7 +245,7 @@ paths:
         name: firehoseUrn
         description: URN of the firehose.
         required: true
-    post:
+    put:
       summary: Reset firehose consumption offset.
       description: Reset firehose consumption offset.
       operationId: resetOffset
@@ -291,7 +291,7 @@ paths:
         name: firehoseUrn
         description: URN of the firehose.
         required: true
-    post:
+    put:
       summary: Scale the number of instances of firehose.
       description: Scale the number of instances of firehose.
       operationId: scaleFirehose
