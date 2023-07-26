@@ -494,6 +494,14 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/Shopify/logrus-bugsnag v0.0.0-20171204204709-577dee27f20d h1:UrqY+r/OJnIp5u0s1SbQ8dVfLCZJsnvazdBP5hS4iRs=
 github.com/Shopify/logrus-bugsnag v0.0.0-20171204204709-577dee27f20d/go.mod h1:HI8ITrYtUY+O+ZhtlqUnD8+KwNPOyugEhfP9fdUIaEQ=
+github.com/StewartJingga/gojsondiff v0.0.0-20180504020246-0525c875b75c h1:N4pvl2J7BFUKgkNHa20cyDTEaAOYrZBzJ6BMEyHpwIw=
+github.com/StewartJingga/gojsondiff v0.0.0-20180504020246-0525c875b75c/go.mod h1:H8QYj+Xe3jnnNE+7WganSk1Hnh3RiA/peR7k0heYp6M=
+github.com/StewartJingga/gojsondiff v0.0.0-20230726040458-2942550fad47 h1:fnDPRQGeYnNc1HfKaLVArzvXdCKwsY8ppH4id+VYya0=
+github.com/StewartJingga/gojsondiff v0.0.0-20230726040458-2942550fad47/go.mod h1:H8QYj+Xe3jnnNE+7WganSk1Hnh3RiA/peR7k0heYp6M=
+github.com/StewartJingga/gojsondiff v0.0.0-20230726041720-bf1d204558cd h1:VgYyJjXooKoNdipDMFZbSPccI4akl5iIpsEIrmEjzbg=
+github.com/StewartJingga/gojsondiff v0.0.0-20230726041720-bf1d204558cd/go.mod h1:H8QYj+Xe3jnnNE+7WganSk1Hnh3RiA/peR7k0heYp6M=
+github.com/StewartJingga/gojsondiff v0.0.0-20230726042605-339ce16d300b h1:k4vCVhOFqaTjhVIutVtvm7zN33onNGqyqQQxPbAfpHM=
+github.com/StewartJingga/gojsondiff v0.0.0-20230726042605-339ce16d300b/go.mod h1:H8QYj+Xe3jnnNE+7WganSk1Hnh3RiA/peR7k0heYp6M=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38 h1:smF2tmSOzy2Mm+0dGI2AIUHY+w0BUc+4tn40djz7+6U=
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38/go.mod h1:r7bzyVFMNntcxPZXK3/+KdruV1H5KSlyVY0gc+NgInI=
@@ -1728,6 +1736,8 @@ github.com/seccomp/libseccomp-golang v0.9.2-0.20210429002308-3879420cc921/go.mod
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0 h1:we8PVUC3FE2uYfodKH/nBHMSetSfHDR6scGdBi+erh0=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
+github.com/sergi/go-diff v1.3.1 h1:xkr+Oxo4BOQKmkn/B9eMK0g5Kg/983T9DqqPHwYqD+8=
+github.com/sergi/go-diff v1.3.1/go.mod h1:aMJSSKb2lpPvRNec0+w3fl7LP9IOFzdc9Pa4NFbPK1I=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
 github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
 github.com/shopspring/decimal v1.2.0 h1:abSATXmQEYyShuxI4/vyW3tV1MrKAJzCZ/0zLUXYbsQ=

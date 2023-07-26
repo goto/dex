@@ -10,9 +10,9 @@ import (
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
+	"github.com/StewartJingga/gojsondiff"
+	"github.com/StewartJingga/gojsondiff/formatter"
 	"github.com/go-chi/chi/v5"
-	"github.com/yudai/gojsondiff"
-	"github.com/yudai/gojsondiff/formatter"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -102,7 +102,9 @@ func (api *firehoseAPI) makeStencilURL(sc compass.Schema) string {
 }
 
 func jsonDiff(prev, current []byte) (map[string]interface{}, error) {
-	differ := gojsondiff.New()
+	differ := &gojsondiff.Differ{
+		TextDiffMinimumLength: 1000,
+	}
 	diff, err := differ.Compare(prev, current)
 	if err != nil {
 		return nil, err
