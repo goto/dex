@@ -34,6 +34,7 @@ const (
 const (
 	labelTitle       = "title"
 	labelGroup       = "group"
+	labelTeam        = "team"
 	labelStream      = "stream_name"
 	labelCreatedBy   = "created_by"
 	labelUpdatedBy   = "updated_by"

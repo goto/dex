@@ -9,6 +9,7 @@ import (
 	"time"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
+	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-openapi/strfmt"
 	"google.golang.org/grpc/codes"
@@ -28,11 +29,6 @@ const (
 	confTopicName = "SOURCE_KAFKA_TOPIC"
 )
 
-type firehoseUpdates struct {
-	Description string                `json:"description"`
-	Configs     models.FirehoseConfig `json:"configs"`
-}
-
 func (api *firehoseAPI) handleGet(w http.ResponseWriter, r *http.Request) {
 	urn := chi.URLParam(r, pathParamURN)
 
@@ -47,6 +43,7 @@ func (api *firehoseAPI) handleGet(w http.ResponseWriter, r *http.Request) {
 
 func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 	reqCtx := reqctx.From(r.Context())
+	ctx := r.Context()
 
 	var def models.Firehose
 	if err := utils.ReadJSON(r, &def); err != nil {
@@ -60,21 +57,28 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	groupID := def.Group.String()
+	groupSlug, err := api.getGroupSlug(ctx, groupID)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
 	def.Labels = cloneAndMergeMaps(def.Labels, map[string]string{
 		labelTitle:       *def.Title,
-		labelGroup:       def.Group.String(),
+		labelGroup:       groupID,
+		labelTeam:        groupSlug,
 		labelStream:      *def.Configs.StreamName,
 		labelCreatedBy:   reqCtx.UserEmail,
 		labelUpdatedBy:   reqCtx.UserEmail,
 		labelDescription: def.Description,
 	})
 
-	prj, err := project.GetProject(r.Context(), def.Project, api.Shield)
+	prj, err := project.GetProject(ctx, def.Project, api.Shield)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
-
 	// resolve stream_name to kafka clusters.
 	streamURN := fmt.Sprintf("%s-%s", prj.GetSlug(), *def.Configs.StreamName)
 	sourceKafkaBroker, err := odin.GetOdinStream(r.Context(), api.OdinAddr, streamURN)
@@ -241,14 +245,23 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 
 func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	urn := chi.URLParam(r, pathParamURN)
-	reqCtx := reqctx.From(r.Context())
+	ctx := r.Context()
+	reqCtx := reqctx.From(ctx)
 
-	var updates firehoseUpdates
+	var updates struct {
+		Group       string                `json:"group"`
+		Description string                `json:"description"`
+		Configs     models.FirehoseConfig `json:"configs"`
+	}
 	if err := utils.ReadJSON(r, &updates); err != nil {
 		utils.WriteErr(w, err)
 		return
 	} else if err := updates.Configs.Validate(nil); err != nil {
 		utils.WriteErr(w, err)
+		return
+	} else if updates.Group == "" {
+		// TODO: move validation to be same with create
+		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("group is required"))
 		return
 	}
 
@@ -264,7 +277,15 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	groupID := updates.Group
+	groupSlug, err := api.getGroupSlug(ctx, groupID)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
 	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
+		labelGroup:     groupID,
+		labelTeam:      groupSlug,
 		labelUpdatedBy: reqCtx.UserEmail,
 	})
 	if updates.Description != "" {
@@ -327,7 +348,8 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Request) {
 	urn := chi.URLParam(r, pathParamURN)
-	reqCtx := reqctx.From(r.Context())
+	ctx := r.Context()
+	reqCtx := reqctx.From(ctx)
 
 	existing, err := api.getFirehose(r.Context(), urn)
 	if err != nil {
@@ -336,6 +358,7 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	}
 
 	var req struct {
+		Group       string                       `json:"group"`
 		Description string                       `json:"description"`
 		Configs     models.FirehosePartialConfig `json:"configs"`
 	}
@@ -349,6 +372,16 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	})
 	if req.Description != "" {
 		labels[labelDescription] = req.Description
+	}
+	if req.Group != "" {
+		groupID := req.Group
+		groupSlug, err := api.getGroupSlug(ctx, groupID)
+		if err != nil {
+			utils.WriteErr(w, err)
+			return
+		}
+		labels[labelGroup] = groupID
+		labels[labelTeam] = groupSlug
 	}
 
 	if req.Configs.Stopped != nil {
@@ -483,6 +516,15 @@ func (api *firehoseAPI) getRevisions(ctx context.Context, urn string) ([]models.
 	}
 
 	return patches, nil
+}
+
+func (api *firehoseAPI) getGroupSlug(ctx context.Context, groupID string) (string, error) {
+	resp, err := api.Shield.GetGroup(ctx, &shieldv1beta1.GetGroupRequest{Id: groupID})
+	if err != nil {
+		return "", fmt.Errorf("error getting group slug: %w", err)
+	}
+
+	return resp.Group.GetSlug(), nil
 }
 
 func sinkTypeSet(sinkTypes string) map[string]struct{} {
