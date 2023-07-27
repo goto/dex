@@ -8,6 +8,7 @@ import (
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
 	entropyFirehose "github.com/goto/entropy/modules/firehose"
+	entropyKafka "github.com/goto/entropy/pkg/kafka"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -26,11 +27,7 @@ const (
 )
 
 func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
-	var reqBody struct {
-		To       string     `json:"to"`
-		DateTime *time.Time `json:"datetime"`
-	}
-
+	var reqBody entropyKafka.ResetParams
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
 		return
