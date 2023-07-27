@@ -160,18 +160,14 @@ func (api *firehoseAPI) executeAction(ctx context.Context, existingFirehose mode
 		return models.Firehose{}, err
 	}
 
-	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
-		labelUpdatedBy: reqCtx.UserEmail,
-	})
-
 	rpcReq := &entropyv1beta1.ApplyActionRequest{
 		Urn:    existingFirehose.Urn,
 		Action: actionType,
 		Params: paramStruct,
-		Labels: labels,
+		Labels: existingFirehose.Labels,
 	}
-
-	rpcResp, err := api.Entropy.ApplyAction(ctx, rpcReq)
+	entropyCtx := api.addUserMetadata(ctx, reqCtx.UserEmail)
+	rpcResp, err := api.Entropy.ApplyAction(entropyCtx, rpcReq)
 	if err != nil {
 		st := status.Convert(err)
 		if st.Code() == codes.InvalidArgument {

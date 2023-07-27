@@ -4,11 +4,12 @@ go 1.18
 
 require (
 	buf.build/gen/go/gotocompany/proton/grpc/go v1.3.0-20230620050157-297942e6ee8b.1
-	buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230725115611-90c010176a25.1
+	buf.build/gen/go/gotocompany/proton/protocolbuffers/go v1.31.0-20230727062141-265cb586bf35.1
 	contrib.go.opencensus.io/exporter/ocagent v0.7.0
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
 	github.com/BurntSushi/toml v1.0.0
 	github.com/MakeNowJust/heredoc v1.0.0
+	github.com/StewartJingga/gojsondiff v0.0.0-20230726042605-339ce16d300b
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-openapi/errors v0.20.3
@@ -24,8 +25,6 @@ require (
 	github.com/rs/xid v1.4.0
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.1
-	github.com/wI2L/jsondiff v0.4.0
-	github.com/yudai/gojsondiff v1.0.0
 	github.com/yudai/pp v2.0.1+incompatible
 	go.opencensus.io v0.24.0
 	go.uber.org/zap v1.23.0
@@ -48,7 +47,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.2 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/StewartJingga/gojsondiff v0.0.0-20230726042605-339ce16d300b // indirect
 	github.com/alecthomas/chroma v0.8.2 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
@@ -106,7 +104,6 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gosuri/uitable v0.0.4 // indirect
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
@@ -145,8 +142,6 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/newrelic/go-agent/v3/integrations/nrgorilla v1.1.1 // indirect
-	github.com/newrelic/go-agent/v3/integrations/nrgrpc v1.3.1 // indirect
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.2.0 // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
@@ -200,8 +195,8 @@ require (
 	golang.org/x/time v0.1.0 // indirect
 	google.golang.org/api v0.126.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230724170836-66ad5b6ff146 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20230724170836-66ad5b6ff146 // indirect
+	google.golang.org/genproto v0.0.0-20230726155614-23370e0ffb3e // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20230726155614-23370e0ffb3e // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230706204954-ccb25ca9f130 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect

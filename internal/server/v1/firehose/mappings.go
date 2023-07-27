@@ -36,8 +36,6 @@ const (
 	labelGroup       = "group"
 	labelTeam        = "team"
 	labelStream      = "stream_name"
-	labelCreatedBy   = "created_by"
-	labelUpdatedBy   = "updated_by"
 	labelDescription = "description"
 )
 
@@ -99,6 +97,8 @@ func mapEntropyResourceToFirehose(res *entropyv1beta1.Resource) (models.Firehose
 		Urn:       res.GetUrn(),
 		Name:      res.GetName(),
 		Project:   res.Project,
+		CreatedBy: res.CreatedBy,
+		UpdatedBy: res.UpdatedBy,
 		CreatedAt: strfmt.DateTime(res.GetCreatedAt().AsTime()),
 		UpdatedAt: strfmt.DateTime(res.GetUpdatedAt().AsTime()),
 		State: &models.FirehoseState{

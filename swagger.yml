@@ -740,6 +740,14 @@ definitions:
       project:
         type: string
         example: "g-goto-id"
+      created_by:
+        type: string
+        example: "john.doe@example.com"
+        readOnly: true
+      updated_by:
+        type: string
+        example: "jane.doe@example.com"
+        readOnly: true
       created_at:
         type: string
         format: date-time

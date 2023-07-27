@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-openapi/strfmt"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/goto/dex/compass"
@@ -42,8 +43,8 @@ func (api *firehoseAPI) handleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
-	reqCtx := reqctx.From(r.Context())
 	ctx := r.Context()
+	reqCtx := reqctx.From(ctx)
 
 	var def models.Firehose
 	if err := utils.ReadJSON(r, &def); err != nil {
@@ -70,8 +71,6 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		labelGroup:       groupID,
 		labelTeam:        groupSlug,
 		labelStream:      *def.Configs.StreamName,
-		labelCreatedBy:   reqCtx.UserEmail,
-		labelUpdatedBy:   reqCtx.UserEmail,
 		labelDescription: def.Description,
 	})
 
@@ -114,8 +113,9 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	entropyCtx := api.addUserMetadata(ctx, reqCtx.UserEmail)
 	rpcReq := &entropyv1beta1.CreateResourceRequest{Resource: res}
-	rpcResp, err := api.Entropy.CreateResource(r.Context(), rpcReq)
+	rpcResp, err := api.Entropy.CreateResource(entropyCtx, rpcReq)
 	if err != nil {
 		outErr := errors.ErrInternal
 
@@ -286,9 +286,8 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
-		labelGroup:     groupID,
-		labelTeam:      groupSlug,
-		labelUpdatedBy: reqCtx.UserEmail,
+		labelGroup: groupID,
+		labelTeam:  groupSlug,
 	})
 	if updates.Description != "" {
 		labels[labelDescription] = updates.Description
@@ -327,7 +326,8 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	rpcResp, err := api.Entropy.UpdateResource(r.Context(), rpcReq)
+	entropyCtx := api.addUserMetadata(ctx, reqCtx.UserEmail)
+	rpcResp, err := api.Entropy.UpdateResource(entropyCtx, rpcReq)
 	if err != nil {
 		st := status.Convert(err)
 		if st.Code() == codes.InvalidArgument {
@@ -369,9 +369,7 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	labels := cloneAndMergeMaps(existing.Labels, map[string]string{
-		labelUpdatedBy: reqCtx.UserEmail,
-	})
+	labels := existing.Labels
 	if req.Description != "" {
 		labels[labelDescription] = req.Description
 	}
@@ -437,7 +435,8 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		},
 	}
 
-	rpcResp, err := api.Entropy.UpdateResource(r.Context(), rpcReq)
+	entropyCtx := api.addUserMetadata(ctx, reqCtx.UserEmail)
+	rpcResp, err := api.Entropy.UpdateResource(entropyCtx, rpcReq)
 	if err != nil {
 		st := status.Convert(err)
 		if st.Code() == codes.InvalidArgument {
@@ -527,6 +526,12 @@ func (api *firehoseAPI) getGroupSlug(ctx context.Context, groupID string) (strin
 	}
 
 	return resp.Group.GetSlug(), nil
+}
+
+func (*firehoseAPI) addUserMetadata(ctx context.Context, userID string) context.Context {
+	return metadata.AppendToOutgoingContext(ctx,
+		"user-id", userID,
+	)
 }
 
 func sinkTypeSet(sinkTypes string) map[string]struct{} {
