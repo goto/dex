@@ -16,7 +16,7 @@ func (api *firehoseAPI) getStencilURLs(
 	projectSlug string,
 	protoClass string,
 ) (string, error) {
-	topics := strings.Split(topicStr, ",")
+	topics := strings.Split(topicStr, "|")
 	urlMap := map[string]bool{} // using map to prevent duplicate
 	urls := []string{}
 	for _, topic := range topics {

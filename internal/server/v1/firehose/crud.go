@@ -79,7 +79,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// resolve stream_name to kafka clusters.
-	streamURN := fmt.Sprintf("%s-%s", prj.GetSlug(), *def.Configs.StreamName)
+	streamURN := buildStreamURN(*def.Configs.StreamName, prj.GetSlug())
 	sourceKafkaBroker, err := odin.GetOdinStream(r.Context(), api.OdinAddr, streamURN)
 	if err != nil {
 		utils.WriteErr(w, err)
@@ -291,7 +291,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		labels[labelDescription] = updates.Description
 	}
 
-	streamURN := fmt.Sprintf("%s-%s", existingFirehose.Project, *updates.Configs.StreamName)
+	streamURN := buildStreamURN(*updates.Configs.StreamName, existingFirehose.Project)
 	if updates.Configs.EnvVars[confStencilURL] == "" {
 		stencilUrls, err := api.getStencilURLs(
 			r.Context(),
@@ -395,6 +395,23 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 
 	if req.Configs.Replicas > 0 {
 		existing.Configs.Replicas = req.Configs.Replicas
+	}
+
+	if _, ok := req.Configs.EnvVars[confTopicName]; ok {
+		streamURN := buildStreamURN(req.Configs.StreamName, existing.Project)
+		stencilUrls, err := api.getStencilURLs(
+			r.Context(),
+			reqCtx.UserID,
+			req.Configs.EnvVars[confTopicName],
+			streamURN,
+			existing.Project,
+			req.Configs.EnvVars[confProtoClassName],
+		)
+		if err != nil {
+			utils.WriteErr(w, err)
+			return
+		}
+		existing.Configs.EnvVars[confStencilURL] = stencilUrls
 	}
 
 	if req.Configs.StopTime != nil {
@@ -529,6 +546,10 @@ func (*firehoseAPI) addUserMetadata(ctx context.Context, userID string) context.
 	return metadata.AppendToOutgoingContext(ctx,
 		"user-id", userID,
 	)
+}
+
+func buildStreamURN(streamName, projectSlug string) string {
+	return fmt.Sprintf("%s-%s", projectSlug, streamName)
 }
 
 func sinkTypeSet(sinkTypes string) map[string]struct{} {
