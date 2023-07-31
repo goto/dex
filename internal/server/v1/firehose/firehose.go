@@ -2,7 +2,6 @@ package firehose
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc"
@@ -16,7 +15,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/goto/dex/compass"
 	"github.com/goto/dex/generated/models"
 	alertsv1 "github.com/goto/dex/internal/server/v1/alert"
 	"github.com/goto/dex/pkg/errors"
@@ -92,13 +90,6 @@ func (api *firehoseAPI) getFirehose(ctx context.Context, firehoseURN string) (mo
 	}
 
 	return mapEntropyResourceToFirehose(resp.GetResource())
-}
-
-func (api *firehoseAPI) makeStencilURL(sc compass.Schema) string {
-	// Example: https://stencil-host.com/v1beta1/namespaces/{{namespace}}/schemas/{{schema}}
-	schemaPath := fmt.Sprintf("/v1beta1/namespaces/%s/schemas/%s", sc.NamespaceID, sc.SchemaID)
-	finalURL := strings.TrimSuffix(strings.TrimSpace(api.StencilAddr), "/") + schemaPath
-	return finalURL
 }
 
 func jsonDiff(prev, current []byte) (map[string]interface{}, error) {

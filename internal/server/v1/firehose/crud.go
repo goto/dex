@@ -16,7 +16,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/goto/dex/compass"
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
@@ -90,21 +89,20 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 
 	def.Configs.EnvVars[confStencilRegistryToggle] = "true"
 	if def.Configs.EnvVars[confStencilURL] == "" {
-		// resolve stencil URL.
-		schema, err := compass.GetTopicSchema(
+		stencilUrls, err := api.getStencilURLs(
 			r.Context(),
-			api.Compass,
 			reqCtx.UserID,
-			prj.GetSlug(),
-			streamURN,
 			def.Configs.EnvVars[confTopicName],
-			strings.Split(def.Configs.EnvVars[confProtoClassName], ","),
+			streamURN,
+			prj.GetSlug(),
+			def.Configs.EnvVars[confProtoClassName],
 		)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
-		def.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
+
+		def.Configs.EnvVars[confStencilURL] = stencilUrls
 	}
 
 	res, err := mapFirehoseEntropyResource(def, prj)
@@ -295,21 +293,20 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	streamURN := fmt.Sprintf("%s-%s", existingFirehose.Project, *updates.Configs.StreamName)
 	if updates.Configs.EnvVars[confStencilURL] == "" {
-		// resolve stencil URL.
-		schema, err := compass.GetTopicSchema(
+		stencilUrls, err := api.getStencilURLs(
 			r.Context(),
-			api.Compass,
 			reqCtx.UserID,
-			existingFirehose.Project,
-			streamURN,
 			updates.Configs.EnvVars[confTopicName],
-			strings.Split(updates.Configs.EnvVars[confProtoClassName], ","),
+			streamURN,
+			existingFirehose.Project,
+			updates.Configs.EnvVars[confProtoClassName],
 		)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
-		updates.Configs.EnvVars[confStencilURL] = api.makeStencilURL(*schema)
+
+		updates.Configs.EnvVars[confStencilURL] = stencilUrls
 	}
 
 	cfgStruct, err := makeConfigStruct(&updates.Configs)
