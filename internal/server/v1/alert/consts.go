@@ -5,6 +5,4 @@ const (
 	groupMetadataKey        = "group_id"
 	resourceIDMetadataKey   = "resource_id"
 	resourceTypeMetadataKey = "resource_type"
-
-	alertCriticalSeverityKey = "CRITICAL"
 )

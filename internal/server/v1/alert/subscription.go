@@ -8,6 +8,7 @@ import (
 	sirenv1beta1grpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
+	sirenReceiverPkg "github.com/goto/siren/core/receiver"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -69,21 +70,15 @@ func (svc *SubscriptionService) GetSubscriptions(ctx context.Context, groupID, r
 }
 
 func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form SubscriptionForm) (int, error) {
-	project, group, namespaceID, err := svc.setupForm(ctx, form.ProjectID, form.GroupID)
+	project, group, namespaceID, err := svc.fetchShieldData(ctx, form.ProjectID, form.GroupID)
 	if err != nil {
 		return 0, err
 	}
-	channelName, err := svc.getSlackChannelByCriticality(group, form.ChannelCriticality)
+	receiver, err := svc.getSirenReceiver(ctx, form.GroupID, form.ChannelCriticality)
 	if err != nil {
-		return 0, fmt.Errorf("error getting slack channel: %w", err)
+		return 0, fmt.Errorf("error getting siren's receiver: %w", err)
 	}
 
-	configuration, err := structpb.NewStruct(map[string]interface{}{
-		"channel_name": channelName,
-	})
-	if err != nil {
-		return 0, fmt.Errorf("error building configuration: %w", err)
-	}
 	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug)
 	if err != nil {
 		return 0, err
@@ -94,12 +89,11 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form Sub
 		Namespace: namespaceID,
 		Receivers: []*sirenv1beta1.ReceiverMetadata{
 			{
-				Id:            1,
-				Configuration: configuration,
+				Id: receiver.Id,
 			},
 		},
 		Match: map[string]string{
-			"severity":   alertCriticalSeverityKey,
+			"severity":   string(form.AlertSeverity),
 			"identifier": form.ResourceID,
 		},
 		Metadata:  metadata,
@@ -115,38 +109,28 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form Sub
 }
 
 func (svc *SubscriptionService) UpdateSubscription(ctx context.Context, subscriptionID int, form SubscriptionForm) error {
-	project, group, namespaceID, err := svc.setupForm(ctx, form.ProjectID, form.GroupID)
+	project, group, namespaceID, err := svc.fetchShieldData(ctx, form.ProjectID, form.GroupID)
 	if err != nil {
 		return err
 	}
-	channelName, err := svc.getSlackChannelByCriticality(group, form.ChannelCriticality)
+	receiver, err := svc.getSirenReceiver(ctx, form.GroupID, form.ChannelCriticality)
 	if err != nil {
-		return fmt.Errorf("error getting slack channel: %w", err)
+		return fmt.Errorf("error getting siren's receiver: %w", err)
 	}
 
-	configuration, err := structpb.NewStruct(map[string]interface{}{
-		"channel_name": channelName,
-	})
-	if err != nil {
-		return fmt.Errorf("error building configuration: %w", err)
-	}
 	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug)
 	if err != nil {
 		return err
 	}
-
 	request := &sirenv1beta1.UpdateSubscriptionRequest{
 		Id:        uint64(subscriptionID),
 		Urn:       buildSubscriptionURN(form),
 		Namespace: namespaceID,
 		Receivers: []*sirenv1beta1.ReceiverMetadata{
-			{
-				Id:            1,
-				Configuration: configuration,
-			},
+			{Id: receiver.Id},
 		},
 		Match: map[string]string{
-			"severity":   alertCriticalSeverityKey,
+			"severity":   string(form.AlertSeverity),
 			"identifier": form.ResourceID,
 		},
 		Metadata:  metadata,
@@ -178,7 +162,7 @@ func (svc *SubscriptionService) DeleteSubscription(ctx context.Context, subscrip
 	return nil
 }
 
-func (svc *SubscriptionService) setupForm(
+func (svc *SubscriptionService) fetchShieldData(
 	ctx context.Context,
 	projectID, groupID string,
 ) (*shieldv1beta1.Project, *shieldv1beta1.Group, uint64, error) {
@@ -197,36 +181,6 @@ func (svc *SubscriptionService) setupForm(
 	}
 
 	return project, group, namespaceID, nil
-}
-
-func (*SubscriptionService) getSlackChannelByCriticality(group *shieldv1beta1.Group, criticality ChannelCriticality) (string, error) {
-	groupMetadata := group.GetMetadata().AsMap()
-
-	valueMap := groupMetadata
-	for _, key := range []string{"alerting", string(criticality), "slack"} {
-		valInterface, exists := valueMap[key]
-		if !exists {
-			return "", ErrNoShieldSlackChannel
-		}
-
-		var ok bool
-		valueMap, ok = valInterface.(map[string]interface{})
-		if !ok {
-			return "", ErrNoShieldSlackChannel
-		}
-	}
-
-	slackChannelAny, exists := valueMap["channel"]
-	if !exists {
-		return "", ErrNoShieldSlackChannel
-	}
-
-	channelName, ok := slackChannelAny.(string)
-	if !ok {
-		return "", ErrNoShieldSlackChannel
-	}
-
-	return channelName, nil
 }
 
 func (svc *SubscriptionService) getGroup(ctx context.Context, groupID string) (*shieldv1beta1.Group, error) {
@@ -266,15 +220,39 @@ func (*SubscriptionService) getSirenNamespaceID(project *shieldv1beta1.Project) 
 	return uint64(namespaceID), nil
 }
 
+func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupID string, criticality ChannelCriticality) (*sirenv1beta1.Receiver, error) {
+	resp, err := svc.sirenClient.ListReceivers(ctx, &sirenv1beta1.ListReceiversRequest{
+		Labels: map[string]string{
+			"group_id":    groupID,
+			"criticality": string(criticality),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	receivers := resp.Receivers
+	if len(receivers) == 0 {
+		return nil, ErrNoSirenReceiver
+	}
+	if len(receivers) > 1 {
+		return nil, ErrMultipleSirenReceiver
+	}
+	receiver := receivers[0]
+	if receiver.Type != sirenReceiverPkg.TypeSlackChannel {
+		return nil, ErrInvalidSirenReceiver
+	}
+
+	return receiver, nil
+}
+
 func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug string) (*structpb.Struct, error) {
 	metadata, err := structpb.NewStruct(map[string]interface{}{
-		"channel_criticality": string(form.ChannelCriticality),
-		"group_id":            form.GroupID,
-		"resource_type":       form.ResourceType,
-		"resource_id":         form.ResourceID,
-		"project_id":          form.ProjectID,
-		"group_slug":          groupSlug,
-		"project_slug":        projectSlug,
+		"group_id":      form.GroupID,
+		"resource_type": form.ResourceType,
+		"resource_id":   form.ResourceID,
+		"project_id":    form.ProjectID,
+		"group_slug":    groupSlug,
+		"project_slug":  projectSlug,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error building metadata: %w", err)

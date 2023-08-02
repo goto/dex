@@ -104,7 +104,7 @@ func (h *Handler) createSubscription(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, ErrNoShieldSirenNamespace) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
-		} else if errors.Is(err, ErrNoShieldSlackChannel) {
+		} else if errors.Is(err, ErrNoSirenReceiver) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
 		} else {
 			utils.WriteErr(w, err)
@@ -163,7 +163,7 @@ func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 	if err := h.subscriptionService.UpdateSubscription(ctx, subscriptionID, form); err != nil {
 		if errors.Is(err, ErrNoShieldSirenNamespace) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
-		} else if errors.Is(err, ErrNoShieldSlackChannel) {
+		} else if errors.Is(err, ErrNoSirenReceiver) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
 		} else {
 			utils.WriteErr(w, err)

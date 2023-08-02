@@ -11,6 +11,7 @@ import (
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
 	"github.com/go-chi/chi/v5"
+	sirenReceiverPkg "github.com/goto/siren/core/receiver"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -347,7 +348,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
-	t.Run("should return 422 on channel name could not be found on shield group", func(t *testing.T) {
+	t.Run("should return 422 on receiver could not be found", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
 
 		shieldProject := &shieldv1beta1.Project{
@@ -357,8 +358,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 			}),
 		}
 		shieldGroup := &shieldv1beta1.Group{
-			Slug:     "test-group",
-			Metadata: nil,
+			Slug: "test-group",
 		}
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
@@ -367,6 +367,13 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"group_id":    groupID,
+				"criticality": string(channelCriticality),
+			},
+		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: nil}, nil)
+		defer sirenClient.AssertExpectations(t)
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, "/", requestBody)
@@ -381,8 +388,8 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 
 	t.Run("should return 201 on success", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
-		channelName := "test-channel"
 		sirenNamespace := 13
+		receiverID := uint64(25)
 		subscriptionID := 200
 
 		shieldProject := &shieldv1beta1.Project{
@@ -393,15 +400,9 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		}
 		shieldGroup := &shieldv1beta1.Group{
 			Slug: "test-group",
-			Metadata: newStruct(t, map[string]interface{}{
-				"alerting": map[string]interface{}{
-					string(channelCriticality): map[string]interface{}{
-						"slack": map[string]interface{}{
-							"channel": channelName,
-						},
-					},
-				},
-			}),
+		}
+		sirenReceivers := []*sirenv1beta1.Receiver{
+			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel},
 		}
 
 		expectedSirenPayload := &sirenv1beta1.CreateSubscriptionRequest{
@@ -411,25 +412,19 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 			),
 			Namespace: uint64(sirenNamespace),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
-				{
-					Id: 1,
-					Configuration: newStruct(t, map[string]interface{}{
-						"channel_name": channelName,
-					}),
-				},
+				{Id: receiverID},
 			},
 			Match: map[string]string{
 				"severity":   "CRITICAL",
 				"identifier": "test-pipeline-job",
 			},
 			Metadata: newStruct(t, map[string]interface{}{
-				"group_id":            groupID,
-				"group_slug":          shieldGroup.Slug,
-				"resource_type":       "optimus",
-				"resource_id":         "test-pipeline-job",
-				"channel_criticality": string(channelCriticality),
-				"project_id":          projectID,
-				"project_slug":        shieldProject.Slug,
+				"group_id":      groupID,
+				"group_slug":    shieldGroup.Slug,
+				"resource_type": "optimus",
+				"resource_id":   "test-pipeline-job",
+				"project_id":    projectID,
+				"project_slug":  shieldProject.Slug,
 			}),
 			CreatedBy: userEmail,
 		}
@@ -444,6 +439,12 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"group_id":    groupID,
+				"criticality": string(channelCriticality),
+			},
+		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: sirenReceivers}, nil)
 		sirenClient.
 			On("CreateSubscription", mock.Anything, expectedSirenPayload).
 			Return(&sirenv1beta1.CreateSubscriptionResponse{Id: uint64(subscriptionID)}, nil)
@@ -605,7 +606,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
-	t.Run("should return 422 on channel name could not be found on shield group", func(t *testing.T) {
+	t.Run("should return 422 on receiver could not be found", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
 
 		shieldProject := &shieldv1beta1.Project{
@@ -615,8 +616,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			}),
 		}
 		shieldGroup := &shieldv1beta1.Group{
-			Slug:     "test-group",
-			Metadata: nil,
+			Slug: "test-group",
 		}
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
@@ -625,6 +625,13 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"group_id":    groupID,
+				"criticality": string(channelCriticality),
+			},
+		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: nil}, nil)
+		defer sirenClient.AssertExpectations(t)
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, urlPath, requestBody)
@@ -639,7 +646,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 
 	t.Run("should return 200 on success", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
-		channelName := "test-channel"
+		receiverID := uint64(30)
 		sirenNamespace := 13
 
 		shieldProject := &shieldv1beta1.Project{
@@ -650,15 +657,9 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		}
 		shieldGroup := &shieldv1beta1.Group{
 			Slug: "test-group",
-			Metadata: newStruct(t, map[string]interface{}{
-				"alerting": map[string]interface{}{
-					string(channelCriticality): map[string]interface{}{
-						"slack": map[string]interface{}{
-							"channel": channelName,
-						},
-					},
-				},
-			}),
+		}
+		sirenReceivers := []*sirenv1beta1.Receiver{
+			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel},
 		}
 
 		expectedSirenPayload := &sirenv1beta1.UpdateSubscriptionRequest{
@@ -669,25 +670,19 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			),
 			Namespace: uint64(sirenNamespace),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
-				{
-					Id: 1,
-					Configuration: newStruct(t, map[string]interface{}{
-						"channel_name": channelName,
-					}),
-				},
+				{Id: receiverID},
 			},
 			Match: map[string]string{
 				"severity":   "CRITICAL",
 				"identifier": "test-pipeline-job",
 			},
 			Metadata: newStruct(t, map[string]interface{}{
-				"group_id":            groupID,
-				"group_slug":          shieldGroup.Slug,
-				"resource_type":       "optimus",
-				"resource_id":         "test-pipeline-job",
-				"channel_criticality": string(channelCriticality),
-				"project_id":          projectID,
-				"project_slug":        shieldProject.Slug,
+				"group_id":      groupID,
+				"group_slug":    shieldGroup.Slug,
+				"resource_type": "optimus",
+				"resource_id":   "test-pipeline-job",
+				"project_id":    projectID,
+				"project_slug":  shieldProject.Slug,
 			}),
 			UpdatedBy: userEmail,
 		}
@@ -702,6 +697,12 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"group_id":    groupID,
+				"criticality": string(channelCriticality),
+			},
+		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: sirenReceivers}, nil)
 		sirenClient.
 			On("UpdateSubscription", mock.Anything, expectedSirenPayload).
 			Return(nil, nil)
