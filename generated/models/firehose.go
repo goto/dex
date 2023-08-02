@@ -119,8 +119,6 @@ func (m *Firehose) validateConfigs(formats strfmt.Registry) error {
 		if err := m.Configs.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("configs")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("configs")
 			}
 			return err
 		}
@@ -175,8 +173,6 @@ func (m *Firehose) validateState(formats strfmt.Registry) error {
 		if err := m.State.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("state")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("state")
 			}
 			return err
 		}
@@ -242,8 +238,6 @@ func (m *Firehose) contextValidateConfigs(ctx context.Context, formats strfmt.Re
 		if err := m.Configs.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("configs")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("configs")
 			}
 			return err
 		}
@@ -267,8 +261,6 @@ func (m *Firehose) contextValidateState(ctx context.Context, formats strfmt.Regi
 		if err := m.State.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("state")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("state")
 			}
 			return err
 		}
