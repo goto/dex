@@ -61,6 +61,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("project must be specified"))
 		return
 	}
+	def.Configs.StopTime = sanitizeFirehoseStopTime(def.Configs.StopTime)
 
 	def.Labels = cloneAndMergeMaps(def.Labels, map[string]string{
 		labelTitle:       *def.Title,
@@ -253,6 +254,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, err)
 		return
 	}
+	updates.Configs.StopTime = sanitizeFirehoseStopTime(updates.Configs.StopTime)
 
 	existingFirehose, err := api.getFirehose(r.Context(), urn)
 	if err != nil {
@@ -261,7 +263,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	} else if updates.Configs.DeploymentID != existingFirehose.Configs.DeploymentID {
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("deployment_id cannot be updated"))
 		return
-	} else if updates.Configs.KubeCluster != existingFirehose.Configs.KubeCluster {
+	} else if *(updates.Configs.KubeCluster) != *(existingFirehose.Configs.KubeCluster) {
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("kube_cluster cannot be updated"))
 		return
 	}
@@ -331,17 +333,17 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	urn := chi.URLParam(r, pathParamURN)
 	reqCtx := reqctx.From(r.Context())
 
-	existing, err := api.getFirehose(r.Context(), urn)
-	if err != nil {
+	var req struct {
+		Description string                        `json:"description"`
+		Configs     *models.FirehosePartialConfig `json:"configs"`
+	}
+	if err := utils.ReadJSON(r, &req); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 
-	var req struct {
-		Description string                       `json:"description"`
-		Configs     models.FirehosePartialConfig `json:"configs"`
-	}
-	if err := utils.ReadJSON(r, &req); err != nil {
+	existing, err := api.getFirehose(r.Context(), urn)
+	if err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
@@ -447,7 +449,7 @@ func (api *firehoseAPI) getRevisions(ctx context.Context, urn string) ([]models.
 		return nil, err
 	}
 
-	prevSpec := []byte("{}")
+	prevRevision := []byte("{}")
 	var rh []models.RevisionDiff
 
 	marshaller := protojson.MarshalOptions{
@@ -462,24 +464,25 @@ func (api *firehoseAPI) getRevisions(ctx context.Context, urn string) ([]models.
 
 	for _, revision := range revisions {
 		var rd models.RevisionDiff
+		fd := new(entropyv1beta1.ResourceRevision)
+		fd.Spec = revision.GetSpec()
+		fd.Labels = revision.GetLabels()
 
-		currentSpec, err := marshaller.Marshal(revision.GetSpec())
+		currentRevision, err := marshaller.Marshal(fd)
 		if err != nil {
 			return nil, err
 		}
 
-		specDiff, err := jsonDiff(prevSpec, currentSpec)
+		revisionDiff, err := jsonDiff(prevRevision, currentRevision)
 		if err != nil {
 			return nil, err
 		}
-
-		rd.Labels = revision.GetLabels()
 		rd.Reason = revision.GetReason()
-		rd.Diff = json.RawMessage(specDiff)
+		rd.Diff = json.RawMessage(revisionDiff)
 		rd.UpdatedAt = strfmt.DateTime(revision.GetCreatedAt().AsTime())
 
 		rh = append(rh, rd)
-		prevSpec = currentSpec
+		prevRevision = currentRevision
 	}
 
 	return rh, nil

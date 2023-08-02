@@ -39,6 +39,7 @@ generate:
 generate-mocks:
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc --name=SirenServiceClient
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc --name=ShieldServiceClient
+	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc --name=JobSpecificationServiceClient
 
 clean: tidy
 	@echo "Cleaning up build directories..."
@@ -53,13 +54,11 @@ test-coverage: test
 	@echo "Generating coverage report..."
 	@go tool cover -html=${COVERAGE_DIR}/coverage.out
 
-build: clean
-	@mkdir -p ${BUILD_DIR}
-	@echo "Running build for '${VERSION}' in '${BUILD_DIR}/'..."
-	@CGO_ENABLED=0 go build -ldflags '-X "${NAME}/pkg/version.Version=${VERSION}" -X "${NAME}/pkg/version.Commit=${COMMIT}" -X "${NAME}/pkg/version.BuildTime=${BUILD_TIME}"' -o ${BUILD_DIR}/${EXE}
+build:
+	@goreleaser build --snapshot --rm-dist --single-target
 
 download:
 	@go mod download
 
 setup:
-	@go install github.com/vektra/mockery/v2@v2.10.4
+	@go install github.com/vektra/mockery/v2@v2.30.1
