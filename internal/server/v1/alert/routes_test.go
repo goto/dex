@@ -408,7 +408,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		expectedSirenPayload := &sirenv1beta1.CreateSubscriptionRequest{
 			Urn: fmt.Sprintf(
 				"%s:%s:%s:%s",
-				groupID, "CRITICAL", "optimus", "test-pipeline-job",
+				"test-group", "CRITICAL", "optimus", "test-pipeline-job",
 			),
 			Namespace: uint64(sirenNamespace),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{

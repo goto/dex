@@ -299,7 +299,7 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 		expectedSirenPayload := &sirenv1beta1.CreateSubscriptionRequest{
 			Urn: fmt.Sprintf(
 				"%s:%s:%s:%s",
-				form.GroupID, form.AlertSeverity, form.ResourceType, form.ResourceID,
+				shieldGroup.GetSlug(), form.AlertSeverity, form.ResourceType, form.ResourceID,
 			),
 			Namespace: uint64(sirenNamespace),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
@@ -513,7 +513,7 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 			Id: uint64(subscriptionID),
 			Urn: fmt.Sprintf(
 				"%s:%s:%s:%s",
-				form.GroupID, form.AlertSeverity, form.ResourceType, form.ResourceID,
+				shieldGroup.GetSlug(), form.AlertSeverity, form.ResourceType, form.ResourceID,
 			),
 			Namespace: uint64(sirenNamespace),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{

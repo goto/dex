@@ -85,7 +85,7 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form Sub
 	}
 
 	request := &sirenv1beta1.CreateSubscriptionRequest{
-		Urn:       buildSubscriptionURN(form),
+		Urn:       buildSubscriptionURN(form, group.GetSlug()),
 		Namespace: namespaceID,
 		Receivers: []*sirenv1beta1.ReceiverMetadata{
 			{
@@ -124,7 +124,7 @@ func (svc *SubscriptionService) UpdateSubscription(ctx context.Context, subscrip
 	}
 	request := &sirenv1beta1.UpdateSubscriptionRequest{
 		Id:        uint64(subscriptionID),
-		Urn:       buildSubscriptionURN(form),
+		Urn:       buildSubscriptionURN(form, group.GetSlug()),
 		Namespace: namespaceID,
 		Receivers: []*sirenv1beta1.ReceiverMetadata{
 			{Id: receiver.Id},
@@ -261,6 +261,6 @@ func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug 
 	return metadata, nil
 }
 
-func buildSubscriptionURN(form SubscriptionForm) string {
-	return fmt.Sprintf("%s:%s:%s:%s", form.GroupID, form.AlertSeverity, form.ResourceType, form.ResourceID)
+func buildSubscriptionURN(form SubscriptionForm, groupSlug string) string {
+	return fmt.Sprintf("%s:%s:%s:%s", groupSlug, form.AlertSeverity, form.ResourceType, form.ResourceID)
 }

@@ -1180,7 +1180,7 @@ definitions:
     properties: 
       project_id:
         type: string
-        example: "p-gojek-id"
+        example: "113564a1-4f87-4312-b4c8-53c3ebd4f1f2"
       resource_id:
         type: string
         description: Firehose Unique Identifier
