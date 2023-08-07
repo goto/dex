@@ -111,7 +111,7 @@ func requestLogger(lg *zap.Logger) middleware {
 
 			buf, err := io.ReadAll(req.Body)
 			if err != nil {
-				lg.Error("error reading request body: %v", zap.String("error", err.Error()))
+				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
 				http.Error(wr, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -121,20 +121,12 @@ func requestLogger(lg *zap.Logger) middleware {
 			body := json.RawMessage(buf)
 			jsonBody, err := json.Marshal(body)
 			if err != nil {
-				lg.Error("error marshling request body: %v", zap.String("error", err.Error()))
+				lg.Debug("error marshling request body: %v", zap.String("error", err.Error()))
 				http.Error(wr, err.Error(), http.StatusInternalServerError)
 				return
 			}
 
 			clientID, _, _ := req.BasicAuth()
-			fields := []zap.Field{
-				zap.String("request_path", req.URL.Path),
-				zap.String("request_method", req.Method),
-				zap.String("request_id", req.Header.Get(headerRequestID)),
-				zap.String("client_id", clientID),
-				zap.String("trace_id", span.SpanContext().TraceID.String()),
-				zap.String("request_body", string(jsonBody)),
-			}
 
 			wrapped := &wrappedWriter{ResponseWriter: wr, Status: http.StatusOK}
 
@@ -150,10 +142,17 @@ func requestLogger(lg *zap.Logger) middleware {
 			}
 
 			next.ServeHTTP(fr, req)
-			fields = append(fields,
+
+			fields := []zap.Field{
+				zap.String("request_path", req.URL.Path),
+				zap.String("request_method", req.Method),
+				zap.String("request_id", req.Header.Get(headerRequestID)),
+				zap.String("client_id", clientID),
+				zap.String("trace_id", span.SpanContext().TraceID.String()),
 				zap.String("response_time", time.Since(t).String()),
+				zap.String("request_body", string(jsonBody)),
 				zap.Int("status", wrapped.Status),
-			)
+			}
 
 			if !is2xx(wrapped.Status) {
 				lg.Warn("request handled with non-2xx response", fields...)
