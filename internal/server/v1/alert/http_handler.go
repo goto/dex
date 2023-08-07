@@ -45,7 +45,7 @@ func (h *Handler) findSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"subscription": subscription,
+		"subscription": mapToSubscription(subscription),
 	})
 }
 
@@ -67,7 +67,7 @@ func (h *Handler) getSubscriptions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"subscriptions": subscriptions,
+		"subscriptions": mapToSubscriptionList(subscriptions),
 	})
 }
 
@@ -119,7 +119,7 @@ func (h *Handler) createSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"subscription": subscription,
+		"subscription": mapToSubscription(subscription),
 	})
 }
 
@@ -178,7 +178,7 @@ func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"subscription": subscription,
+		"subscription": mapToSubscription(subscription),
 	})
 }
 

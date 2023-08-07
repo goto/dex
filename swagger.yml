@@ -662,8 +662,7 @@ paths:
               subscriptions:
                 type: array
                 items: 
-                  type: object
-                  description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+                  $ref: "#/definitions/Subscription"
         "400":
           description: Validation Error
           schema:
@@ -688,8 +687,7 @@ paths:
             type: object
             properties: 
               subscription:
-                type: object
-                description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+                $ref: "#/definitions/Subscription"
         "400":
           description: Validation Error
           schema:
@@ -723,8 +721,7 @@ paths:
             type: object
             properties: 
               subscription:
-                type: object
-                description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+                $ref: "#/definitions/Subscription"
         "404":
           description: Not Found Error
           schema:
@@ -753,8 +750,7 @@ paths:
             type: object
             properties: 
               subscription:
-                type: object
-                description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+                $ref: "#/definitions/Subscription"
         "400":
           description: Validation Error
           schema:
@@ -1122,6 +1118,44 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/AlertTemplate"
+  Subscription:
+    type: object
+    description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
+    properties:
+      id:
+        type: string
+        format: uint64
+      urn:
+        type: string
+      namespace:
+        type: string
+        format: uint64
+      receivers:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uint64
+            configuration:
+              type: object
+      match:
+        type: object
+        additionalProperties:
+          type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      metadata:
+        type: object
+      created_by:
+        type: string
+      updated_by:
+        type: string
   History:
     type: object
     properties:
