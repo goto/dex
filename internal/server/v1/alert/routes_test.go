@@ -666,7 +666,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			Id: uint64(subscriptionID),
 			Urn: fmt.Sprintf(
 				"%s:%s:%s:%s",
-				groupID, "CRITICAL", "optimus", "test-pipeline-job",
+				shieldGroup.Slug, "CRITICAL", "optimus", "test-pipeline-job",
 			),
 			Namespace: uint64(sirenNamespace),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
