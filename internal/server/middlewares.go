@@ -1,7 +1,10 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -106,6 +109,23 @@ func requestLogger(lg *zap.Logger) middleware {
 			t := time.Now()
 			span := trace.FromContext(req.Context())
 
+			buf, err := io.ReadAll(req.Body)
+			if err != nil {
+				lg.Error("error reading request body: %v", zap.String("error", err.Error()))
+				http.Error(wr, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			reader := io.NopCloser(bytes.NewBuffer(buf))
+			req.Body = reader
+
+			body := json.RawMessage(buf)
+			jsonBody, err := json.Marshal(body)
+			if err != nil {
+				lg.Error("error marshling request body: %v", zap.String("error", err.Error()))
+				http.Error(wr, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
 			clientID, _, _ := req.BasicAuth()
 			fields := []zap.Field{
 				zap.String("request_path", req.URL.Path),
@@ -113,6 +133,7 @@ func requestLogger(lg *zap.Logger) middleware {
 				zap.String("request_id", req.Header.Get(headerRequestID)),
 				zap.String("client_id", clientID),
 				zap.String("trace_id", span.SpanContext().TraceID.String()),
+				zap.String("request_body", string(jsonBody)),
 			}
 
 			wrapped := &wrappedWriter{ResponseWriter: wr, Status: http.StatusOK}
