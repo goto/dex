@@ -63,7 +63,7 @@ func TestRoutesFindSubscription(t *testing.T) {
 		// assert response
 		resultJSON := response.Body.Bytes()
 		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"subscription": subscription,
+			"subscription": alert.MapToSubscription(subscription),
 		})
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
@@ -171,7 +171,7 @@ func TestRoutesGetSubscriptions(t *testing.T) {
 		// assert response
 		resultJSON := response.Body.Bytes()
 		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"subscriptions": subscriptions,
+			"subscriptions": alert.MapToSubscriptionList(subscriptions),
 		})
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
@@ -283,8 +283,24 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 				"resource_id": "test-pipeline-job",
 				"resource_type": "optimus",
 				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
-				"alert_severity": "CRITICAL",
+				"alert_severity": "critical",
 				"channel_criticality": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": "info"
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "critical",
+				"channel_criticality": "INFO"
 			}`},
 			{jsonString: `{
 				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
@@ -293,14 +309,6 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
 				"alert_severity": "critical",
 				"channel_criticality": "info"
-			}`},
-			{jsonString: `{
-				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
-				"resource_id": "test-pipeline-job",
-				"resource_type": "optimus",
-				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
-				"alert_severity": "CRITICAL",
-				"channel_criticality": "INFO"
 			}`},
 		}
 
@@ -369,8 +377,8 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		sirenClient := new(mocks.SirenServiceClient)
 		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"group_id":    groupID,
-				"criticality": string(channelCriticality),
+				"team":     shieldGroup.Slug,
+				"severity": string(channelCriticality),
 			},
 		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: nil}, nil)
 		defer sirenClient.AssertExpectations(t)
@@ -441,8 +449,8 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		sirenClient := new(mocks.SirenServiceClient)
 		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"group_id":    groupID,
-				"criticality": string(channelCriticality),
+				"team":     shieldGroup.Slug,
+				"severity": string(channelCriticality),
 			},
 		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: sirenReceivers}, nil)
 		sirenClient.
@@ -468,7 +476,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, response.Code)
 		resultJSON := response.Body.Bytes()
 		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"subscription": sirenSubscription,
+			"subscription": alert.MapToSubscription(sirenSubscription),
 		})
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
@@ -541,8 +549,24 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 				"resource_id": "test-pipeline-job",
 				"resource_type": "optimus",
 				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
-				"alert_severity": "CRITICAL",
+				"alert_severity": "critical",
 				"channel_criticality": ""
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "CRITICAL",
+				"channel_criticality": "info"
+			}`},
+			{jsonString: `{
+				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
+				"resource_id": "test-pipeline-job",
+				"resource_type": "optimus",
+				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
+				"alert_severity": "critical",
+				"channel_criticality": "INFO"
 			}`},
 			{jsonString: `{
 				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
@@ -551,14 +575,6 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
 				"alert_severity": "critical",
 				"channel_criticality": "info"
-			}`},
-			{jsonString: `{
-				"project_id": "5dab4194-9516-421a-aafe-72fd3d96ec56",
-				"resource_id": "test-pipeline-job",
-				"resource_type": "optimus",
-				"group_id": "8a7219cd-53c9-47f1-9387-5cac7abe4dcb",
-				"alert_severity": "CRITICAL",
-				"channel_criticality": "INFO"
 			}`},
 		}
 
@@ -627,8 +643,8 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		sirenClient := new(mocks.SirenServiceClient)
 		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"group_id":    groupID,
-				"criticality": string(channelCriticality),
+				"team":     shieldGroup.Slug,
+				"severity": string(channelCriticality),
 			},
 		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: nil}, nil)
 		defer sirenClient.AssertExpectations(t)
@@ -699,8 +715,8 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		sirenClient := new(mocks.SirenServiceClient)
 		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"group_id":    groupID,
-				"criticality": string(channelCriticality),
+				"team":     shieldGroup.Slug,
+				"severity": string(channelCriticality),
 			},
 		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: sirenReceivers}, nil)
 		sirenClient.
@@ -726,7 +742,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		resultJSON := response.Body.Bytes()
 		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"subscription": sirenSubscription,
+			"subscription": alert.MapToSubscription(sirenSubscription),
 		})
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))

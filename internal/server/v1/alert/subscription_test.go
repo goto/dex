@@ -247,8 +247,8 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 				siren := new(mocks.SirenServiceClient)
 				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
 					Labels: map[string]string{
-						"group_id":    form.GroupID,
-						"criticality": string(form.ChannelCriticality),
+						"team":     shieldGroup.Slug,
+						"severity": string(form.ChannelCriticality),
 					},
 				}).Return(&sirenv1beta1.ListReceiversResponse{
 					Receivers: test.receivers,
@@ -331,8 +331,8 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 		siren := new(mocks.SirenServiceClient)
 		siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"group_id":    form.GroupID,
-				"criticality": string(form.ChannelCriticality),
+				"team":     shieldGroup.Slug,
+				"severity": string(form.ChannelCriticality),
 			},
 		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: sirenReceivers}, nil)
 		siren.
@@ -460,8 +460,8 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 				siren := new(mocks.SirenServiceClient)
 				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
 					Labels: map[string]string{
-						"group_id":    form.GroupID,
-						"criticality": string(form.ChannelCriticality),
+						"team":     shieldGroup.Slug,
+						"severity": string(form.ChannelCriticality),
 					},
 				}).Return(&sirenv1beta1.ListReceiversResponse{
 					Receivers: test.receivers,
@@ -545,8 +545,8 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 		siren := new(mocks.SirenServiceClient)
 		siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"group_id":    form.GroupID,
-				"criticality": string(form.ChannelCriticality),
+				"team":     shieldGroup.Slug,
+				"severity": string(form.ChannelCriticality),
 			},
 		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: sirenReceivers}, nil)
 		siren.

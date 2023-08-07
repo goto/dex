@@ -1238,8 +1238,8 @@ definitions:
           - CRITICAL
       channel_criticality:
         type: string
-        default: critical
+        default: CRITICAL
         enum:
-          - info
-          - warning
-          - critical
+          - INFO
+          - WARNING
+          - CRITICAL

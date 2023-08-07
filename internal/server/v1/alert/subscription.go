@@ -74,7 +74,7 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form Sub
 	if err != nil {
 		return 0, err
 	}
-	receiver, err := svc.getSirenReceiver(ctx, form.GroupID, form.ChannelCriticality)
+	receiver, err := svc.getSirenReceiver(ctx, group.Slug, form.ChannelCriticality)
 	if err != nil {
 		return 0, fmt.Errorf("error getting siren's receiver: %w", err)
 	}
@@ -113,7 +113,7 @@ func (svc *SubscriptionService) UpdateSubscription(ctx context.Context, subscrip
 	if err != nil {
 		return err
 	}
-	receiver, err := svc.getSirenReceiver(ctx, form.GroupID, form.ChannelCriticality)
+	receiver, err := svc.getSirenReceiver(ctx, group.Slug, form.ChannelCriticality)
 	if err != nil {
 		return fmt.Errorf("error getting siren's receiver: %w", err)
 	}
@@ -220,11 +220,11 @@ func (*SubscriptionService) getSirenNamespaceID(project *shieldv1beta1.Project) 
 	return uint64(namespaceID), nil
 }
 
-func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupID string, criticality ChannelCriticality) (*sirenv1beta1.Receiver, error) {
+func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupSlug string, criticality ChannelCriticality) (*sirenv1beta1.Receiver, error) {
 	resp, err := svc.sirenClient.ListReceivers(ctx, &sirenv1beta1.ListReceiversRequest{
 		Labels: map[string]string{
-			"group_id":    groupID,
-			"criticality": string(criticality),
+			"team":     groupSlug,
+			"severity": string(criticality),
 		},
 	})
 	if err != nil {

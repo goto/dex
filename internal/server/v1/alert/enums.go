@@ -11,7 +11,7 @@ const (
 type ChannelCriticality string
 
 const (
-	ChannelCriticalityInfo     ChannelCriticality = "info"
-	ChannelCriticalityWarning  ChannelCriticality = "warning"
-	ChannelCriticalityCritical ChannelCriticality = "critical"
+	ChannelCriticalityInfo     ChannelCriticality = "INFO"
+	ChannelCriticalityWarning  ChannelCriticality = "WARNING"
+	ChannelCriticalityCritical ChannelCriticality = "CRITICAL"
 )

@@ -27,7 +27,7 @@ type SubscriptionForm struct {
 
 	// channel criticality
 	// Required: true
-	// Enum: [info warning critical]
+	// Enum: [INFO WARNING CRITICAL]
 	ChannelCriticality *string `json:"channel_criticality"`
 
 	// Shield's group id
@@ -36,7 +36,7 @@ type SubscriptionForm struct {
 	GroupID *string `json:"group_id"`
 
 	// project id
-	// Example: p-gojek-id
+	// Example: 113564a1-4f87-4312-b4c8-53c3ebd4f1f2
 	// Required: true
 	ProjectID *string `json:"project_id"`
 
@@ -134,7 +134,7 @@ var subscriptionFormTypeChannelCriticalityPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["info","warning","critical"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["INFO","WARNING","CRITICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -144,14 +144,14 @@ func init() {
 
 const (
 
-	// SubscriptionFormChannelCriticalityInfo captures enum value "info"
-	SubscriptionFormChannelCriticalityInfo string = "info"
+	// SubscriptionFormChannelCriticalityINFO captures enum value "INFO"
+	SubscriptionFormChannelCriticalityINFO string = "INFO"
 
-	// SubscriptionFormChannelCriticalityWarning captures enum value "warning"
-	SubscriptionFormChannelCriticalityWarning string = "warning"
+	// SubscriptionFormChannelCriticalityWARNING captures enum value "WARNING"
+	SubscriptionFormChannelCriticalityWARNING string = "WARNING"
 
-	// SubscriptionFormChannelCriticalityCritical captures enum value "critical"
-	SubscriptionFormChannelCriticalityCritical string = "critical"
+	// SubscriptionFormChannelCriticalityCRITICAL captures enum value "CRITICAL"
+	SubscriptionFormChannelCriticalityCRITICAL string = "CRITICAL"
 )
 
 // prop value enum

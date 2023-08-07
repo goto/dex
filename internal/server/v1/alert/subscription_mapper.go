@@ -9,15 +9,15 @@ import (
 	"github.com/goto/dex/generated/models"
 )
 
-func mapToSubscriptionList(sirenSubs []*sirenv1beta1.Subscription) []models.Subscription {
+func MapToSubscriptionList(sirenSubs []*sirenv1beta1.Subscription) []models.Subscription {
 	subs := []models.Subscription{}
 	for _, sirenSub := range sirenSubs {
-		subs = append(subs, mapToSubscription(sirenSub))
+		subs = append(subs, MapToSubscription(sirenSub))
 	}
 	return subs
 }
 
-func mapToSubscription(sirenSub *sirenv1beta1.Subscription) models.Subscription {
+func MapToSubscription(sirenSub *sirenv1beta1.Subscription) models.Subscription {
 	receivers := mapSirenReceiversToModels(sirenSub.Receivers)
 
 	return models.Subscription{
