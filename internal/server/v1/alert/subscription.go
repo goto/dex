@@ -247,12 +247,13 @@ func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupSlug 
 
 func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug string) (*structpb.Struct, error) {
 	metadata, err := structpb.NewStruct(map[string]interface{}{
-		"group_id":      form.GroupID,
-		"resource_type": form.ResourceType,
-		"resource_id":   form.ResourceID,
-		"project_id":    form.ProjectID,
-		"group_slug":    groupSlug,
-		"project_slug":  projectSlug,
+		"group_id":            form.GroupID,
+		"resource_type":       form.ResourceType,
+		"resource_id":         form.ResourceID,
+		"project_id":          form.ProjectID,
+		"group_slug":          groupSlug,
+		"project_slug":        projectSlug,
+		"channel_criticality": string(form.ChannelCriticality),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error building metadata: %w", err)
