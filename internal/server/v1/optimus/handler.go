@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/goto/dex/internal/server/utils"
+	"github.com/goto/dex/pkg/errors"
 )
 
 type Handler struct {
@@ -30,7 +31,14 @@ func (h *Handler) findJob(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	projectName := chi.URLParam(r, "project_name")
+	q := r.URL.Query()
+
+	projectName := q.Get("project")
+
+	if projectName == "" {
+		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("project query param is required"))
+		return
+	}
 
 	listResp, err := h.service.ListJobs(r.Context(), projectName)
 	if err != nil {
