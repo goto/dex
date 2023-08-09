@@ -33,6 +33,10 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CreateFirehose(params *CreateFirehoseParams, opts ...ClientOption) (*CreateFirehoseCreated, error)
 
+	DeleteAlertSubscription(params *DeleteAlertSubscriptionParams, opts ...ClientOption) (*DeleteAlertSubscriptionOK, error)
+
+	GetAlertSubscription(params *GetAlertSubscriptionParams, opts ...ClientOption) (*GetAlertSubscriptionOK, error)
+
 	GetFirehose(params *GetFirehoseParams, opts ...ClientOption) (*GetFirehoseOK, error)
 
 	GetFirehoseAlertPolicy(params *GetFirehoseAlertPolicyParams, opts ...ClientOption) (*GetFirehoseAlertPolicyOK, error)
@@ -47,6 +51,8 @@ type ClientService interface {
 
 	GetProjectBySlug(params *GetProjectBySlugParams, opts ...ClientOption) (*GetProjectBySlugOK, error)
 
+	GetSubscriptionList(params *GetSubscriptionListParams, opts ...ClientOption) (*GetSubscriptionListOK, error)
+
 	ListAlertTemplates(params *ListAlertTemplatesParams, opts ...ClientOption) (*ListAlertTemplatesOK, error)
 
 	ListFirehoses(params *ListFirehosesParams, opts ...ClientOption) (*ListFirehosesOK, error)
@@ -54,6 +60,8 @@ type ClientService interface {
 	ListKubernetes(params *ListKubernetesParams, opts ...ClientOption) (*ListKubernetesOK, error)
 
 	ListProjects(params *ListProjectsParams, opts ...ClientOption) (*ListProjectsOK, error)
+
+	NewAlertSubscription(params *NewAlertSubscriptionParams, opts ...ClientOption) (*NewAlertSubscriptionCreated, error)
 
 	PartialUpdateFirehose(params *PartialUpdateFirehoseParams, opts ...ClientOption) (*PartialUpdateFirehoseOK, error)
 
@@ -64,6 +72,8 @@ type ClientService interface {
 	StartFirehose(params *StartFirehoseParams, opts ...ClientOption) (*StartFirehoseOK, error)
 
 	StopFirehose(params *StopFirehoseParams, opts ...ClientOption) (*StopFirehoseOK, error)
+
+	UpdateAlertSubscription(params *UpdateAlertSubscriptionParams, opts ...ClientOption) (*UpdateAlertSubscriptionOK, error)
 
 	UpdateFirehose(params *UpdateFirehoseParams, opts ...ClientOption) (*UpdateFirehoseOK, error)
 
@@ -111,6 +121,86 @@ func (a *Client) CreateFirehose(params *CreateFirehoseParams, opts ...ClientOpti
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createFirehose: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+DeleteAlertSubscription deletes existing siren subscription
+
+Delete an existing Siren's alert subscription.
+*/
+func (a *Client) DeleteAlertSubscription(params *DeleteAlertSubscriptionParams, opts ...ClientOption) (*DeleteAlertSubscriptionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteAlertSubscriptionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "deleteAlertSubscription",
+		Method:             "DELETE",
+		PathPattern:        "/dex/subscriptions/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteAlertSubscriptionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteAlertSubscriptionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for deleteAlertSubscription: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+GetAlertSubscription gets existing siren subscription
+
+Get an existing Siren's alert subscription.
+*/
+func (a *Client) GetAlertSubscription(params *GetAlertSubscriptionParams, opts ...ClientOption) (*GetAlertSubscriptionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetAlertSubscriptionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "getAlertSubscription",
+		Method:             "GET",
+		PathPattern:        "/dex/subscriptions/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetAlertSubscriptionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetAlertSubscriptionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getAlertSubscription: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -395,6 +485,46 @@ func (a *Client) GetProjectBySlug(params *GetProjectBySlugParams, opts ...Client
 }
 
 /*
+GetSubscriptionList gets a list of subscriptions
+
+Get a list of Siren's alert subscription.
+*/
+func (a *Client) GetSubscriptionList(params *GetSubscriptionListParams, opts ...ClientOption) (*GetSubscriptionListOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetSubscriptionListParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "getSubscriptionList",
+		Method:             "GET",
+		PathPattern:        "/dex/subscriptions",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetSubscriptionListReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetSubscriptionListOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getSubscriptionList: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 ListAlertTemplates gets list of alert templates for firehose
 
 Get list of alert templates for firehose.
@@ -551,6 +681,46 @@ func (a *Client) ListProjects(params *ListProjectsParams, opts ...ClientOption) 
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for listProjects: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+NewAlertSubscription creates a new alert subscription
+
+Create a new Siren's alert subscription.
+*/
+func (a *Client) NewAlertSubscription(params *NewAlertSubscriptionParams, opts ...ClientOption) (*NewAlertSubscriptionCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewNewAlertSubscriptionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "newAlertSubscription",
+		Method:             "POST",
+		PathPattern:        "/dex/subscriptions",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &NewAlertSubscriptionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*NewAlertSubscriptionCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for newAlertSubscription: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -751,6 +921,46 @@ func (a *Client) StopFirehose(params *StopFirehoseParams, opts ...ClientOption) 
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for stopFirehose: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+UpdateAlertSubscription updates existing siren subscription
+
+Update an existing Siren's alert subscription.
+*/
+func (a *Client) UpdateAlertSubscription(params *UpdateAlertSubscriptionParams, opts ...ClientOption) (*UpdateAlertSubscriptionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateAlertSubscriptionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "updateAlertSubscription",
+		Method:             "PUT",
+		PathPattern:        "/dex/subscriptions/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateAlertSubscriptionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateAlertSubscriptionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateAlertSubscription: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
