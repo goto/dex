@@ -269,6 +269,7 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 	t.Run("should create subscription on success", func(t *testing.T) {
 		receiverID := uint64(15)
 		sirenNamespace := 5
+		channelName := "test-alert-channel"
 
 		// inputs
 		form := alert.SubscriptionForm{
@@ -292,7 +293,9 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 			}),
 		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
-			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel},
+			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
+				"channel_name": channelName,
+			})},
 		}
 
 		// expectations
@@ -317,6 +320,7 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 				"project_id":          form.ProjectID,
 				"project_slug":        shieldProject.Slug,
 				"channel_criticality": string(form.ChannelCriticality),
+				"channel_name":        channelName,
 			}),
 			CreatedBy: form.UserID,
 		}
@@ -483,6 +487,7 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 	t.Run("should update subscription on success", func(t *testing.T) {
 		receiverID := uint64(17)
 		sirenNamespace := 5
+		channelName := "test-channel-update"
 
 		// inputs
 		form := alert.SubscriptionForm{
@@ -506,7 +511,9 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 			}),
 		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
-			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel},
+			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
+				"channel_name": channelName,
+			})},
 		}
 
 		// expecations
@@ -532,6 +539,7 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 				"project_id":          form.ProjectID,
 				"project_slug":        shieldProject.Slug,
 				"channel_criticality": string(form.ChannelCriticality),
+				"channel_name":        channelName,
 			}),
 			UpdatedBy: form.UserID,
 		}

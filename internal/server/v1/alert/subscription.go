@@ -79,7 +79,7 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form Sub
 		return 0, fmt.Errorf("error getting siren's receiver: %w", err)
 	}
 
-	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug)
+	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug, svc.getChannelName(receiver))
 	if err != nil {
 		return 0, err
 	}
@@ -118,7 +118,7 @@ func (svc *SubscriptionService) UpdateSubscription(ctx context.Context, subscrip
 		return fmt.Errorf("error getting siren's receiver: %w", err)
 	}
 
-	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug)
+	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug, svc.getChannelName(receiver))
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,22 @@ func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupSlug 
 	return receiver, nil
 }
 
-func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug string) (*structpb.Struct, error) {
+func (svc *SubscriptionService) getChannelName(receiver *sirenv1beta1.Receiver) string {
+	configMap := receiver.Configurations.AsMap()
+	channelNameAny, exists := configMap["channel_name"]
+	if !exists {
+		return ""
+	}
+
+	channelName, ok := channelNameAny.(string)
+	if !ok {
+		return ""
+	}
+
+	return channelName
+}
+
+func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug, channelName string) (*structpb.Struct, error) {
 	metadata, err := structpb.NewStruct(map[string]interface{}{
 		"group_id":            form.GroupID,
 		"resource_type":       form.ResourceType,
@@ -254,6 +269,7 @@ func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug 
 		"group_slug":          groupSlug,
 		"project_slug":        projectSlug,
 		"channel_criticality": string(form.ChannelCriticality),
+		"channel_name":        channelName,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error building metadata: %w", err)

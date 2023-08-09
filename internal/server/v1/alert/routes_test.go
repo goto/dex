@@ -399,6 +399,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		sirenNamespace := 13
 		receiverID := uint64(25)
 		subscriptionID := 200
+		channelName := "test-channel-30"
 
 		shieldProject := &shieldv1beta1.Project{
 			Slug: "test-project",
@@ -410,7 +411,9 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 			Slug: "test-group",
 		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
-			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel},
+			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
+				"channel_name": channelName,
+			})},
 		}
 
 		expectedSirenPayload := &sirenv1beta1.CreateSubscriptionRequest{
@@ -434,6 +437,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 				"project_id":          projectID,
 				"project_slug":        shieldProject.Slug,
 				"channel_criticality": string(channelCriticality),
+				"channel_name":        channelName,
 			}),
 			CreatedBy: userEmail,
 		}
@@ -665,6 +669,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
 		receiverID := uint64(30)
 		sirenNamespace := 13
+		channelName := "test-channel-70"
 
 		shieldProject := &shieldv1beta1.Project{
 			Slug: "test-project",
@@ -676,7 +681,9 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			Slug: "test-group",
 		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
-			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel},
+			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
+				"channel_name": channelName,
+			})},
 		}
 
 		expectedSirenPayload := &sirenv1beta1.UpdateSubscriptionRequest{
@@ -701,6 +708,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 				"project_id":          projectID,
 				"project_slug":        shieldProject.Slug,
 				"channel_criticality": string(channelCriticality),
+				"channel_name":        channelName,
 			}),
 			UpdatedBy: userEmail,
 		}
