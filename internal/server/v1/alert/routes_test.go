@@ -867,9 +867,11 @@ func TestRoutesGetAlertChannels(t *testing.T) {
 			{
 				Id:   30,
 				Name: "test-receiver-info-2",
+				Labels: map[string]string{
+					"severity": string(alert.AlertSeverityInfo),
+				},
 				Configurations: newStruct(t, map[string]interface{}{
 					"channel_name": channelName,
-					"severity":     string(alert.AlertSeverityInfo),
 				}),
 			},
 		}

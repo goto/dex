@@ -179,13 +179,14 @@ func (svc *SubscriptionService) GetAlertChannels(ctx context.Context, groupID st
 
 	alertChannels := []models.AlertChannel{}
 	for _, recv := range receivers {
-		values := svc.getSirenReceiverConfigValues(recv, "channel_name", "severity")
+		severity := svc.getSirenReceiverLabelValues(recv, "severity")[0]
+		channelName := svc.getSirenReceiverConfigValues(recv, "channel_name")[0]
 
 		alertChannels = append(alertChannels, models.AlertChannel{
 			ReceiverID:         fmt.Sprint(recv.Id),
 			ReceiverName:       recv.Name,
-			ChannelName:        values[0],
-			ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality(values[1])),
+			ChannelName:        channelName,
+			ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality(severity)),
 		})
 	}
 
@@ -304,6 +305,20 @@ func (*SubscriptionService) getSirenReceiverConfigValues(receiver *sirenv1beta1.
 			if ok {
 				values[i] = value
 			}
+		}
+	}
+
+	return values
+}
+
+func (*SubscriptionService) getSirenReceiverLabelValues(receiver *sirenv1beta1.Receiver, keys ...string) []string {
+	labels := receiver.GetLabels()
+
+	values := make([]string, len(keys))
+	for i, key := range keys {
+		value, exists := labels[key]
+		if exists {
+			values[i] = value
 		}
 	}
 

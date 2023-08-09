@@ -643,25 +643,31 @@ func TestSubscriptionServiceGetAlertChannels(t *testing.T) {
 			{
 				Id:   54,
 				Name: "test-receiver-info-1",
+				Labels: map[string]string{
+					"severity": string(alert.AlertSeverityInfo),
+				},
 				Configurations: newStruct(t, map[string]interface{}{
 					"channel_name": "test-channel-info-1",
-					"severity":     string(alert.AlertSeverityInfo),
 				}),
 			},
 			{
 				Id:   55,
 				Name: "test-receiver-critical-1",
+				Labels: map[string]string{
+					"severity": string(alert.AlertSeverityCritical),
+				},
 				Configurations: newStruct(t, map[string]interface{}{
 					"channel_name": "test-channel-critical-1",
-					"severity":     string(alert.AlertSeverityCritical),
 				}),
 			},
 			{
 				Id:   56,
 				Name: "test-receiver-warning-1",
+				Labels: map[string]string{
+					"severity": string(alert.AlertSeverityWarning),
+				},
 				Configurations: newStruct(t, map[string]interface{}{
 					"channel_name": "test-channel-warning-1",
-					"severity":     string(alert.AlertSeverityWarning),
 				}),
 			},
 		}
