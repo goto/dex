@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
+
+	"github.com/goto/dex/generated/models"
 )
 
 type SubscriptionService struct {
@@ -79,7 +81,8 @@ func (svc *SubscriptionService) CreateSubscription(ctx context.Context, form Sub
 		return 0, fmt.Errorf("error getting siren's receiver: %w", err)
 	}
 
-	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug, svc.getChannelName(receiver))
+	channelName := svc.getSirenReceiverConfigValues(receiver, "channel_name")[0]
+	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug, channelName)
 	if err != nil {
 		return 0, err
 	}
@@ -118,7 +121,8 @@ func (svc *SubscriptionService) UpdateSubscription(ctx context.Context, subscrip
 		return fmt.Errorf("error getting siren's receiver: %w", err)
 	}
 
-	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug, svc.getChannelName(receiver))
+	channelName := svc.getSirenReceiverConfigValues(receiver, "channel_name")[0]
+	metadata, err := buildSubscriptionMetadataMap(form, project.Slug, group.Slug, channelName)
 	if err != nil {
 		return err
 	}
@@ -162,6 +166,32 @@ func (svc *SubscriptionService) DeleteSubscription(ctx context.Context, subscrip
 	return nil
 }
 
+func (svc *SubscriptionService) GetAlertChannels(ctx context.Context, groupID string) ([]models.AlertChannel, error) {
+	group, err := svc.getGroup(ctx, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting group: %w", err)
+	}
+
+	receivers, err := svc.getSirenReceivers(ctx, group.Slug)
+	if err != nil {
+		return nil, fmt.Errorf("error getting receivers: %w", err)
+	}
+
+	alertChannels := []models.AlertChannel{}
+	for _, recv := range receivers {
+		values := svc.getSirenReceiverConfigValues(recv, "channel_name", "severity")
+
+		alertChannels = append(alertChannels, models.AlertChannel{
+			ReceiverID:         fmt.Sprint(recv.Id),
+			ReceiverName:       recv.Name,
+			ChannelName:        values[0],
+			ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality(values[1])),
+		})
+	}
+
+	return alertChannels, nil
+}
+
 func (svc *SubscriptionService) fetchShieldData(
 	ctx context.Context,
 	projectID, groupID string,
@@ -188,6 +218,11 @@ func (svc *SubscriptionService) getGroup(ctx context.Context, groupID string) (*
 		Id: groupID,
 	})
 	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			if e.Code() == codes.NotFound {
+				return nil, ErrNoShieldGroup
+			}
+		}
 		return nil, err
 	}
 
@@ -245,19 +280,34 @@ func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupSlug 
 	return receiver, nil
 }
 
-func (svc *SubscriptionService) getChannelName(receiver *sirenv1beta1.Receiver) string {
+func (svc *SubscriptionService) getSirenReceivers(ctx context.Context, groupSlug string) ([]*sirenv1beta1.Receiver, error) {
+	resp, err := svc.sirenClient.ListReceivers(ctx, &sirenv1beta1.ListReceiversRequest{
+		Labels: map[string]string{
+			"team": groupSlug,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Receivers, nil
+}
+
+func (*SubscriptionService) getSirenReceiverConfigValues(receiver *sirenv1beta1.Receiver, keys ...string) []string {
 	configMap := receiver.Configurations.AsMap()
-	channelNameAny, exists := configMap["channel_name"]
-	if !exists {
-		return ""
+
+	values := make([]string, len(keys))
+	for i, key := range keys {
+		valueAny, exists := configMap[key]
+		if exists {
+			value, ok := valueAny.(string)
+			if ok {
+				values[i] = value
+			}
+		}
 	}
 
-	channelName, ok := channelNameAny.(string)
-	if !ok {
-		return ""
-	}
-
-	return channelName
+	return values
 }
 
 func buildSubscriptionMetadataMap(form SubscriptionForm, projectSlug, groupSlug, channelName string) (*structpb.Struct, error) {
