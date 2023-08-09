@@ -57,19 +57,19 @@ func NewGetFirehoseHistoryOK() *GetFirehoseHistoryOK {
 History for given firehose URN.
 */
 type GetFirehoseHistoryOK struct {
-	Payload *models.History
+	Payload *models.HistoryResponse
 }
 
 func (o *GetFirehoseHistoryOK) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryOK  %+v", 200, o.Payload)
 }
-func (o *GetFirehoseHistoryOK) GetPayload() *models.History {
+func (o *GetFirehoseHistoryOK) GetPayload() *models.HistoryResponse {
 	return o.Payload
 }
 
 func (o *GetFirehoseHistoryOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.History)
+	o.Payload = new(models.HistoryResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

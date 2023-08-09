@@ -72,7 +72,7 @@ type ResetOffsetOK struct {
 }
 
 func (o *ResetOffsetOK) Error() string {
-	return fmt.Sprintf("[POST /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetOK  %+v", 200, o.Payload)
 }
 func (o *ResetOffsetOK) GetPayload() *models.Firehose {
 	return o.Payload
@@ -105,7 +105,7 @@ type ResetOffsetBadRequest struct {
 }
 
 func (o *ResetOffsetBadRequest) Error() string {
-	return fmt.Sprintf("[POST /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetBadRequest  %+v", 400, o.Payload)
 }
 func (o *ResetOffsetBadRequest) GetPayload() *models.ErrorResponse {
 	return o.Payload
@@ -138,7 +138,7 @@ type ResetOffsetNotFound struct {
 }
 
 func (o *ResetOffsetNotFound) Error() string {
-	return fmt.Sprintf("[POST /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetNotFound  %+v", 404, o.Payload)
 }
 func (o *ResetOffsetNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
@@ -171,7 +171,7 @@ type ResetOffsetInternalServerError struct {
 }
 
 func (o *ResetOffsetInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetInternalServerError  %+v", 500, o.Payload)
 }
 func (o *ResetOffsetInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload

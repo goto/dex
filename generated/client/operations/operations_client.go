@@ -606,7 +606,7 @@ func (a *Client) ResetOffset(params *ResetOffsetParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "resetOffset",
-		Method:             "POST",
+		Method:             "PUT",
 		PathPattern:        "/dex/firehoses/{firehoseUrn}/reset",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -646,7 +646,7 @@ func (a *Client) ScaleFirehose(params *ScaleFirehoseParams, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "scaleFirehose",
-		Method:             "POST",
+		Method:             "PUT",
 		PathPattern:        "/dex/firehoses/{firehoseUrn}/scale",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

@@ -29,6 +29,11 @@ type Firehose struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
+	// created by
+	// Example: john.doe@example.com
+	// Read Only: true
+	CreatedBy string `json:"created_by,omitempty"`
+
 	// description
 	// Example: This firehose consumes from booking events and ingests to redis
 	Description string `json:"description,omitempty"`
@@ -64,6 +69,11 @@ type Firehose struct {
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
+
+	// updated by
+	// Example: jane.doe@example.com
+	// Read Only: true
+	UpdatedBy string `json:"updated_by,omitempty"`
 
 	// urn
 	// Example: orn:foo:firehose:fh1
@@ -214,11 +224,19 @@ func (m *Firehose) ContextValidate(ctx context.Context, formats strfmt.Registry)
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCreatedBy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateState(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedBy(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -255,6 +273,15 @@ func (m *Firehose) contextValidateCreatedAt(ctx context.Context, formats strfmt.
 	return nil
 }
 
+func (m *Firehose) contextValidateCreatedBy(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "created_by", "body", string(m.CreatedBy)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Firehose) contextValidateState(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.State != nil {
@@ -272,6 +299,15 @@ func (m *Firehose) contextValidateState(ctx context.Context, formats strfmt.Regi
 func (m *Firehose) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "updated_at", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Firehose) contextValidateUpdatedBy(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updated_by", "body", string(m.UpdatedBy)); err != nil {
 		return err
 	}
 
