@@ -9,6 +9,7 @@ require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
 	github.com/BurntSushi/toml v1.0.0
 	github.com/MakeNowJust/heredoc v1.0.0
+	github.com/StewartJingga/gojsondiff v0.0.0-20230726042605-339ce16d300b
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-openapi/errors v0.20.3
@@ -16,7 +17,7 @@ require (
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.0
-	github.com/goto/entropy v0.6.7
+	github.com/goto/entropy v0.7.5
 	github.com/goto/salt v0.3.0
 	github.com/goto/siren v0.6.5
 	github.com/mitchellh/mapstructure v1.5.0
@@ -25,7 +26,6 @@ require (
 	github.com/rs/xid v1.4.0
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
-	github.com/wI2L/jsondiff v0.4.0
 	github.com/yudai/pp v2.0.1+incompatible
 	go.opencensus.io v0.24.0
 	go.uber.org/zap v1.24.0
@@ -164,6 +164,7 @@ require (
 	github.com/russross/blackfriday v1.5.2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/schollz/progressbar/v3 v3.13.0 // indirect
+	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
@@ -178,6 +179,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	github.com/xo/dburl v0.12.4 // indirect
+	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yuin/goldmark v1.5.2 // indirect
 	github.com/yuin/goldmark-emoji v1.0.1 // indirect
 	go.mongodb.org/mongo-driver v1.10.0 // indirect
