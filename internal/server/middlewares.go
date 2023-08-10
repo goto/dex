@@ -16,6 +16,8 @@ import (
 	"go.opencensus.io/tag"
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
+
+	"github.com/goto/dex/internal/server/utils"
 )
 
 const headerRequestID = "X-Request-Id"
@@ -126,7 +128,7 @@ func requestLogger(lg *zap.Logger) middleware {
 			buf, err := io.ReadAll(req.Body)
 			if err != nil {
 				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
-				http.Error(wr, err.Error(), http.StatusInternalServerError)
+				utils.WriteErrMsg(wr, http.StatusInternalServerError, "Internal Server Error")
 				return
 			}
 			reader := io.NopCloser(bytes.NewBuffer(buf))
@@ -136,7 +138,7 @@ func requestLogger(lg *zap.Logger) middleware {
 				dst := &bytes.Buffer{}
 				if err := json.Compact(dst, buf); err != nil {
 					lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
-					http.Error(wr, err.Error(), http.StatusInternalServerError)
+					utils.WriteErrMsg(wr, http.StatusInternalServerError, "Internal Server Error")
 					return
 				}
 
