@@ -133,15 +133,14 @@ func requestLogger(lg *zap.Logger) middleware {
 			req.Body = reader
 
 			if len(buf) > 0 {
-				body := json.RawMessage(buf)
-				jsonBody, err := json.Marshal(body)
-				if err != nil {
-					lg.Debug("error marshling request body: %v", zap.String("error", err.Error()))
+				dst := &bytes.Buffer{}
+				if err := json.Compact(dst, buf); err != nil {
+					lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
 					http.Error(wr, err.Error(), http.StatusInternalServerError)
 					return
 				}
 
-				fields = append(fields, zap.String("request_body", string(jsonBody)))
+				fields = append(fields, zap.String("request_body", dst.String()))
 			}
 
 			var fr http.ResponseWriter
