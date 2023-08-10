@@ -123,7 +123,10 @@ func requestLogger(lg *zap.Logger) middleware {
 				zap.Int("status", wrapped.Status),
 			}
 
-			if req.Method != http.MethodGet {
+			switch req.Method {
+			case http.MethodGet:
+				break
+			default:
 				buf, err := io.ReadAll(req.Body)
 				if err != nil {
 					lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
