@@ -123,21 +123,23 @@ func requestLogger(lg *zap.Logger) middleware {
 				zap.Int("status", wrapped.Status),
 			}
 
-			buf, err := io.ReadAll(req.Body)
-			if err != nil {
-				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
-			} else if len(buf) > 0 {
-				dst := &bytes.Buffer{}
-				err := json.Compact(dst, buf)
+			if req.Method != http.MethodGet {
+				buf, err := io.ReadAll(req.Body)
 				if err != nil {
-					lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
-				} else {
-					fields = append(fields, zap.String("request_body", dst.String()))
+					lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
+				} else if len(buf) > 0 {
+					dst := &bytes.Buffer{}
+					err := json.Compact(dst, buf)
+					if err != nil {
+						lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
+					} else {
+						fields = append(fields, zap.String("request_body", dst.String()))
+					}
 				}
-			}
 
-			reader := io.NopCloser(bytes.NewBuffer(buf))
-			req.Body = reader
+				reader := io.NopCloser(bytes.NewBuffer(buf))
+				req.Body = reader
+			}
 
 			var fr http.ResponseWriter
 			flusher, ok := wr.(http.Flusher)
