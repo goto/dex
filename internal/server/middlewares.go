@@ -16,8 +16,6 @@ import (
 	"go.opencensus.io/tag"
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
-
-	"github.com/goto/dex/internal/server/utils"
 )
 
 const headerRequestID = "X-Request-Id"
@@ -128,22 +126,18 @@ func requestLogger(lg *zap.Logger) middleware {
 			buf, err := io.ReadAll(req.Body)
 			if err != nil {
 				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
-				utils.WriteErrMsg(wr, http.StatusInternalServerError, "Internal Server Error")
-				return
+			} else if len(buf) > 0 {
+				dst := &bytes.Buffer{}
+				err := json.Compact(dst, buf)
+				if err != nil {
+					lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
+				} else {
+					fields = append(fields, zap.String("request_body", dst.String()))
+				}
 			}
+
 			reader := io.NopCloser(bytes.NewBuffer(buf))
 			req.Body = reader
-
-			if len(buf) > 0 {
-				dst := &bytes.Buffer{}
-				if err := json.Compact(dst, buf); err != nil {
-					lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
-					utils.WriteErrMsg(wr, http.StatusInternalServerError, "Internal Server Error")
-					return
-				}
-
-				fields = append(fields, zap.String("request_body", dst.String()))
-			}
 
 			var fr http.ResponseWriter
 			flusher, ok := wr.(http.Flusher)
