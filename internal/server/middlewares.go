@@ -113,37 +113,6 @@ func requestLogger(lg *zap.Logger) middleware {
 
 			wrapped := &wrappedWriter{ResponseWriter: wr, Status: http.StatusOK}
 
-			fields := []zap.Field{
-				zap.String("request_path", req.URL.Path),
-				zap.String("request_method", req.Method),
-				zap.String("request_id", req.Header.Get(headerRequestID)),
-				zap.String("client_id", clientID),
-				zap.String("trace_id", span.SpanContext().TraceID.String()),
-				zap.String("response_time", time.Since(t).String()),
-				zap.Int("status", wrapped.Status),
-			}
-
-			switch req.Method {
-			case http.MethodGet:
-				break
-			default:
-				buf, err := io.ReadAll(req.Body)
-				if err != nil {
-					lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
-				} else if len(buf) > 0 {
-					dst := &bytes.Buffer{}
-					err := json.Compact(dst, buf)
-					if err != nil {
-						lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
-					} else {
-						fields = append(fields, zap.String("request_body", dst.String()))
-					}
-				}
-
-				reader := io.NopCloser(bytes.NewBuffer(buf))
-				req.Body = reader
-			}
-
 			var fr http.ResponseWriter
 			flusher, ok := wr.(http.Flusher)
 			if !ok {
@@ -157,10 +126,44 @@ func requestLogger(lg *zap.Logger) middleware {
 
 			next.ServeHTTP(fr, req)
 
-			if !is2xx(wrapped.Status) {
-				lg.Warn("request handled with non-2xx response", fields...)
-			} else {
-				lg.Info("request handled", fields...)
+			if req.URL.Path != "/ping" {
+
+				fields := []zap.Field{
+					zap.String("request_path", req.URL.Path),
+					zap.String("request_method", req.Method),
+					zap.String("request_id", req.Header.Get(headerRequestID)),
+					zap.String("client_id", clientID),
+					zap.String("trace_id", span.SpanContext().TraceID.String()),
+					zap.String("response_time", time.Since(t).String()),
+					zap.Int("status", wrapped.Status),
+				}
+
+				switch req.Method {
+				case http.MethodGet:
+					break
+				default:
+					buf, err := io.ReadAll(req.Body)
+					if err != nil {
+						lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
+					} else if len(buf) > 0 {
+						dst := &bytes.Buffer{}
+						err := json.Compact(dst, buf)
+						if err != nil {
+							lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
+						} else {
+							fields = append(fields, zap.String("request_body", dst.String()))
+						}
+					}
+
+					reader := io.NopCloser(bytes.NewBuffer(buf))
+					req.Body = reader
+				}
+
+				if !is2xx(wrapped.Status) {
+					lg.Warn("request handled with non-2xx response", fields...)
+				} else {
+					lg.Info("request handled", fields...)
+				}
 			}
 		})
 	}
