@@ -717,6 +717,612 @@ func TestSubscriptionServiceGetAlertChannels(t *testing.T) {
 	})
 }
 
+func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
+	var (
+		ctx         = context.TODO()
+		groupID     = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		orgID       = "ea597d5c-1280-473b-ad28-7551c1336fe0"
+		shieldGroup = &shieldv1beta1.Group{
+			Slug:  "test-group-slug-12",
+			OrgId: orgID,
+		}
+		shieldOrg = &shieldv1beta1.Organization{
+			Slug: "test-org-slug-21",
+		}
+	)
+
+	t.Run("should return error if group cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		siren := new(mocks.SirenServiceClient)
+
+		service := alert.NewSubscriptionService(siren, shield)
+		_, err := service.SetAlertChannels(ctx, groupID, []alert.AlertChannelForm{})
+		assert.ErrorIs(t, err, alert.ErrNoShieldGroup)
+	})
+
+	t.Run("should return error if org cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		siren := new(mocks.SirenServiceClient)
+
+		service := alert.NewSubscriptionService(siren, shield)
+		_, err := service.SetAlertChannels(ctx, groupID, []alert.AlertChannelForm{})
+		assert.Error(t, err)
+	})
+
+	t.Run("should return error if parent slack receiver cannot be found or invalid", func(t *testing.T) {
+		tests := []struct {
+			description string
+			receivers   []*sirenv1beta1.Receiver
+		}{
+			{
+				description: "empty receivers",
+				receivers:   []*sirenv1beta1.Receiver{},
+			},
+			{
+				description: "wrong type and entity",
+				receivers: []*sirenv1beta1.Receiver{
+					{
+						Type: sirenReceiverPkg.TypeSlackChannel,
+						Labels: map[string]string{
+							"entity":          "test-org,sample-org",
+							"is_parent_slack": "true",
+						},
+					},
+				},
+			},
+			{
+				description: "wrong entity",
+				receivers: []*sirenv1beta1.Receiver{
+					{
+						Type: sirenReceiverPkg.TypeSlack,
+						Labels: map[string]string{
+							"entity":          "test-org,sample-org",
+							"is_parent_slack": "true",
+						},
+					},
+				},
+			},
+			{
+				description: "wrong type",
+				receivers: []*sirenv1beta1.Receiver{
+					{
+						Type: sirenReceiverPkg.TypeSlackChannel,
+						Labels: map[string]string{
+							"entity":          "test-org,test-org-slug-21,sample-org",
+							"is_parent_slack": "true",
+						},
+					},
+				},
+			},
+		}
+
+		for _, test := range tests {
+			t.Run(test.description, func(t *testing.T) {
+				shield := new(mocks.ShieldServiceClient)
+				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+				defer shield.AssertExpectations(t)
+				siren := new(mocks.SirenServiceClient)
+				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
+					Labels: map[string]string{
+						"is_parent_slack": "true",
+					},
+				}).Return(&sirenv1beta1.ListReceiversResponse{
+					Receivers: test.receivers,
+				}, nil)
+				defer siren.AssertExpectations(t)
+
+				service := alert.NewSubscriptionService(siren, shield)
+				_, err := service.SetAlertChannels(ctx, groupID, []alert.AlertChannelForm{})
+				assert.ErrorIs(t, err, alert.ErrNoSirenParentSlackReceiver)
+			})
+		}
+	})
+
+	t.Run("should create/update the correct receiver(s) and return the correct results", func(t *testing.T) {
+		parentReceiverID := uint64(20)
+
+		tests := []struct {
+			description       string
+			existingReceivers []*sirenv1beta1.Receiver
+			forms             []alert.AlertChannelForm
+			setupSiren        func(*mocks.SirenServiceClient)
+			expected          []models.AlertChannel
+		}{
+			{
+				description: "single new slack channel",
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality: alert.ChannelCriticalityInfo,
+						ChannelName:        "test-channel-932",
+						ChannelType:        "slack_channel",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name:     fmt.Sprintf("%s-%s-slack_channel-info", shieldOrg.Slug, shieldGroup.Slug),
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "test-channel-932",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 30}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("INFO")),
+						ChannelName:        "test-channel-932",
+						ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+						ReceiverID:         "30",
+						ReceiverName:       fmt.Sprintf("%s-%s-slack_channel-info", shieldOrg.Slug, shieldGroup.Slug),
+					},
+				},
+			},
+			{
+				description: "single update slack channel",
+				existingReceivers: []*sirenv1beta1.Receiver{
+					{
+						Id:       15,
+						Name:     "old-name-1293",
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"org":      "test",
+							"team":     "sample-team",
+							"severity": "CRITICAL",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "old-slack-channel-30",
+						}),
+					},
+				},
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality: alert.ChannelCriticalityCritical,
+						ChannelName:        "new-channel-932",
+						ChannelType:        "slack_channel",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("UpdateReceiver", ctx, &sirenv1beta1.UpdateReceiverRequest{
+						Id:       15,
+						Name:     "old-name-1293",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"org":      "test",
+							"team":     "sample-team",
+							"severity": "CRITICAL",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "new-channel-932",
+						}),
+					}).Return(&sirenv1beta1.UpdateReceiverResponse{Id: 15}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("CRITICAL")),
+						ChannelName:        "new-channel-932",
+						ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+						ReceiverID:         "15",
+						ReceiverName:       "old-name-1293",
+					},
+				},
+			},
+			{
+				description: "single new pagerduty channel",
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality:  alert.ChannelCriticalityCritical,
+						PagerdutyServiceKey: "sample-service-key-192903",
+						ChannelType:         "pagerduty",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name: fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "CRITICAL",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "sample-service-key-192903",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 82}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("CRITICAL")),
+						PagerdutyServiceKey: "sample-service-key-192903",
+						ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+						ReceiverID:          "82",
+						ReceiverName:        fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+					},
+				},
+			},
+			{
+				description: "single update pagerduty channel",
+				existingReceivers: []*sirenv1beta1.Receiver{
+					{
+						Id:   75,
+						Name: "old-name-9953",
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"org":      "test",
+							"team":     "sample-team",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "old-service-key-5i31",
+						}),
+					},
+				},
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality:  alert.ChannelCriticalityInfo,
+						ChannelType:         "pagerduty",
+						PagerdutyServiceKey: "new-service-key-98293",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("UpdateReceiver", ctx, &sirenv1beta1.UpdateReceiverRequest{
+						Id:   75,
+						Name: "old-name-9953",
+						Labels: map[string]string{
+							"org":      "test",
+							"team":     "sample-team",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "new-service-key-98293",
+						}),
+					}).Return(&sirenv1beta1.UpdateReceiverResponse{Id: 75}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("INFO")),
+						PagerdutyServiceKey: "new-service-key-98293",
+						ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+						ReceiverID:          "75",
+						ReceiverName:        "old-name-9953",
+					},
+				},
+			},
+			{
+				description: "multiple new pagerduty channel",
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality:  alert.ChannelCriticalityInfo,
+						PagerdutyServiceKey: "sample-service-key-123",
+						ChannelType:         "pagerduty",
+					},
+					{
+						ChannelCriticality:  alert.ChannelCriticalityWarning,
+						PagerdutyServiceKey: "sample-service-key-321",
+						ChannelType:         "pagerduty",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name: fmt.Sprintf("%s-%s-pagerduty-info", shieldOrg.Slug, shieldGroup.Slug),
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "sample-service-key-123",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 11}, nil).Once()
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name: fmt.Sprintf("%s-%s-pagerduty-warning", shieldOrg.Slug, shieldGroup.Slug),
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "WARNING",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "sample-service-key-321",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 98}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("INFO")),
+						PagerdutyServiceKey: "sample-service-key-123",
+						ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+						ReceiverID:          "11",
+						ReceiverName:        fmt.Sprintf("%s-%s-pagerduty-info", shieldOrg.Slug, shieldGroup.Slug),
+					},
+					{
+						ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("WARNING")),
+						PagerdutyServiceKey: "sample-service-key-321",
+						ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+						ReceiverID:          "98",
+						ReceiverName:        fmt.Sprintf("%s-%s-pagerduty-warning", shieldOrg.Slug, shieldGroup.Slug),
+					},
+				},
+			},
+			{
+				description: "multiple new slack channel",
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality: alert.ChannelCriticalityCritical,
+						ChannelName:        "test-channel-123",
+						ChannelType:        "slack_channel",
+					},
+					{
+						ChannelCriticality: alert.ChannelCriticalityWarning,
+						ChannelName:        "test-channel-321",
+						ChannelType:        "slack_channel",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name:     fmt.Sprintf("%s-%s-slack_channel-critical", shieldOrg.Slug, shieldGroup.Slug),
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "CRITICAL",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "test-channel-123",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 76}, nil).Once()
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name:     fmt.Sprintf("%s-%s-slack_channel-warning", shieldOrg.Slug, shieldGroup.Slug),
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "WARNING",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "test-channel-321",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 10}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("CRITICAL")),
+						ChannelName:        "test-channel-123",
+						ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+						ReceiverID:         "76",
+						ReceiverName:       fmt.Sprintf("%s-%s-slack_channel-critical", shieldOrg.Slug, shieldGroup.Slug),
+					},
+					{
+						ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("WARNING")),
+						ChannelName:        "test-channel-321",
+						ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+						ReceiverID:         "10",
+						ReceiverName:       fmt.Sprintf("%s-%s-slack_channel-warning", shieldOrg.Slug, shieldGroup.Slug),
+					},
+				},
+			},
+			{
+				description: "multiple channel type and mixed create/update",
+				existingReceivers: []*sirenv1beta1.Receiver{
+					{
+						Id:       20,
+						Name:     "old-name-1231",
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"org":      "test-12",
+							"team":     "sample-team-120",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "old-slack-channel-023",
+						}),
+					},
+					{
+						Id:   123,
+						Name: "old-name-10203",
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"org":      "test-12",
+							"team":     "sample-team-120",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "old-service-key-111",
+						}),
+					},
+					{
+						Id:   421,
+						Name: "old-name-9201",
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"org":      "test-83",
+							"team":     "sample-team-2481",
+							"severity": "WARNING",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "old-service-key-3921",
+						}),
+					},
+				},
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality: alert.ChannelCriticalityWarning,
+						ChannelName:        "test-channel-3942",
+						ChannelType:        "slack_channel",
+					},
+					{
+						ChannelCriticality:  alert.ChannelCriticalityWarning,
+						PagerdutyServiceKey: "test-service-key-83891",
+						ChannelType:         "pagerduty",
+					},
+					{
+						ChannelCriticality: alert.ChannelCriticalityInfo,
+						ChannelName:        "test-channel-1929",
+						ChannelType:        "slack_channel",
+					},
+					{
+						ChannelCriticality:  alert.ChannelCriticalityCritical,
+						PagerdutyServiceKey: "test-service-key-582",
+						ChannelType:         "pagerduty",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name:     fmt.Sprintf("%s-%s-slack_channel-warning", shieldOrg.Slug, shieldGroup.Slug),
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "WARNING",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "test-channel-3942",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 84}, nil).Once()
+
+					siren.On("UpdateReceiver", ctx, &sirenv1beta1.UpdateReceiverRequest{
+						Id:   421,
+						Name: "old-name-9201",
+						Labels: map[string]string{
+							"org":      "test-83",
+							"team":     "sample-team-2481",
+							"severity": "WARNING",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "test-service-key-83891",
+						}),
+					}).Return(&sirenv1beta1.UpdateReceiverResponse{Id: 421}, nil).Once()
+
+					siren.On("UpdateReceiver", ctx, &sirenv1beta1.UpdateReceiverRequest{
+						Id:       20,
+						Name:     "old-name-1231",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"org":      "test-12",
+							"team":     "sample-team-120",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "test-channel-1929",
+						}),
+					}).Return(&sirenv1beta1.UpdateReceiverResponse{Id: 20}, nil).Once()
+
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name: fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "CRITICAL",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "test-service-key-582",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 129}, nil).Once()
+				},
+				expected: []models.AlertChannel{
+					{
+						ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("WARNING")),
+						ChannelName:        "test-channel-3942",
+						ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+						ReceiverID:         "84",
+						ReceiverName:       fmt.Sprintf("%s-%s-slack_channel-warning", shieldOrg.Slug, shieldGroup.Slug),
+					},
+					{
+						ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("WARNING")),
+						PagerdutyServiceKey: "test-service-key-83891",
+						ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+						ReceiverID:          "421",
+						ReceiverName:        "old-name-9201",
+					},
+					{
+						ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("INFO")),
+						ChannelName:        "test-channel-1929",
+						ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+						ReceiverID:         "20",
+						ReceiverName:       "old-name-1231",
+					},
+					{
+						ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("CRITICAL")),
+						PagerdutyServiceKey: "test-service-key-582",
+						ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+						ReceiverID:          "129",
+						ReceiverName:        fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+					},
+				},
+			},
+		}
+
+		for _, test := range tests {
+			t.Run(test.description, func(t *testing.T) {
+				parentReceiver := &sirenv1beta1.Receiver{
+					Id:   parentReceiverID,
+					Type: sirenReceiverPkg.TypeSlack,
+					Labels: map[string]string{
+						"entity":          "test-org,test-org-slug-21,sample-org",
+						"is_parent_slack": "true",
+					},
+				}
+
+				shield := new(mocks.ShieldServiceClient)
+				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+				defer shield.AssertExpectations(t)
+				siren := new(mocks.SirenServiceClient)
+				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
+					Labels: map[string]string{
+						"is_parent_slack": "true",
+					},
+				}).Return(&sirenv1beta1.ListReceiversResponse{
+					Receivers: []*sirenv1beta1.Receiver{parentReceiver},
+				}, nil).Once()
+				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
+					Labels: map[string]string{
+						"team": shieldGroup.Slug,
+					},
+				}).
+					Return(&sirenv1beta1.ListReceiversResponse{Receivers: test.existingReceivers}, nil).
+					Once()
+
+				test.setupSiren(siren)
+				defer siren.AssertExpectations(t)
+
+				service := alert.NewSubscriptionService(siren, shield)
+				results, err := service.SetAlertChannels(ctx, groupID, test.forms)
+				require.NoError(t, err)
+				assert.Equal(t, test.expected, results)
+			})
+		}
+	})
+}
+
 func newStruct(t *testing.T, d map[string]interface{}) *structpb.Struct {
 	t.Helper()
 

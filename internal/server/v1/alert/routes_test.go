@@ -918,6 +918,264 @@ func TestRoutesGetAlertChannels(t *testing.T) {
 	})
 }
 
+func TestRoutesSetAlertChannels(t *testing.T) {
+	var (
+		method           = http.MethodPut
+		groupID          = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		urlPath          = fmt.Sprintf("/groups/%s/alert_channels", groupID)
+		validJSONPayload = `{
+			"alert_channels": [
+				{
+					"channel_name": "test-channel-name",
+					"channel_type": "slack_channel",
+					"channel_criticality": "WARNING"
+				},
+				{
+					"pagerduty_service_key": "test-service-key",
+					"channel_type": "pagerduty",
+					"channel_criticality": "CRITICAL"
+				}
+			]
+		}`
+	)
+
+	t.Run("should return 400 on validation error", func(t *testing.T) {
+		tests := []struct {
+			jsonString string
+		}{
+			{jsonString: ``},
+			{jsonString: `{}`},
+			{jsonString: `{"alert_channels": null}`},
+			{jsonString: `{"alert_channels": []}`},
+			{jsonString: `{"alert_channels": [{}]}`},
+			{jsonString: `{
+				"alert_channels": [
+					{
+						"channel_type": ""
+						"channel_name": "test-channel-name",
+					}
+				]
+			}`},
+			{jsonString: `{
+				"alert_channels": [
+					{
+						"channel_type": "slack_channel"
+						"channel_name": "test-channel-name",
+					}
+				]
+			}`},
+			{jsonString: `{
+				"alert_channels": [
+					{
+						"channel_type": "slack_channel"
+						"channel_criticality": "",
+						"channel_name": "test-channel-name",
+					}
+				]
+			}`},
+			{jsonString: `{
+				"alert_channels": [
+					{
+						"channel_type": "slack"
+						"channel_criticality": "INFO",
+						"channel_name": "test-channel-name",
+					}
+				]
+			}`},
+			{jsonString: `{
+				"alert_channels": [
+					{
+						"channel_type": "slack_channel"
+						"channel_criticality": "WRONG-CRITICALITY",
+						"channel_name": "test-channel-name",
+					}
+				]
+			}`},
+		}
+
+		for i, test := range tests {
+			t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
+				requestBody := strings.NewReader(test.jsonString)
+
+				shieldClient := new(mocks.ShieldServiceClient)
+				sirenClient := new(mocks.SirenServiceClient)
+
+				response := httptest.NewRecorder()
+				request := httptest.NewRequest(method, urlPath, requestBody)
+				router := getRouter()
+				alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+				router.ServeHTTP(response, request)
+
+				// assert status
+				assert.Equal(t, http.StatusBadRequest, response.Code)
+			})
+		}
+	})
+
+	t.Run("should return 404 on group could not be found on shield", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(nil, status.Error(codes.NotFound, "Not Found"))
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 422 on parent slack receiver cannot be found", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		shieldGroup := &shieldv1beta1.Group{
+			Slug:  "test-group-slug-12",
+			OrgId: "ea597d5c-1280-473b-ad28-7551c1336fe0",
+		}
+		shieldOrg := &shieldv1beta1.Organization{
+			Slug: "test-org-slug-21",
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"is_parent_slack": "true",
+			},
+		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: nil}, nil)
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 200 on success", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		shieldGroup := &shieldv1beta1.Group{
+			Slug:  "test-group-slug-12",
+			OrgId: "ea597d5c-1280-473b-ad28-7551c1336fe0",
+		}
+		shieldOrg := &shieldv1beta1.Organization{
+			Slug: "test-org-slug-21",
+		}
+		parentReceiver := &sirenv1beta1.Receiver{
+			Id:   50,
+			Type: "slack",
+			Labels: map[string]string{
+				"entity": shieldOrg.Slug,
+			},
+		}
+
+		existingReceivers := []*sirenv1beta1.Receiver{
+			{
+				Id:       15,
+				Name:     "old-name-1293",
+				Type:     "slack_channel",
+				ParentId: parentReceiver.Id,
+				Labels: map[string]string{
+					"org":      "test",
+					"team":     "sample-team",
+					"severity": "WARNING",
+				},
+				Configurations: newStruct(t, map[string]interface{}{
+					"channel_name": "old-slack-channel-30",
+				}),
+			},
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"is_parent_slack": "true",
+			},
+		}).Return(&sirenv1beta1.ListReceiversResponse{
+			Receivers: []*sirenv1beta1.Receiver{parentReceiver},
+		}, nil).Once()
+		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
+			Labels: map[string]string{
+				"team": shieldGroup.Slug,
+			},
+		}).
+			Return(&sirenv1beta1.ListReceiversResponse{Receivers: existingReceivers}, nil).
+			Once()
+		sirenClient.On("UpdateReceiver", mock.Anything, &sirenv1beta1.UpdateReceiverRequest{
+			Id:       existingReceivers[0].Id,
+			Name:     existingReceivers[0].Name,
+			ParentId: existingReceivers[0].ParentId,
+			Labels:   existingReceivers[0].Labels,
+			Configurations: newStruct(t, map[string]interface{}{
+				"channel_name": "test-channel-name",
+			}),
+		}).Return(&sirenv1beta1.UpdateReceiverResponse{Id: existingReceivers[0].Id}, nil).Once()
+		sirenClient.On("CreateReceiver", mock.Anything, &sirenv1beta1.CreateReceiverRequest{
+			Name: fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+			Type: "pagerduty",
+			Labels: map[string]string{
+				"team":     shieldGroup.Slug,
+				"org":      shieldOrg.Slug,
+				"severity": "CRITICAL",
+			},
+			Configurations: newStruct(t, map[string]interface{}{
+				"service_key": "test-service-key",
+			}),
+		}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 81}, nil).Once()
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, http.StatusOK, response.Code)
+		resultJSON := response.Body.Bytes()
+		expectedJSON, err := json.Marshal(map[string]interface{}{
+			"alert_channels": []models.AlertChannel{
+				{
+					ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality("WARNING")),
+					ChannelName:        "test-channel-name",
+					ChannelType:        models.NewAlertChannelType(models.AlertChannelType("slack_channel")),
+					ReceiverID:         fmt.Sprintf("%d", existingReceivers[0].Id),
+					ReceiverName:       existingReceivers[0].Name,
+				},
+				{
+					ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality("CRITICAL")),
+					PagerdutyServiceKey: "test-service-key",
+					ChannelType:         models.NewAlertChannelType(models.AlertChannelType("pagerduty")),
+					ReceiverID:          "81",
+					ReceiverName:        fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+				},
+			},
+		})
+		require.NoError(t, err)
+		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
+	})
+}
+
 func getRouter() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(reqctx.WithRequestCtx())
