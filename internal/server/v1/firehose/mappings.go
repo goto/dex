@@ -67,7 +67,8 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 		stopTime = &t
 	}
 
-	envVars := buildEnvVarsBySink(sinkType, cfg.EnvVars)
+	envVars := buildEnvVarsBySink(sinkType, cfg.EnvVars, cfg)
+
 	return utils.GoValToProtoStruct(entropyFirehose.Config{
 		Stopped:  cfg.Stopped,
 		StopTime: stopTime,
@@ -178,7 +179,7 @@ func cloneAndMergeMaps(m1, m2 map[string]string) map[string]string {
 	return res
 }
 
-func buildEnvVarsBySink(sinkType string, envVars map[string]string) map[string]string {
+func buildEnvVarsBySink(sinkType string, envVars map[string]string, cfg *models.FirehoseConfig) map[string]string {
 	if sinkType == bigquerySinkType {
 		defaultIfEmpty(envVars, configBigqueryTableName, func() string {
 			t := envVars[configSourceKafkaTopic]
@@ -187,7 +188,7 @@ func buildEnvVarsBySink(sinkType string, envVars map[string]string) map[string]s
 			return t
 		})
 		defaultIfEmpty(envVars, configBigqueryDatasetName, func() string {
-			return envVars[configStreamName]
+			return *cfg.StreamName
 		})
 	}
 
