@@ -20,17 +20,6 @@ import (
 
 const kubeClusterDependencyKey = "kube_cluster"
 
-// Refer https://goto.github.io/firehose/advance/generic/
-const (
-	confSinkType              = "SINK_TYPE"
-	confStencilURL            = "SCHEMA_REGISTRY_STENCIL_URLS"
-	confStreamName            = "STREAM_NAME"
-	confProtoClassName        = "INPUT_SCHEMA_PROTO_CLASS"
-	confSourceKafkaBrokerAddr = "SOURCE_KAFKA_BROKERS"
-	confSourceKafkaConsumerID = "SOURCE_KAFKA_CONSUMER_GROUP_ID"
-	confStencilRegistryToggle = "SCHEMA_REGISTRY_STENCIL_ENABLE"
-)
-
 const (
 	labelTitle       = "title"
 	labelGroup       = "group"
@@ -67,8 +56,10 @@ func mapFirehoseEntropyResource(def models.Firehose, prj *shieldv1beta1.Project)
 }
 
 func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
+	sinkType := cfg.EnvVars[configSinkType]
+
 	var stopTime *time.Time
-	if strings.ToUpper(cfg.EnvVars[confSinkType]) == "LOG" {
+	if strings.ToUpper(cfg.EnvVars[configSinkType]) == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)
 		stopTime = &t
 	} else if cfg.StopTime != nil {
@@ -76,6 +67,7 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 		stopTime = &t
 	}
 
+	envVars := buildEnvVarsBySink(sinkType, cfg.EnvVars)
 	return utils.GoValToProtoStruct(entropyFirehose.Config{
 		Stopped:  cfg.Stopped,
 		StopTime: stopTime,
@@ -84,7 +76,7 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 			ImageTag: cfg.Image,
 		},
 		DeploymentID: cfg.DeploymentID,
-		EnvVariables: cfg.EnvVars,
+		EnvVariables: envVars,
 	})
 }
 
@@ -150,7 +142,7 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 
 	streamName := labels[labelStream]
 	if streamName == "" {
-		streamName = modConf.EnvVariables[confStreamName]
+		streamName = modConf.EnvVariables[configStreamName]
 	}
 
 	firehose.Configs = &models.FirehoseConfig{
@@ -183,4 +175,27 @@ func cloneAndMergeMaps(m1, m2 map[string]string) map[string]string {
 		res[k] = v
 	}
 	return res
+}
+
+func buildEnvVarsBySink(sinkType string, envVars map[string]string) map[string]string {
+	if sinkType == bigquerySinkType {
+		defaultIfEmpty(envVars, configBigqueryTableName, func() string {
+			t := envVars[configSourceKafkaTopic]
+			t = strings.ReplaceAll(t, ".", "_")
+			t = strings.ReplaceAll(t, "-", "_")
+			return t
+		})
+		defaultIfEmpty(envVars, configBigqueryDatasetName, func() string {
+			return envVars[configStreamName]
+		})
+	}
+
+	return envVars
+}
+
+func defaultIfEmpty(vars map[string]string, key string, defaultVal func() string) {
+	val, exists := vars[key]
+	if !exists || val == "" {
+		vars[key] = defaultVal()
+	}
 }

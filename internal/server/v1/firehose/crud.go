@@ -25,8 +25,7 @@ import (
 )
 
 const (
-	kindFirehose  = "firehose"
-	confTopicName = "SOURCE_KAFKA_TOPIC"
+	kindFirehose = "firehose"
 )
 
 func (api *firehoseAPI) handleGet(w http.ResponseWriter, r *http.Request) {
@@ -85,24 +84,24 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, err)
 		return
 	}
-	def.Configs.EnvVars[confSourceKafkaBrokerAddr] = sourceKafkaBroker
+	def.Configs.EnvVars[configSourceKafkaBrokers] = sourceKafkaBroker
 
-	def.Configs.EnvVars[confStencilRegistryToggle] = "true"
-	if def.Configs.EnvVars[confStencilURL] == "" {
+	def.Configs.EnvVars[configStencilEnable] = "true"
+	if def.Configs.EnvVars[configStencilURL] == "" {
 		stencilUrls, err := api.getStencilURLs(
 			r.Context(),
 			reqCtx.UserID,
-			def.Configs.EnvVars[confTopicName],
+			def.Configs.EnvVars[configSourceKafkaTopic],
 			streamURN,
 			prj.GetSlug(),
-			def.Configs.EnvVars[confProtoClassName],
+			def.Configs.EnvVars[configProtoClassName],
 		)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
 
-		def.Configs.EnvVars[confStencilURL] = stencilUrls
+		def.Configs.EnvVars[configStencilURL] = stencilUrls
 	}
 
 	res, err := mapFirehoseEntropyResource(def, prj)
@@ -199,9 +198,9 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	includeEnv := []string{
-		confSinkType,
-		confTopicName,
-		confSourceKafkaConsumerID,
+		configSinkType,
+		configSourceKafkaTopic,
+		configSourceKafkaConsumerGroup,
 	}
 
 	topicName := q.Get("topic_name")
@@ -219,11 +218,11 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if topicName != "" && def.Configs.EnvVars[confTopicName] != topicName {
+		if topicName != "" && def.Configs.EnvVars[configSourceKafkaTopic] != topicName {
 			continue
 		}
 
-		_, include := sinkTypes[def.Configs.EnvVars[confSinkType]]
+		_, include := sinkTypes[def.Configs.EnvVars[configSinkType]]
 		if len(sinkTypes) > 0 && !include {
 			continue
 		}
@@ -292,21 +291,21 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	streamURN := buildStreamURN(*updates.Configs.StreamName, existingFirehose.Project)
-	if updates.Configs.EnvVars[confStencilURL] == "" {
+	if updates.Configs.EnvVars[configStencilURL] == "" {
 		stencilUrls, err := api.getStencilURLs(
 			r.Context(),
 			reqCtx.UserID,
-			updates.Configs.EnvVars[confTopicName],
+			updates.Configs.EnvVars[configSourceKafkaTopic],
 			streamURN,
 			existingFirehose.Project,
-			updates.Configs.EnvVars[confProtoClassName],
+			updates.Configs.EnvVars[configProtoClassName],
 		)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
 
-		updates.Configs.EnvVars[confStencilURL] = stencilUrls
+		updates.Configs.EnvVars[configStencilURL] = stencilUrls
 	}
 
 	cfgStruct, err := makeConfigStruct(&updates.Configs)
@@ -397,21 +396,21 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		existing.Configs.Replicas = req.Configs.Replicas
 	}
 
-	if _, ok := req.Configs.EnvVars[confTopicName]; ok {
+	if _, ok := req.Configs.EnvVars[configSourceKafkaTopic]; ok {
 		streamURN := buildStreamURN(req.Configs.StreamName, existing.Project)
 		stencilUrls, err := api.getStencilURLs(
 			r.Context(),
 			reqCtx.UserID,
-			req.Configs.EnvVars[confTopicName],
+			req.Configs.EnvVars[configSourceKafkaTopic],
 			streamURN,
 			existing.Project,
-			req.Configs.EnvVars[confProtoClassName],
+			req.Configs.EnvVars[configProtoClassName],
 		)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
-		existing.Configs.EnvVars[confStencilURL] = stencilUrls
+		existing.Configs.EnvVars[configStencilURL] = stencilUrls
 	}
 
 	if req.Configs.StopTime != nil {
