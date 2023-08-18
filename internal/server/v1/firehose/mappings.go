@@ -150,6 +150,7 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 		EnvVars:      modConf.EnvVariables,
 		Stopped:      modConf.Stopped,
 		StopTime:     stopTime,
+		ResetOffset:  modConf.ResetOffset,
 		Replicas:     float64(modConf.Replicas),
 		StreamName:   &streamName,
 		DeploymentID: modConf.DeploymentID,
