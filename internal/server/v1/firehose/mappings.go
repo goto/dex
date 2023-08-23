@@ -56,8 +56,6 @@ func mapFirehoseEntropyResource(def models.Firehose, prj *shieldv1beta1.Project)
 }
 
 func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
-	sinkType := cfg.EnvVars[configSinkType]
-
 	var stopTime *time.Time
 	if strings.ToUpper(cfg.EnvVars[configSinkType]) == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)
@@ -67,8 +65,6 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 		stopTime = &t
 	}
 
-	envVars := buildEnvVarsBySink(sinkType, cfg.EnvVars, cfg)
-
 	return utils.GoValToProtoStruct(entropyFirehose.Config{
 		Stopped:  cfg.Stopped,
 		StopTime: stopTime,
@@ -77,7 +73,7 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 			ImageTag: cfg.Image,
 		},
 		DeploymentID: cfg.DeploymentID,
-		EnvVariables: envVars,
+		EnvVariables: cfg.EnvVars,
 	})
 }
 
@@ -177,27 +173,4 @@ func cloneAndMergeMaps(m1, m2 map[string]string) map[string]string {
 		res[k] = v
 	}
 	return res
-}
-
-func buildEnvVarsBySink(sinkType string, envVars map[string]string, cfg *models.FirehoseConfig) map[string]string {
-	if sinkType == bigquerySinkType {
-		defaultIfEmpty(envVars, configBigqueryTableName, func() string {
-			t := envVars[configSourceKafkaTopic]
-			t = strings.ReplaceAll(t, ".", "_")
-			t = strings.ReplaceAll(t, "-", "_")
-			return t
-		})
-		defaultIfEmpty(envVars, configBigqueryDatasetName, func() string {
-			return *cfg.StreamName
-		})
-	}
-
-	return envVars
-}
-
-func defaultIfEmpty(vars map[string]string, key string, defaultVal func() string) {
-	val, exists := vars[key]
-	if !exists || val == "" {
-		vars[key] = defaultVal()
-	}
 }
