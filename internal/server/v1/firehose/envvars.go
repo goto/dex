@@ -63,6 +63,11 @@ func buildEnvVarsBySink(sinkType string, envVars map[string]string, cfg *models.
 		envVars[configSourceKafkaConsumerMode] = "async"
 		envVars[configSinkPoolNumThreads] = "8"
 		envVars[configSinkPoolQueuePollTimeoutMS] = "100"
+		envVars[configBigqueryTablePartitioningEnable] = trueString
+		envVars[configBigqueryRowInsertIDEnable] = trueString
+		envVars[configBigqueryClientReadTimeoutMS] = "-1"
+		envVars[configBigqueryClientConnectTimeoutMS] = "-1"
+		envVars[configBigqueryMetadataNamespace] = "__kafka_metadata"
 		defaultIfEmpty(envVars, configBigqueryTableName, func() string {
 			t := envVars[configSourceKafkaTopic]
 			t = strings.ReplaceAll(t, ".", "_")

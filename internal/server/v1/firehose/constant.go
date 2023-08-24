@@ -44,6 +44,11 @@ const (
 	configRetryMaxAttempts                 = "RETRY_MAX_ATTEMPTS"
 
 	// BIGQUERY
-	configBigqueryTableName   = "SINK_BIGQUERY_TABLE_NAME"
-	configBigqueryDatasetName = "SINK_BIGQUERY_DATASET_NAME"
+	configBigqueryTableName               = "SINK_BIGQUERY_TABLE_NAME"
+	configBigqueryTablePartitioningEnable = "SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE"
+	configBigqueryDatasetName             = "SINK_BIGQUERY_DATASET_NAME"
+	configBigqueryRowInsertIDEnable       = "SINK_BIGQUERY_ROW_INSERT_ID_ENABLE"
+	configBigqueryClientReadTimeoutMS     = "SINK_BIGQUERY_CLIENT_READ_TIMEOUT_MS"
+	configBigqueryClientConnectTimeoutMS  = "SINK_BIGQUERY_CLIENT_CONNECT_TIMEOUT_MS"
+	configBigqueryMetadataNamespace       = "SINK_BIGQUERY_METADATA_NAMESPACE"
 )
