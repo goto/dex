@@ -101,9 +101,9 @@ paths:
           enum:
             - "LOG"
             - "HTTP"
-            - "POSTGRES"
+            - "JDBC"
             - "INFLUXDB"
-            - "ELASTIC"
+            - "ELASTICSEARCH"
             - "REDIS"
             - "GRPC"
             - "PROMETHEUS"
