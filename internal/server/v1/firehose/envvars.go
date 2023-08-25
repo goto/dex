@@ -21,7 +21,7 @@ func (api *firehoseAPI) buildEnvVars(ctx context.Context, firehose *models.Fireh
 	}
 
 	firehose.Configs.EnvVars["SCHEMA_REGISTRY_STENCIL_ENABLE"] = trueString
-	if fetchStencilURL && firehose.Configs.EnvVars[configStencilURL] == "" {
+	if fetchStencilURL || firehose.Configs.EnvVars[configStencilURL] == "" {
 		stencilUrls, err := api.getStencilURLs(
 			ctx,
 			userID,
@@ -48,7 +48,7 @@ func buildEnvVarsBySink(sinkType string, envVars map[string]string, cfg *models.
 	if sinkType == bigquerySinkType || sinkType == blobSinkType {
 		envVars["_JAVA_OPTIONS"] = "-Xmx1550m -Xms1550m"
 		envVars["DLQ_RETRY_FAIL_AFTER_MAX_ATTEMPT_ENABLE"] = trueString
-		envVars["RETRY_MAX_ATTEMPTS"] = "5"
+		envVars["DLQ_RETRY_MAX_ATTEMPTS"] = "5"
 		envVars["DLQ_SINK_ENABLE"] = trueString
 		envVars["DLQ_WRITER_TYPE"] = "BLOB_STORAGE"
 		envVars["ERROR_TYPES_FOR_DLQ"] = "DESERIALIZATION_ERROR,INVALID_MESSAGE_ERROR,UNKNOWN_FIELDS_ERROR,SINK_4XX_ERROR,SINK_5XX_ERROR,SINK_UNKNOWN_ERROR,DEFAULT_ERROR"
