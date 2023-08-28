@@ -230,6 +230,13 @@ func (h *Handler) getAlertChannels(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) setAlertChannels(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	reqCtx := reqctx.From(ctx)
+	userEmail := reqCtx.UserEmail
+	if userEmail == "" {
+		utils.WriteErrMsg(w, http.StatusUnauthorized, "identity headers are required")
+		return
+	}
+
 	groupID := chi.URLParam(r, "group_id")
 
 	var body operations.SetGroupAlertChannelsBody
@@ -252,11 +259,14 @@ func (h *Handler) setAlertChannels(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	alertChannels, err := h.subscriptionService.SetAlertChannels(ctx, groupID, alertChannelsForms)
+	alertChannels, err := h.subscriptionService.SetAlertChannels(ctx, userEmail, groupID, alertChannelsForms)
 	if err != nil {
-		if errors.Is(err, ErrNoShieldGroup) {
+		if errors.Is(err, ErrNoShieldGroup) || errors.Is(err, ErrNoShieldOrg) {
 			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
-		} else if errors.Is(err, ErrNoSirenParentSlackReceiver) {
+		} else if errors.Is(err, ErrNoShieldParentSlackReceiver) ||
+			errors.Is(err, ErrInvalidShieldParentSlackReceiver) ||
+			errors.Is(err, ErrNoShieldSirenNamespace) ||
+			errors.Is(err, ErrInvalidShieldSirenNamespace) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
 		} else {
 			utils.WriteErr(w, err)

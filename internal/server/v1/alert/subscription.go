@@ -194,7 +194,7 @@ func (svc *SubscriptionService) GetAlertChannels(ctx context.Context, groupID st
 	return alertChannels, nil
 }
 
-func (svc *SubscriptionService) SetAlertChannels(ctx context.Context, groupID string, forms []AlertChannelForm) ([]models.AlertChannel, error) {
+func (svc *SubscriptionService) SetAlertChannels(ctx context.Context, userID string, groupID string, forms []AlertChannelForm) ([]models.AlertChannel, error) {
 	group, err := svc.getGroup(ctx, groupID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting group: %w", err)
@@ -204,7 +204,7 @@ func (svc *SubscriptionService) SetAlertChannels(ctx context.Context, groupID st
 		return nil, fmt.Errorf("error getting group: %w", err)
 	}
 
-	parentReceiver, err := svc.getSirenParentSlackReceiver(ctx, org.GetSlug())
+	parentReceiver, namespaceID, err := svc.extractShieldOrgMetadata(org)
 	if err != nil {
 		return nil, fmt.Errorf("error getting parent slack receivers: %w", err)
 	}
@@ -229,12 +229,31 @@ func (svc *SubscriptionService) SetAlertChannels(ctx context.Context, groupID st
 			newReceiver, err := svc.createReceiver(
 				ctx,
 				form,
-				parentReceiver.Id, // used for slack_channel type only
+				parentReceiver, // used for slack_channel type only
 				group.GetSlug(),
 				org.GetSlug(),
 			)
 			if err != nil {
 				return nil, fmt.Errorf("error creating receiver (index=\"%d\"): %w", i, err)
+			}
+
+			// create a subscription using the new receiver
+			_, err = svc.sirenClient.CreateSubscription(ctx, &sirenv1beta1.CreateSubscriptionRequest{
+				Urn:       fmt.Sprintf("%s-%s-%s", org.GetSlug(), group.GetSlug(), strings.ToLower(string(form.ChannelCriticality))),
+				Namespace: namespaceID,
+				Receivers: []*sirenv1beta1.ReceiverMetadata{
+					{
+						Id: newReceiver.Id,
+					},
+				},
+				Match: map[string]string{
+					"severity": string(form.ChannelCriticality),
+					"team":     group.GetSlug(),
+				},
+				CreatedBy: userID,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("error creating subscription: %w", err)
 			}
 
 			currentReceiver = newReceiver
@@ -360,6 +379,11 @@ func (svc *SubscriptionService) getOrg(ctx context.Context, orgID string) (*shie
 		Id: orgID,
 	})
 	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			if e.Code() == codes.NotFound {
+				return nil, ErrNoShieldOrg
+			}
+		}
 		return nil, err
 	}
 
@@ -405,32 +429,27 @@ func (svc *SubscriptionService) getGroupSirenReceivers(ctx context.Context, grou
 	return resp.Receivers, nil
 }
 
-func (svc *SubscriptionService) getSirenParentSlackReceiver(ctx context.Context, orgSlug string) (*sirenv1beta1.Receiver, error) {
-	resp, err := svc.sirenClient.ListReceivers(ctx, &sirenv1beta1.ListReceiversRequest{
-		Labels: map[string]string{
-			sirenReceiverLabelKeyIsParentSlack: "true",
-		},
-	})
-	if err != nil {
-		return nil, err
+func (*SubscriptionService) extractShieldOrgMetadata(org *shieldv1beta1.Organization) (uint64, uint64, error) {
+	metadata := org.Metadata.AsMap()
+	receiverIDAny, exists := metadata[shieldOrgMetadataKeySirenParentSlackReceiverID]
+	if !exists {
+		return 0, 0, ErrNoShieldParentSlackReceiver
+	}
+	receiverIDFloat, validReceiver := receiverIDAny.(float64)
+	if !validReceiver {
+		return 0, 0, ErrInvalidShieldParentSlackReceiver
 	}
 
-	for _, recv := range resp.Receivers {
-		if recv.Type != sirenReceiverPkg.TypeSlack {
-			continue
-		}
-		entities, exists := recv.Labels["entity"]
-		if !exists {
-			continue
-		}
-		for _, entity := range strings.Split(entities, ",") {
-			if entity == orgSlug {
-				return recv, nil
-			}
-		}
+	namespaceIDAny, exists := metadata[shieldOrgMetadataKeySirenNamespaceID]
+	if !exists {
+		return 0, 0, ErrNoShieldSirenNamespace
+	}
+	namespaceIDFloat, validNamespace := namespaceIDAny.(float64)
+	if !validNamespace {
+		return 0, 0, ErrInvalidShieldSirenNamespace
 	}
 
-	return nil, ErrNoSirenParentSlackReceiver
+	return uint64(receiverIDFloat), uint64(namespaceIDFloat), nil
 }
 
 func (svc *SubscriptionService) getSirenReceiver(ctx context.Context, groupSlug string, criticality ChannelCriticality) (*sirenv1beta1.Receiver, error) {

@@ -9,6 +9,7 @@ import (
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/siren/v1beta1"
 	sirenReceiverPkg "github.com/goto/siren/core/receiver"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -719,15 +720,22 @@ func TestSubscriptionServiceGetAlertChannels(t *testing.T) {
 
 func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 	var (
-		ctx         = context.TODO()
-		groupID     = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
-		orgID       = "ea597d5c-1280-473b-ad28-7551c1336fe0"
-		shieldGroup = &shieldv1beta1.Group{
+		ctx                   = context.TODO()
+		userID                = "john@example.com"
+		groupID               = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		orgID                 = "ea597d5c-1280-473b-ad28-7551c1336fe0"
+		parentSlackReceiverID = 5
+		sirenNamespaceID      = 40
+		shieldGroup           = &shieldv1beta1.Group{
 			Slug:  "test-group-slug-12",
 			OrgId: orgID,
 		}
 		shieldOrg = &shieldv1beta1.Organization{
 			Slug: "test-org-slug-21",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_parent_slack_receiver_id": parentSlackReceiverID,
+				"siren_namespace_id":             sirenNamespaceID,
+			}),
 		}
 	)
 
@@ -741,7 +749,7 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 		siren := new(mocks.SirenServiceClient)
 
 		service := alert.NewSubscriptionService(siren, shield)
-		_, err := service.SetAlertChannels(ctx, groupID, []alert.AlertChannelForm{})
+		_, err := service.SetAlertChannels(ctx, userID, groupID, []alert.AlertChannelForm{})
 		assert.ErrorIs(t, err, alert.ErrNoShieldGroup)
 	})
 
@@ -757,53 +765,35 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 		siren := new(mocks.SirenServiceClient)
 
 		service := alert.NewSubscriptionService(siren, shield)
-		_, err := service.SetAlertChannels(ctx, groupID, []alert.AlertChannelForm{})
-		assert.Error(t, err)
+		_, err := service.SetAlertChannels(ctx, userID, groupID, []alert.AlertChannelForm{})
+		assert.ErrorIs(t, err, alert.ErrNoShieldOrg)
 	})
 
-	t.Run("should return error if parent slack receiver cannot be found or invalid", func(t *testing.T) {
+	t.Run("should return error if shield org does not have valid metadata", func(t *testing.T) {
 		tests := []struct {
 			description string
-			receivers   []*sirenv1beta1.Receiver
+			metadata    map[string]interface{}
 		}{
 			{
-				description: "empty receivers",
-				receivers:   []*sirenv1beta1.Receiver{},
+				description: "empty metadata",
+				metadata:    nil,
 			},
 			{
-				description: "wrong type and entity",
-				receivers: []*sirenv1beta1.Receiver{
-					{
-						Type: sirenReceiverPkg.TypeSlackChannel,
-						Labels: map[string]string{
-							"entity":          "test-org,sample-org",
-							"is_parent_slack": "true",
-						},
-					},
+				description: "missing field",
+				metadata:    map[string]interface{}{},
+			},
+			{
+				description: "empty parent receiver value",
+				metadata: map[string]interface{}{
+					"siren_namespace_id":             20,
+					"siren_parent_slack_receiver_id": nil,
 				},
 			},
 			{
-				description: "wrong entity",
-				receivers: []*sirenv1beta1.Receiver{
-					{
-						Type: sirenReceiverPkg.TypeSlack,
-						Labels: map[string]string{
-							"entity":          "test-org,sample-org",
-							"is_parent_slack": "true",
-						},
-					},
-				},
-			},
-			{
-				description: "wrong type",
-				receivers: []*sirenv1beta1.Receiver{
-					{
-						Type: sirenReceiverPkg.TypeSlackChannel,
-						Labels: map[string]string{
-							"entity":          "test-org,test-org-slug-21,sample-org",
-							"is_parent_slack": "true",
-						},
-					},
+				description: "empty siren namespace value",
+				metadata: map[string]interface{}{
+					"siren_namespace_id":             nil,
+					"siren_parent_slack_receiver_id": 48,
 				},
 			},
 		}
@@ -814,27 +804,21 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
 					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
-					Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: &shieldv1beta1.Organization{
+						Metadata: newStruct(t, test.metadata),
+					}}, nil)
 				defer shield.AssertExpectations(t)
 				siren := new(mocks.SirenServiceClient)
-				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
-					Labels: map[string]string{
-						"is_parent_slack": "true",
-					},
-				}).Return(&sirenv1beta1.ListReceiversResponse{
-					Receivers: test.receivers,
-				}, nil)
-				defer siren.AssertExpectations(t)
 
 				service := alert.NewSubscriptionService(siren, shield)
-				_, err := service.SetAlertChannels(ctx, groupID, []alert.AlertChannelForm{})
-				assert.ErrorIs(t, err, alert.ErrNoSirenParentSlackReceiver)
+				_, err := service.SetAlertChannels(ctx, userID, groupID, []alert.AlertChannelForm{})
+				assert.Error(t, err)
 			})
 		}
 	})
 
-	t.Run("should create/update the correct receiver(s) and return the correct results", func(t *testing.T) {
-		parentReceiverID := uint64(20)
+	t.Run("should create or update the correct receiver(s) and return the correct results", func(t *testing.T) {
+		parentReceiverID := uint64(parentSlackReceiverID)
 
 		tests := []struct {
 			description       string
@@ -1280,15 +1264,6 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.description, func(t *testing.T) {
-				parentReceiver := &sirenv1beta1.Receiver{
-					Id:   parentReceiverID,
-					Type: sirenReceiverPkg.TypeSlack,
-					Labels: map[string]string{
-						"entity":          "test-org,test-org-slug-21,sample-org",
-						"is_parent_slack": "true",
-					},
-				}
-
 				shield := new(mocks.ShieldServiceClient)
 				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
 					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
@@ -1298,11 +1273,124 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 				siren := new(mocks.SirenServiceClient)
 				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
 					Labels: map[string]string{
-						"is_parent_slack": "true",
+						"team": shieldGroup.Slug,
 					},
-				}).Return(&sirenv1beta1.ListReceiversResponse{
-					Receivers: []*sirenv1beta1.Receiver{parentReceiver},
-				}, nil).Once()
+				}).
+					Return(&sirenv1beta1.ListReceiversResponse{Receivers: test.existingReceivers}, nil).
+					Once()
+				// this is to prevent breaking if CreateSubscription is being called
+				// we are only testing receivers being created/updated and not creating subscription
+				siren.On("CreateSubscription", ctx, mock.Anything).
+					Return(&sirenv1beta1.CreateSubscriptionResponse{Id: 1}, nil).
+					Maybe()
+				test.setupSiren(siren)
+				defer siren.AssertExpectations(t)
+
+				service := alert.NewSubscriptionService(siren, shield)
+				results, err := service.SetAlertChannels(ctx, userID, groupID, test.forms)
+				require.NoError(t, err)
+				assert.Equal(t, test.expected, results)
+			})
+		}
+	})
+
+	t.Run("should create subscription on create flow", func(t *testing.T) {
+		parentReceiverID := uint64(parentSlackReceiverID)
+		sirenNamespaceID := uint64(sirenNamespaceID)
+
+		tests := []struct {
+			description       string
+			existingReceivers []*sirenv1beta1.Receiver
+			forms             []alert.AlertChannelForm
+			setupSiren        func(*mocks.SirenServiceClient)
+		}{
+			{
+				description: "should create subscription on new receiver channel",
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality: alert.ChannelCriticalityInfo,
+						ChannelName:        "test-channel-932",
+						ChannelType:        "slack_channel",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name:     fmt.Sprintf("%s-%s-slack_channel-info", shieldOrg.Slug, shieldGroup.Slug),
+						Type:     "slack_channel",
+						ParentId: parentReceiverID,
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"channel_name": "test-channel-932",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 30}, nil).Once()
+					siren.On("CreateSubscription", ctx, &sirenv1beta1.CreateSubscriptionRequest{
+						Urn:       fmt.Sprintf("%s-%s-info", shieldOrg.Slug, shieldGroup.Slug),
+						Namespace: sirenNamespaceID,
+						Receivers: []*sirenv1beta1.ReceiverMetadata{
+							{Id: 30},
+						},
+						Match: map[string]string{
+							"severity": "INFO",
+							"team":     shieldGroup.GetSlug(),
+						},
+						CreatedBy: userID,
+					}).Return(&sirenv1beta1.CreateSubscriptionResponse{Id: 91}, nil).Maybe()
+				},
+			},
+			{
+				description: "should not create new subscription on update receiver",
+				existingReceivers: []*sirenv1beta1.Receiver{
+					{
+						Id:   75,
+						Name: "old-name-9953",
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"org":      "test",
+							"team":     "sample-team",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "old-service-key-5i31",
+						}),
+					},
+				},
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality:  alert.ChannelCriticalityInfo,
+						ChannelType:         "pagerduty",
+						PagerdutyServiceKey: "new-service-key-98293",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("UpdateReceiver", ctx, &sirenv1beta1.UpdateReceiverRequest{
+						Id:   75,
+						Name: "old-name-9953",
+						Labels: map[string]string{
+							"org":      "test",
+							"team":     "sample-team",
+							"severity": "INFO",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "new-service-key-98293",
+						}),
+					}).Return(&sirenv1beta1.UpdateReceiverResponse{Id: 75}, nil).Once()
+				},
+			},
+		}
+
+		for _, test := range tests {
+			t.Run(test.description, func(t *testing.T) {
+				shield := new(mocks.ShieldServiceClient)
+				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+				defer shield.AssertExpectations(t)
+				siren := new(mocks.SirenServiceClient)
 				siren.On("ListReceivers", ctx, &sirenv1beta1.ListReceiversRequest{
 					Labels: map[string]string{
 						"team": shieldGroup.Slug,
@@ -1315,9 +1403,8 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 				defer siren.AssertExpectations(t)
 
 				service := alert.NewSubscriptionService(siren, shield)
-				results, err := service.SetAlertChannels(ctx, groupID, test.forms)
+				_, err := service.SetAlertChannels(ctx, userID, groupID, test.forms)
 				require.NoError(t, err)
-				assert.Equal(t, test.expected, results)
 			})
 		}
 	})

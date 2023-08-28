@@ -920,9 +920,24 @@ func TestRoutesGetAlertChannels(t *testing.T) {
 
 func TestRoutesSetAlertChannels(t *testing.T) {
 	var (
-		method           = http.MethodPut
-		groupID          = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
-		urlPath          = fmt.Sprintf("/groups/%s/alert_channels", groupID)
+		method      = http.MethodPut
+		groupID     = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		orgID       = "ea597d5c-1280-473b-ad28-7551c1336fe0"
+		urlPath     = fmt.Sprintf("/groups/%s/alert_channels", groupID)
+		userEmail   = "jane@example.com"
+		shieldGroup = &shieldv1beta1.Group{
+			Id:    groupID,
+			Slug:  "test-group-slug-12",
+			OrgId: orgID,
+		}
+		shieldOrg = &shieldv1beta1.Organization{
+			Id:   orgID,
+			Slug: "test-org-slug-21",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id":             982,
+				"siren_parent_slack_receiver_id": 18,
+			}),
+		}
 		validJSONPayload = `{
 			"alert_channels": [
 				{
@@ -938,6 +953,22 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 			]
 		}`
 	)
+
+	t.Run("", func(t *testing.T) {
+		requestBody := strings.NewReader("")
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+	})
 
 	t.Run("should return 400 on validation error", func(t *testing.T) {
 		tests := []struct {
@@ -1002,6 +1033,7 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 
 				response := httptest.NewRecorder()
 				request := httptest.NewRequest(method, urlPath, requestBody)
+				request.Header.Set(emailHeaderKey, userEmail)
 				router := getRouter()
 				alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 				router.ServeHTTP(response, request)
@@ -1024,6 +1056,7 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
 		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
@@ -1032,14 +1065,37 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
-	t.Run("should return 422 on parent slack receiver cannot be found", func(t *testing.T) {
+	t.Run("should return 404 on org could not be found on shield", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
-		shieldGroup := &shieldv1beta1.Group{
-			Slug:  "test-group-slug-12",
-			OrgId: "ea597d5c-1280-473b-ad28-7551c1336fe0",
-		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: orgID}).
+			Return(nil, status.Error(codes.NotFound, "Not Found"))
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 422 on parent slack receiver cannot be found or invalid", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
 		shieldOrg := &shieldv1beta1.Organization{
-			Slug: "test-org-slug-21",
+			Slug: "test-slug",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id":             30,
+				"siren_parent_slack_receiver_id": nil,
+			}),
 		}
 
 		shieldClient := new(mocks.ShieldServiceClient)
@@ -1049,15 +1105,41 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
-		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
-			Labels: map[string]string{
-				"is_parent_slack": "true",
-			},
-		}).Return(&sirenv1beta1.ListReceiversResponse{Receivers: nil}, nil)
 		defer sirenClient.AssertExpectations(t)
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 422 on siren namespace id cannot be found or invalid", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		shieldOrg := &shieldv1beta1.Organization{
+			Slug: "test-slug",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id":             nil,
+				"siren_parent_slack_receiver_id": 46,
+			}),
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldGroup.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+		defer sirenClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
 		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
@@ -1068,13 +1150,6 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 
 	t.Run("should return 200 on success", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
-		shieldGroup := &shieldv1beta1.Group{
-			Slug:  "test-group-slug-12",
-			OrgId: "ea597d5c-1280-473b-ad28-7551c1336fe0",
-		}
-		shieldOrg := &shieldv1beta1.Organization{
-			Slug: "test-org-slug-21",
-		}
 		parentReceiver := &sirenv1beta1.Receiver{
 			Id:   50,
 			Type: "slack",
@@ -1109,13 +1184,6 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 		sirenClient := new(mocks.SirenServiceClient)
 		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
 			Labels: map[string]string{
-				"is_parent_slack": "true",
-			},
-		}).Return(&sirenv1beta1.ListReceiversResponse{
-			Receivers: []*sirenv1beta1.Receiver{parentReceiver},
-		}, nil).Once()
-		sirenClient.On("ListReceivers", mock.Anything, &sirenv1beta1.ListReceiversRequest{
-			Labels: map[string]string{
 				"team": shieldGroup.Slug,
 			},
 		}).
@@ -1142,10 +1210,16 @@ func TestRoutesSetAlertChannels(t *testing.T) {
 				"service_key": "test-service-key",
 			}),
 		}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 81}, nil).Once()
+		// this is to prevent breaking if CreateSubscription is being called
+		// we are only testing receivers being created/updated and not creating subscription
+		sirenClient.On("CreateSubscription", mock.Anything, mock.Anything).
+			Return(&sirenv1beta1.CreateSubscriptionResponse{Id: 1}, nil).
+			Maybe()
 		defer sirenClient.AssertExpectations(t)
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
 		router := getRouter()
 		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
 		router.ServeHTTP(response, request)
