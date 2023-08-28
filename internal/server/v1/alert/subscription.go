@@ -345,9 +345,18 @@ func (svc *SubscriptionService) fetchShieldData(
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("error getting shield's project: %w", err)
 	}
-	namespaceID, err := svc.getSirenNamespaceID(project)
+
+	org, err := svc.getOrg(ctx, project.OrgId)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("error getting siren namespace: %w", err)
+		return nil, nil, 0, fmt.Errorf("error getting shield's org: %w", err)
+	}
+	namespaceIDAny, exists := org.Metadata.AsMap()[shieldOrgMetadataKeySirenNamespaceID]
+	if !exists {
+		return nil, nil, 0, ErrNoShieldSirenNamespace
+	}
+	namespaceIDFloat, validNamespace := namespaceIDAny.(float64)
+	if !validNamespace {
+		return nil, nil, 0, ErrInvalidShieldSirenNamespace
 	}
 
 	group, err := svc.getGroup(ctx, groupID)
@@ -355,7 +364,7 @@ func (svc *SubscriptionService) fetchShieldData(
 		return nil, nil, 0, fmt.Errorf("error getting shield's group: %w", err)
 	}
 
-	return project, group, namespaceID, nil
+	return project, group, uint64(namespaceIDFloat), nil
 }
 
 func (svc *SubscriptionService) getGroup(ctx context.Context, groupID string) (*shieldv1beta1.Group, error) {
@@ -395,25 +404,15 @@ func (svc *SubscriptionService) getProject(ctx context.Context, projectID string
 		Id: projectID,
 	})
 	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			if e.Code() == codes.NotFound {
+				return nil, ErrNoShieldProject
+			}
+		}
 		return nil, err
 	}
 
 	return resp.Project, nil
-}
-
-func (*SubscriptionService) getSirenNamespaceID(project *shieldv1beta1.Project) (uint64, error) {
-	projectMetadata := project.GetMetadata().AsMap()
-
-	namespaceIDAny, exists := projectMetadata["siren_namespace"]
-	if !exists {
-		return 0, ErrNoShieldSirenNamespace
-	}
-	namespaceID, ok := namespaceIDAny.(float64)
-	if !ok {
-		return 0, ErrNoShieldSirenNamespace
-	}
-
-	return uint64(namespaceID), nil
 }
 
 func (svc *SubscriptionService) getGroupSirenReceivers(ctx context.Context, groupSlug string) (SirenReceivers, error) {

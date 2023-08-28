@@ -139,31 +139,88 @@ func TestSubscriptionServiceGetSubscriptions(t *testing.T) {
 
 func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 	var (
-		ctx       = context.TODO()
-		groupID   = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
-		projectID = "5dab4194-9516-421a-aafe-72fd3d96ec56"
+		ctx              = context.TODO()
+		groupID          = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		projectID        = "5dab4194-9516-421a-aafe-72fd3d96ec56"
+		orgID            = "1876907e-5410-44cd-8d11-11166b632ef1"
+		sirenNamespaceID = 20
+		form             = alert.SubscriptionForm{
+			UserID:             "john.doe@example.com",
+			AlertSeverity:      alert.AlertSeverityCritical,
+			ChannelCriticality: alert.ChannelCriticalityInfo,
+			GroupID:            groupID,
+			ProjectID:          projectID,
+			ResourceType:       "firehose",
+			ResourceID:         "test-job",
+		}
+		shieldProject = &shieldv1beta1.Project{
+			Slug:  "test-shield-project-1922",
+			OrgId: orgID,
+		}
+		shieldOrg = &shieldv1beta1.Organization{
+			Slug: "test-shield-org-12893",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id": sirenNamespaceID,
+			}),
+		}
+		shieldGroup = &shieldv1beta1.Group{
+			Slug: "test-group-8279",
+		}
 	)
 
-	t.Run("should return error if siren namespace cannot be retrieved from project", func(t *testing.T) {
+	t.Run("should return error if shield project cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		client := new(mocks.SirenServiceClient)
+		defer client.AssertExpectations(t)
+
+		service := alert.NewSubscriptionService(client, shield)
+		_, err := service.CreateSubscription(ctx, form)
+		assert.ErrorIs(t, err, alert.ErrNoShieldProject)
+	})
+
+	t.Run("should return error if shield org cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		client := new(mocks.SirenServiceClient)
+		defer client.AssertExpectations(t)
+
+		service := alert.NewSubscriptionService(client, shield)
+		_, err := service.CreateSubscription(ctx, form)
+		assert.ErrorIs(t, err, alert.ErrNoShieldOrg)
+	})
+
+	t.Run("should return error if siren namespace cannot be retrieved from shield org metadata", func(t *testing.T) {
 		tests := []struct {
-			name     string
-			metadata *structpb.Struct
+			name        string
+			metadata    *structpb.Struct
+			expectedErr error
 		}{
 			{
 				name:     "empty metadata",
 				metadata: nil,
 			},
 			{
-				name: "empty metadata.siren_namespace",
-				metadata: newStruct(t, map[string]interface{}{
-					"siren_namespace": nil,
-				}),
+				name:        "empty field",
+				metadata:    newStruct(t, map[string]interface{}{}),
+				expectedErr: alert.ErrNoShieldSirenNamespace,
 			},
 			{
-				name: "invalid format for metadata.siren_namespace",
+				name: "invalid field value",
 				metadata: newStruct(t, map[string]interface{}{
-					"siren_namespace": "wrong-format",
+					"siren_namespace_id": "wrong-format",
 				}),
+				expectedErr: alert.ErrInvalidShieldSirenNamespace,
 			},
 		}
 
@@ -173,23 +230,46 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 					ProjectID: projectID,
 					GroupID:   groupID,
 				}
-				shieldProject := &shieldv1beta1.Project{
-					Slug:     "test-project",
-					Metadata: test.metadata,
-				}
 
 				shield := new(mocks.ShieldServiceClient)
 				shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 					Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: &shieldv1beta1.Organization{
+						Metadata: test.metadata,
+					}}, nil)
 				defer shield.AssertExpectations(t)
 				client := new(mocks.SirenServiceClient)
 				defer client.AssertExpectations(t)
 
 				service := alert.NewSubscriptionService(client, shield)
 				_, err := service.CreateSubscription(ctx, form)
-				assert.ErrorIs(t, err, alert.ErrNoShieldSirenNamespace)
+				if test.expectedErr != nil {
+					assert.ErrorIs(t, err, test.expectedErr)
+				} else {
+					assert.Error(t, err)
+				}
 			})
 		}
+	})
+
+	t.Run("should return error if shield group cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: form.GroupID}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		client := new(mocks.SirenServiceClient)
+		defer client.AssertExpectations(t)
+
+		service := alert.NewSubscriptionService(client, shield)
+		_, err := service.CreateSubscription(ctx, form)
+		assert.ErrorIs(t, err, alert.ErrNoShieldGroup)
 	})
 
 	t.Run("should return error on failing to get siren's receiver", func(t *testing.T) {
@@ -230,19 +310,12 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 					GroupID:            groupID,
 					ChannelCriticality: alert.ChannelCriticalityInfo,
 				}
-				shieldGroup := &shieldv1beta1.Group{
-					Slug: "test-group",
-				}
-				shieldProject := &shieldv1beta1.Project{
-					Slug: "test-project",
-					Metadata: newStruct(t, map[string]interface{}{
-						"siren_namespace": 5,
-					}),
-				}
 
 				shield := new(mocks.ShieldServiceClient)
 				shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 					Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: form.GroupID}).
 					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 				defer shield.AssertExpectations(t)
@@ -270,30 +343,8 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 
 	t.Run("should create subscription on success", func(t *testing.T) {
 		receiverID := uint64(15)
-		sirenNamespace := 5
 		channelName := "test-alert-channel"
 
-		// inputs
-		form := alert.SubscriptionForm{
-			UserID:             "john.doe@example.com",
-			AlertSeverity:      alert.AlertSeverityCritical,
-			ChannelCriticality: alert.ChannelCriticalityInfo,
-			GroupID:            groupID,
-			ProjectID:          projectID,
-			ResourceType:       "firehose",
-			ResourceID:         "test-job",
-		}
-
-		// conditions
-		shieldGroup := &shieldv1beta1.Group{
-			Slug: "test-group",
-		}
-		shieldProject := &shieldv1beta1.Project{
-			Slug: "my-project-1",
-			Metadata: newStruct(t, map[string]interface{}{
-				"siren_namespace": sirenNamespace,
-			}),
-		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
 			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
 				"channel_name": channelName,
@@ -306,7 +357,7 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 				"%s:%s:%s:%s",
 				shieldGroup.GetSlug(), form.AlertSeverity, form.ResourceType, form.ResourceID,
 			),
-			Namespace: uint64(sirenNamespace),
+			Namespace: uint64(sirenNamespaceID),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
 				{Id: receiverID},
 			},
@@ -330,6 +381,8 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 		shield := new(mocks.ShieldServiceClient)
 		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: form.GroupID}).
 			Return(&shieldv1beta1.GetGroupResponse{
 				Group: shieldGroup,
@@ -356,32 +409,89 @@ func TestSubscriptionServiceCreateSubscription(t *testing.T) {
 
 func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 	var (
-		ctx            = context.TODO()
-		subscriptionID = 205
-		groupID        = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
-		projectID      = "5dab4194-9516-421a-aafe-72fd3d96ec56"
+		ctx              = context.TODO()
+		subscriptionID   = 205
+		groupID          = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
+		projectID        = "5dab4194-9516-421a-aafe-72fd3d96ec56"
+		orgID            = "5879117e-2222-44cd-8d11-51266b6381f1"
+		sirenNamespaceID = 82
+		form             = alert.SubscriptionForm{
+			UserID:             "john.doe@example.com",
+			AlertSeverity:      alert.AlertSeverityCritical,
+			ChannelCriticality: alert.ChannelCriticalityInfo,
+			GroupID:            groupID,
+			ProjectID:          projectID,
+			ResourceType:       "firehose",
+			ResourceID:         "test-job",
+		}
+		shieldProject = &shieldv1beta1.Project{
+			Slug:  "test-shield-project-1828",
+			OrgId: orgID,
+		}
+		shieldOrg = &shieldv1beta1.Organization{
+			Slug: "test-shield-org-828310",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id": sirenNamespaceID,
+			}),
+		}
+		shieldGroup = &shieldv1beta1.Group{
+			Slug: "test-group-91293",
+		}
 	)
 
-	t.Run("should return error if siren namespace cannot be retrieved from project", func(t *testing.T) {
+	t.Run("should return error if shield project cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		client := new(mocks.SirenServiceClient)
+		defer client.AssertExpectations(t)
+
+		service := alert.NewSubscriptionService(client, shield)
+		err := service.UpdateSubscription(ctx, subscriptionID, form)
+		assert.ErrorIs(t, err, alert.ErrNoShieldProject)
+	})
+
+	t.Run("should return error if shield org cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		client := new(mocks.SirenServiceClient)
+		defer client.AssertExpectations(t)
+
+		service := alert.NewSubscriptionService(client, shield)
+		err := service.UpdateSubscription(ctx, subscriptionID, form)
+		assert.ErrorIs(t, err, alert.ErrNoShieldOrg)
+	})
+
+	t.Run("should return error if siren namespace cannot be retrieved from shield org metadata", func(t *testing.T) {
 		tests := []struct {
-			name     string
-			metadata *structpb.Struct
+			name        string
+			metadata    *structpb.Struct
+			expectedErr error
 		}{
 			{
 				name:     "empty metadata",
 				metadata: nil,
 			},
 			{
-				name: "empty metadata.siren_namespace",
-				metadata: newStruct(t, map[string]interface{}{
-					"siren_namespace": nil,
-				}),
+				name:        "empty field",
+				metadata:    newStruct(t, map[string]interface{}{}),
+				expectedErr: alert.ErrNoShieldSirenNamespace,
 			},
 			{
-				name: "invalid format for metadata.siren_namespace",
+				name: "invalid field value",
 				metadata: newStruct(t, map[string]interface{}{
-					"siren_namespace": "wrong-format",
+					"siren_namespace_id": "wrong-format",
 				}),
+				expectedErr: alert.ErrInvalidShieldSirenNamespace,
 			},
 		}
 
@@ -391,23 +501,46 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 					ProjectID: projectID,
 					GroupID:   groupID,
 				}
-				shieldProject := &shieldv1beta1.Project{
-					Slug:     "test-project",
-					Metadata: test.metadata,
-				}
 
 				shield := new(mocks.ShieldServiceClient)
 				shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 					Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: &shieldv1beta1.Organization{
+						Metadata: test.metadata,
+					}}, nil)
 				defer shield.AssertExpectations(t)
 				client := new(mocks.SirenServiceClient)
 				defer client.AssertExpectations(t)
 
 				service := alert.NewSubscriptionService(client, shield)
 				err := service.UpdateSubscription(ctx, subscriptionID, form)
-				assert.ErrorIs(t, err, alert.ErrNoShieldSirenNamespace)
+				if test.expectedErr != nil {
+					assert.ErrorIs(t, err, test.expectedErr)
+				} else {
+					assert.Error(t, err)
+				}
 			})
 		}
+	})
+
+	t.Run("should return error if shield group cannot be found", func(t *testing.T) {
+		expectedErr := status.Error(codes.NotFound, "Not Found")
+
+		shield := new(mocks.ShieldServiceClient)
+		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: form.GroupID}).
+			Return(nil, expectedErr)
+		defer shield.AssertExpectations(t)
+		client := new(mocks.SirenServiceClient)
+		defer client.AssertExpectations(t)
+
+		service := alert.NewSubscriptionService(client, shield)
+		err := service.UpdateSubscription(ctx, subscriptionID, form)
+		assert.ErrorIs(t, err, alert.ErrNoShieldGroup)
 	})
 
 	t.Run("should return error on failing to get siren's receiver", func(t *testing.T) {
@@ -461,6 +594,8 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 				shield := new(mocks.ShieldServiceClient)
 				shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 					Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+				shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+					Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 				shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: form.GroupID}).
 					Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 				defer shield.AssertExpectations(t)
@@ -488,30 +623,8 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 
 	t.Run("should update subscription on success", func(t *testing.T) {
 		receiverID := uint64(17)
-		sirenNamespace := 5
 		channelName := "test-channel-update"
 
-		// inputs
-		form := alert.SubscriptionForm{
-			UserID:             "john.doe@example.com",
-			AlertSeverity:      alert.AlertSeverityCritical,
-			ChannelCriticality: alert.ChannelCriticalityInfo,
-			GroupID:            groupID,
-			ProjectID:          projectID,
-			ResourceType:       "firehose",
-			ResourceID:         "test-job",
-		}
-
-		// conditions
-		shieldGroup := &shieldv1beta1.Group{
-			Slug: "test-group",
-		}
-		shieldProject := &shieldv1beta1.Project{
-			Slug: "my-project-1",
-			Metadata: newStruct(t, map[string]interface{}{
-				"siren_namespace": sirenNamespace,
-			}),
-		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
 			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
 				"channel_name": channelName,
@@ -525,7 +638,7 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 				"%s:%s:%s:%s",
 				shieldGroup.GetSlug(), form.AlertSeverity, form.ResourceType, form.ResourceID,
 			),
-			Namespace: uint64(sirenNamespace),
+			Namespace: uint64(sirenNamespaceID),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
 				{Id: receiverID},
 			},
@@ -549,6 +662,8 @@ func TestSubscriptionServiceUpdateSubscription(t *testing.T) {
 		shield := new(mocks.ShieldServiceClient)
 		shield.On("GetProject", ctx, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shield.On("GetOrganization", ctx, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		shield.On("GetGroup", ctx, &shieldv1beta1.GetGroupRequest{Id: form.GroupID}).
 			Return(&shieldv1beta1.GetGroupResponse{
 				Group: shieldGroup,

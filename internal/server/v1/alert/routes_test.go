@@ -220,14 +220,31 @@ func TestRoutesGetSubscriptions(t *testing.T) {
 	})
 }
 
-func TestRoutesCreateSubscriptions(t *testing.T) {
+func TestRoutesCreateSubscription(t *testing.T) {
 	var (
 		method             = http.MethodPost
 		channelCriticality = alert.ChannelCriticalityInfo
 		projectID          = "5dab4194-9516-421a-aafe-72fd3d96ec56"
 		groupID            = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
 		userEmail          = "jane.doe@example.com"
-		validJSONPayload   = fmt.Sprintf(`{
+		orgID              = "ns912901-812n-912i-ks91-010923jkal12"
+		sirenNamespaceID   = 10
+		shieldProject      = &shieldv1beta1.Project{
+			Id:    projectID,
+			Slug:  "test-project-0109391",
+			OrgId: orgID,
+		}
+		shieldOrg = &shieldv1beta1.Organization{
+			Id:   orgID,
+			Slug: "test-org-91291",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id": sirenNamespaceID,
+			}),
+		}
+		shieldGroup = &shieldv1beta1.Group{
+			Slug: "test-group",
+		}
+		validJSONPayload = fmt.Sprintf(`{
 			"project_id": "%s",
       "resource_id": "test-pipeline-job",
       "resource_type": "optimus",
@@ -333,16 +350,61 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		}
 	})
 
-	t.Run("should return 422 on namespace could not be found on shield project", func(t *testing.T) {
+	t.Run("should return 404 on shield project cannot be found", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
+		expectedError := status.Error(codes.NotFound, "not found")
 
-		shieldProject := &shieldv1beta1.Project{
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(nil, expectedError)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 404 on shield org cannot be found", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		expectedError := status.Error(codes.NotFound, "not found")
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(nil, expectedError)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 422 on namespace could not be found on shield org", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		shieldOrg := &shieldv1beta1.Organization{
 			Slug:     "test-project",
 			Metadata: nil,
 		}
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
 
@@ -357,21 +419,39 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
-	t.Run("should return 422 on receiver could not be found", func(t *testing.T) {
+	t.Run("should return 404 on shield group cannot be found", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
+		expectedError := status.Error(codes.NotFound, "not found")
 
-		shieldProject := &shieldv1beta1.Project{
-			Slug: "test-project",
-			Metadata: newStruct(t, map[string]interface{}{
-				"siren_namespace": 3,
-			}),
-		}
-		shieldGroup := &shieldv1beta1.Group{
-			Slug: "test-group",
-		}
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(nil, expectedError)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, "/", requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 422 on receiver could not be found", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
@@ -397,20 +477,10 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 
 	t.Run("should return 201 on success", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
-		sirenNamespace := 13
 		receiverID := uint64(25)
 		subscriptionID := 200
 		channelName := "test-channel-30"
 
-		shieldProject := &shieldv1beta1.Project{
-			Slug: "test-project",
-			Metadata: newStruct(t, map[string]interface{}{
-				"siren_namespace": sirenNamespace,
-			}),
-		}
-		shieldGroup := &shieldv1beta1.Group{
-			Slug: "test-group",
-		}
 		sirenReceivers := []*sirenv1beta1.Receiver{
 			{Id: receiverID, Type: sirenReceiverPkg.TypeSlackChannel, Configurations: newStruct(t, map[string]interface{}{
 				"channel_name": channelName,
@@ -422,7 +492,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 				"%s:%s:%s:%s",
 				"test-group", "CRITICAL", "optimus", "test-pipeline-job",
 			),
-			Namespace: uint64(sirenNamespace),
+			Namespace: uint64(sirenNamespaceID),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
 				{Id: receiverID},
 			},
@@ -443,12 +513,15 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 			CreatedBy: userEmail,
 		}
 		sirenSubscription := &sirenv1beta1.Subscription{
-			Namespace: uint64(sirenNamespace),
+			Id:        uint64(subscriptionID),
+			Namespace: uint64(sirenNamespaceID),
 		}
 
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
@@ -489,7 +562,7 @@ func TestRoutesCreateSubscriptions(t *testing.T) {
 	})
 }
 
-func TestRoutesUpdateSubscriptions(t *testing.T) {
+func TestRoutesUpdateSubscription(t *testing.T) {
 	var (
 		method             = http.MethodPut
 		subscriptionID     = 305
@@ -498,7 +571,24 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		projectID          = "5dab4194-9516-421a-aafe-72fd3d96ec56"
 		groupID            = "8a7219cd-53c9-47f1-9387-5cac7abe4dcb"
 		userEmail          = "jane.doe@example.com"
-		validJSONPayload   = fmt.Sprintf(`{
+		orgID              = "ns912901-812n-912i-ks91-010923jkal12"
+		sirenNamespaceID   = 10
+		shieldProject      = &shieldv1beta1.Project{
+			Id:    projectID,
+			Slug:  "test-project-0109391",
+			OrgId: orgID,
+		}
+		shieldOrg = &shieldv1beta1.Organization{
+			Id:   orgID,
+			Slug: "test-org-91291",
+			Metadata: newStruct(t, map[string]interface{}{
+				"siren_namespace_id": sirenNamespaceID,
+			}),
+		}
+		shieldGroup = &shieldv1beta1.Group{
+			Slug: "test-group",
+		}
+		validJSONPayload = fmt.Sprintf(`{
 			"project_id": "%s",
       "resource_id": "test-pipeline-job",
       "resource_type": "optimus",
@@ -604,16 +694,61 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		}
 	})
 
-	t.Run("should return 422 on namespace could not be found on shield project", func(t *testing.T) {
+	t.Run("should return 404 on shield project cannot be found", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
+		expectedError := status.Error(codes.NotFound, "not found")
 
-		shieldProject := &shieldv1beta1.Project{
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(nil, expectedError)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 404 on shield org cannot be found", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		expectedError := status.Error(codes.NotFound, "not found")
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(nil, expectedError)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 422 on namespace could not be found on shield org", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+		shieldOrg := &shieldv1beta1.Organization{
 			Slug:     "test-project",
 			Metadata: nil,
 		}
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.OrgId}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		defer shieldClient.AssertExpectations(t)
 		sirenClient := new(mocks.SirenServiceClient)
 
@@ -628,21 +763,39 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
 	})
 
-	t.Run("should return 422 on receiver could not be found", func(t *testing.T) {
+	t.Run("should return 404 on shield group cannot be found", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
+		expectedError := status.Error(codes.NotFound, "not found")
 
-		shieldProject := &shieldv1beta1.Project{
-			Slug: "test-project",
-			Metadata: newStruct(t, map[string]interface{}{
-				"siren_namespace": 3,
-			}),
-		}
-		shieldGroup := &shieldv1beta1.Group{
-			Slug: "test-group",
-		}
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
+		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
+			Return(nil, expectedError)
+		defer shieldClient.AssertExpectations(t)
+		sirenClient := new(mocks.SirenServiceClient)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, urlPath, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		alert.SubscriptionRoutes(sirenClient, shieldClient)(router)
+		router.ServeHTTP(response, request)
+
+		// assert status
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("should return 422 on receiver could not be found", func(t *testing.T) {
+		requestBody := strings.NewReader(validJSONPayload)
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
+			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)
@@ -669,13 +822,12 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 	t.Run("should return 200 on success", func(t *testing.T) {
 		requestBody := strings.NewReader(validJSONPayload)
 		receiverID := uint64(30)
-		sirenNamespace := 13
 		channelName := "test-channel-70"
 
 		shieldProject := &shieldv1beta1.Project{
 			Slug: "test-project",
 			Metadata: newStruct(t, map[string]interface{}{
-				"siren_namespace": sirenNamespace,
+				"siren_namespace": sirenNamespaceID,
 			}),
 		}
 		shieldGroup := &shieldv1beta1.Group{
@@ -693,7 +845,7 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 				"%s:%s:%s:%s",
 				shieldGroup.Slug, "CRITICAL", "optimus", "test-pipeline-job",
 			),
-			Namespace: uint64(sirenNamespace),
+			Namespace: uint64(sirenNamespaceID),
 			Receivers: []*sirenv1beta1.ReceiverMetadata{
 				{Id: receiverID},
 			},
@@ -714,12 +866,15 @@ func TestRoutesUpdateSubscriptions(t *testing.T) {
 			UpdatedBy: userEmail,
 		}
 		sirenSubscription := &sirenv1beta1.Subscription{
-			Namespace: uint64(sirenNamespace),
+			Id:        uint64(subscriptionID),
+			Namespace: uint64(sirenNamespaceID),
 		}
 
 		shieldClient := new(mocks.ShieldServiceClient)
 		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{Id: projectID}).
 			Return(&shieldv1beta1.GetProjectResponse{Project: shieldProject}, nil)
+		shieldClient.On("GetOrganization", mock.Anything, &shieldv1beta1.GetOrganizationRequest{Id: shieldProject.GetOrgId()}).
+			Return(&shieldv1beta1.GetOrganizationResponse{Organization: shieldOrg}, nil)
 		shieldClient.On("GetGroup", mock.Anything, &shieldv1beta1.GetGroupRequest{Id: groupID}).
 			Return(&shieldv1beta1.GetGroupResponse{Group: shieldGroup}, nil)
 		defer shieldClient.AssertExpectations(t)

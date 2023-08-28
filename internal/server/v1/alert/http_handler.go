@@ -103,13 +103,18 @@ func (h *Handler) createSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 	subscriptionID, err := h.subscriptionService.CreateSubscription(ctx, form)
 	if err != nil {
-		if errors.Is(err, ErrNoShieldSirenNamespace) {
-			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
-		} else if errors.Is(err, ErrNoSirenReceiver) {
+		if errors.Is(err, ErrNoShieldGroup) || errors.Is(err, ErrNoShieldOrg) || errors.Is(err, ErrNoShieldProject) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+		} else if errors.Is(err, ErrNoShieldParentSlackReceiver) ||
+			errors.Is(err, ErrInvalidShieldParentSlackReceiver) ||
+			errors.Is(err, ErrNoShieldSirenNamespace) ||
+			errors.Is(err, ErrInvalidShieldSirenNamespace) ||
+			errors.Is(err, ErrNoSirenReceiver) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
 		} else {
 			utils.WriteErr(w, err)
 		}
+
 		return
 	}
 
@@ -162,9 +167,13 @@ func (h *Handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.subscriptionService.UpdateSubscription(ctx, subscriptionID, form); err != nil {
-		if errors.Is(err, ErrNoShieldSirenNamespace) {
-			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
-		} else if errors.Is(err, ErrNoSirenReceiver) {
+		if errors.Is(err, ErrNoShieldGroup) || errors.Is(err, ErrNoShieldOrg) || errors.Is(err, ErrNoShieldProject) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+		} else if errors.Is(err, ErrNoShieldParentSlackReceiver) ||
+			errors.Is(err, ErrInvalidShieldParentSlackReceiver) ||
+			errors.Is(err, ErrNoShieldSirenNamespace) ||
+			errors.Is(err, ErrInvalidShieldSirenNamespace) ||
+			errors.Is(err, ErrNoSirenReceiver) {
 			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, err.Error())
 		} else {
 			utils.WriteErr(w, err)

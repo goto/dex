@@ -10,8 +10,9 @@ var (
 	ErrMultipleSirenReceiver     = errors.New("multiple siren's receivers found")
 	ErrInvalidSirenReceiver      = errors.New("invalid siren's receiver type")
 
-	ErrNoShieldGroup                    = errors.New("could not find shield's group")
 	ErrNoShieldOrg                      = errors.New("could not find shield's organization")
+	ErrNoShieldProject                  = errors.New("could not find shield's project")
+	ErrNoShieldGroup                    = errors.New("could not find shield's group")
 	ErrNoShieldParentSlackReceiver      = errors.New("could not find siren's parent slack receiver from shield metadata")
 	ErrNoShieldSirenNamespace           = errors.New("could not find siren's namespace id from shield org metadata")
 	ErrInvalidShieldSirenNamespace      = errors.New("invalid siren's namespace id from shield org metadata")
