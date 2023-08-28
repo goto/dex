@@ -17,7 +17,7 @@ require (
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.0
 	github.com/goto/entropy v0.7.5
-	github.com/goto/gojsondiff v0.0.0-20230828101105-9512c148e3d4
+	github.com/goto/gojsondiff v0.0.0-20230828102327-0bcf3724fe2e
 	github.com/goto/salt v0.3.0
 	github.com/goto/siren v0.6.5
 	github.com/mitchellh/mapstructure v1.5.0
