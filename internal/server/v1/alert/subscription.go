@@ -180,14 +180,25 @@ func (svc *SubscriptionService) GetAlertChannels(ctx context.Context, groupID st
 
 	alertChannels := []models.AlertChannel{}
 	for _, recv := range receivers {
-		severity := svc.getSirenReceiverLabelValues(recv, "severity")[0]
-		channelName := svc.getSirenReceiverConfigValues(recv, "channel_name")[0]
+		severity := svc.getSirenReceiverLabelValues(recv, sirenReceiverLabelKeySeverity)[0]
+		configs := svc.getSirenReceiverConfigValues(recv, sirenReceiverConfigKeyChannelName, sirenReceiverConfigKeyServiceKey)
+		channelName := configs[0]
+		pagerdutyServiceKey := configs[1]
+
+		var channelType models.AlertChannelType
+		if channelName != "" {
+			channelType = models.AlertChannelTypeSlackChannel
+		} else if pagerdutyServiceKey != "" {
+			channelType = models.AlertChannelTypePagerduty
+		}
 
 		alertChannels = append(alertChannels, models.AlertChannel{
-			ReceiverID:         fmt.Sprint(recv.Id),
-			ReceiverName:       recv.Name,
-			ChannelName:        channelName,
-			ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticality(severity)),
+			ReceiverID:          fmt.Sprint(recv.Id),
+			ReceiverName:        recv.Name,
+			ChannelName:         channelName,
+			PagerdutyServiceKey: pagerdutyServiceKey,
+			ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticality(severity)),
+			ChannelType:         models.NewAlertChannelType(channelType),
 		})
 	}
 

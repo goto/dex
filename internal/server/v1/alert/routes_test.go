@@ -1014,6 +1014,7 @@ func TestRoutesGetAlertChannels(t *testing.T) {
 	t.Run("should return 200 and alert channels on success", func(t *testing.T) {
 		groupSlug := "test-project"
 		channelName := "test-channel-info-2"
+		pagerdutyServiceKey := "012939102391"
 
 		shieldGroup := &shieldv1beta1.Group{
 			Slug: groupSlug,
@@ -1021,12 +1022,22 @@ func TestRoutesGetAlertChannels(t *testing.T) {
 		sirenReceivers := []*sirenv1beta1.Receiver{
 			{
 				Id:   30,
-				Name: "test-receiver-info-2",
+				Name: "test-receiver-slack-info-2",
 				Labels: map[string]string{
 					"severity": string(alert.AlertSeverityInfo),
 				},
 				Configurations: newStruct(t, map[string]interface{}{
 					"channel_name": channelName,
+				}),
+			},
+			{
+				Id:   31,
+				Name: "test-receiver-critical-pagerduty-2",
+				Labels: map[string]string{
+					"severity": string(alert.AlertSeverityCritical),
+				},
+				Configurations: newStruct(t, map[string]interface{}{
+					"service_key": pagerdutyServiceKey,
 				}),
 			},
 		}
@@ -1036,6 +1047,14 @@ func TestRoutesGetAlertChannels(t *testing.T) {
 				ReceiverName:       sirenReceivers[0].Name,
 				ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticalityINFO),
 				ChannelName:        channelName,
+				ChannelType:        models.NewAlertChannelType(models.AlertChannelTypeSlackChannel),
+			},
+			{
+				ReceiverID:          fmt.Sprint(sirenReceivers[1].Id),
+				ReceiverName:        sirenReceivers[1].Name,
+				ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticalityCRITICAL),
+				PagerdutyServiceKey: pagerdutyServiceKey,
+				ChannelType:         models.NewAlertChannelType(models.AlertChannelTypePagerduty),
 			},
 		}
 

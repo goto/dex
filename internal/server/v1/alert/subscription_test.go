@@ -786,6 +786,16 @@ func TestSubscriptionServiceGetAlertChannels(t *testing.T) {
 					"channel_name": "test-channel-warning-1",
 				}),
 			},
+			{
+				Id:   57,
+				Name: "test-receiver-critical-pagerduty",
+				Labels: map[string]string{
+					"severity": string(alert.AlertSeverityCritical),
+				},
+				Configurations: newStruct(t, map[string]interface{}{
+					"service_key": "1290381824923",
+				}),
+			},
 		}
 
 		expected := []models.AlertChannel{
@@ -794,18 +804,28 @@ func TestSubscriptionServiceGetAlertChannels(t *testing.T) {
 				ReceiverName:       sirenReceivers[0].Name,
 				ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticalityINFO),
 				ChannelName:        "test-channel-info-1",
+				ChannelType:        models.NewAlertChannelType(models.AlertChannelTypeSlackChannel),
 			},
 			{
 				ReceiverID:         fmt.Sprint(sirenReceivers[1].Id),
 				ReceiverName:       sirenReceivers[1].Name,
 				ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticalityCRITICAL),
 				ChannelName:        "test-channel-critical-1",
+				ChannelType:        models.NewAlertChannelType(models.AlertChannelTypeSlackChannel),
 			},
 			{
 				ReceiverID:         fmt.Sprint(sirenReceivers[2].Id),
 				ReceiverName:       sirenReceivers[2].Name,
 				ChannelCriticality: models.NewChannelCriticality(models.ChannelCriticalityWARNING),
 				ChannelName:        "test-channel-warning-1",
+				ChannelType:        models.NewAlertChannelType(models.AlertChannelTypeSlackChannel),
+			},
+			{
+				ReceiverID:          fmt.Sprint(sirenReceivers[3].Id),
+				ReceiverName:        sirenReceivers[3].Name,
+				ChannelCriticality:  models.NewChannelCriticality(models.ChannelCriticalityCRITICAL),
+				PagerdutyServiceKey: "1290381824923",
+				ChannelType:         models.NewAlertChannelType(models.AlertChannelTypePagerduty),
 			},
 		}
 
