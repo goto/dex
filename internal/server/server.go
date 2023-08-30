@@ -18,8 +18,8 @@ import (
 	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 	alertsv1 "github.com/goto/dex/internal/server/v1/alert"
+	dlqv1 "github.com/goto/dex/internal/server/v1/dlq"
 	firehosev1 "github.com/goto/dex/internal/server/v1/firehose"
-	dlqv1 "github.com/goto/dex/internal/server/v1/firehose/dlq"
 	kubernetesv1 "github.com/goto/dex/internal/server/v1/kubernetes"
 	optimusv1 "github.com/goto/dex/internal/server/v1/optimus"
 	projectsv1 "github.com/goto/dex/internal/server/v1/project"
@@ -60,8 +60,8 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
+		r.Route("/dlq", dlqv1.Routes(entropyClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
-		r.Route("/firehoses/{firehose_urn}/dlq", dlqv1.Routes(entropyClient))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
 	})
 

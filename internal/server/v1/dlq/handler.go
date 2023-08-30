@@ -16,7 +16,7 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) listDlq(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) listFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	// sample to get firehose urn from route params
 	_ = h.firehoseURN(r)
 

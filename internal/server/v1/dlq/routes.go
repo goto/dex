@@ -10,7 +10,7 @@ func Routes(entropyClient entropyv1beta1rpc.ResourceServiceClient) func(r chi.Ro
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {
-		r.Get("/", handler.listDlq)
+		r.Get("/firehose/{firehose_urn}", handler.listFirehoseDLQ)
 		r.Get("/jobs", handler.listDlqJobs)
 		r.Get("/jobs/{job_urn}", handler.getDlqJob)
 		r.Post("/jobs", handler.createDlqJob)
