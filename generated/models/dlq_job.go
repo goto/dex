@@ -40,14 +40,17 @@ type DlqJob struct {
 	// List of firehose error types, comma separated
 	ErrorTypes string `json:"error_types,omitempty"`
 
-	// firehose urn
-	FirehoseUrn string `json:"firehose_urn,omitempty"`
-
 	// num threads
 	NumThreads int64 `json:"num_threads,omitempty"`
 
 	// Shield's project slug
 	Project string `json:"project,omitempty"`
+
+	// resource id
+	ResourceID string `json:"resource_id,omitempty"`
+
+	// resource type
+	ResourceType *string `json:"resource_type,omitempty"`
 
 	// status
 	// Enum: [pending error running stopped]
