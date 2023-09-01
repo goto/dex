@@ -125,6 +125,10 @@ func requestLogger(lg *zap.Logger) middleware {
 			}
 
 			buf, err := io.ReadAll(req.Body)
+			if err != nil {
+				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
+				return
+			}
 			reader := io.NopCloser(bytes.NewBuffer(buf))
 			req.Body = reader
 
@@ -148,9 +152,7 @@ func requestLogger(lg *zap.Logger) middleware {
 			case http.MethodGet:
 				break
 			default:
-				if err != nil {
-					lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
-				} else if len(buf) > 0 {
+				if len(buf) > 0 {
 					dst := &bytes.Buffer{}
 					err := json.Compact(dst, buf)
 					if err != nil {
