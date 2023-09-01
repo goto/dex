@@ -124,6 +124,10 @@ func requestLogger(lg *zap.Logger) middleware {
 				}{wrapped, flusher}
 			}
 
+			buf, err := io.ReadAll(req.Body)
+			reader := io.NopCloser(bytes.NewBuffer(buf))
+			req.Body = reader
+
 			next.ServeHTTP(fr, req)
 
 			if req.URL.Path == "/ping" {
@@ -144,7 +148,6 @@ func requestLogger(lg *zap.Logger) middleware {
 			case http.MethodGet:
 				break
 			default:
-				buf, err := io.ReadAll(req.Body)
 				if err != nil {
 					lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
 				} else if len(buf) > 0 {
