@@ -98,3 +98,92 @@ func TestRoutesFindJobSpec(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 	})
 }
+
+func TestRoutesListJobs(t *testing.T) {
+	projectName := "sample-project"
+	method := http.MethodGet
+	path := fmt.Sprintf("/?project=%s", projectName)
+
+	t.Run("should return 200 with jobs list", func(t *testing.T) {
+		jobSpec1 := &optimusv1beta1.JobSpecificationResponse{
+			ProjectName:   "test-project",
+			NamespaceName: "test-namespcace",
+			Job: &optimusv1beta1.JobSpecification{
+				Version:  1,
+				Name:     "sample-job1",
+				Owner:    "goto",
+				TaskName: "sample-task-name",
+			},
+		}
+
+		jobSpec2 := &optimusv1beta1.JobSpecificationResponse{
+			ProjectName: "test-project",
+			Job: &optimusv1beta1.JobSpecification{
+				Version:  1,
+				Name:     "sample-job2",
+				Owner:    "goto",
+				TaskName: "sample-task-name",
+			},
+		}
+
+		expectedJobSpecRes := []*optimusv1beta1.JobSpecificationResponse{
+			jobSpec1,
+			jobSpec2,
+		}
+
+		client := new(mocks.JobSpecificationServiceClient)
+		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
+			ProjectName: projectName,
+		}).Return(&optimusv1beta1.GetJobSpecificationsResponse{
+			JobSpecificationResponses: expectedJobSpecRes,
+		}, nil)
+		defer client.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+
+		router := chi.NewRouter()
+		optimus.Routes(client)(router)
+		router.ServeHTTP(response, request)
+
+		// assert
+		assert.Equal(t, http.StatusOK, response.Code)
+		resultJSON := response.Body.Bytes()
+		expectedJSON, err := json.Marshal(expectedJobSpecRes)
+		require.NoError(t, err)
+		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
+	})
+
+	t.Run("should return 400 if project query param is not passed", func(t *testing.T) {
+		wrongPath := "/"
+
+		client := new(mocks.JobSpecificationServiceClient)
+		defer client.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, wrongPath, nil)
+		router := chi.NewRouter()
+		optimus.Routes(client)(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("should return 500 for internal error", func(t *testing.T) {
+		clientError := status.Error(codes.Internal, "Internal")
+
+		client := new(mocks.JobSpecificationServiceClient)
+		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
+			ProjectName: projectName,
+		}).Return(nil, clientError)
+		defer client.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := chi.NewRouter()
+		optimus.Routes(client)(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
+}
