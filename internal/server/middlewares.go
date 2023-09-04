@@ -124,11 +124,7 @@ func requestLogger(lg *zap.Logger) middleware {
 				}{wrapped, flusher}
 			}
 
-			buf, err := io.ReadAll(req.Body)
-			if err != nil {
-				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
-				return
-			}
+			buf, _ := io.ReadAll(req.Body)
 			reader := io.NopCloser(bytes.NewBuffer(buf))
 			req.Body = reader
 
