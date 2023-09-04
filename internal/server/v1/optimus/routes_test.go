@@ -102,7 +102,7 @@ func TestRoutesFindJobSpec(t *testing.T) {
 func TestRoutesListJobs(t *testing.T) {
 	projectName := "sample-project"
 	method := http.MethodGet
-	path := fmt.Sprintf("/?project=%s", projectName)
+	path := fmt.Sprintf("/projects/%s/jobs", projectName)
 
 	t.Run("should return 200 with jobs list", func(t *testing.T) {
 		jobSpec1 := &optimusv1beta1.JobSpecificationResponse{
@@ -152,21 +152,6 @@ func TestRoutesListJobs(t *testing.T) {
 		expectedJSON, err := json.Marshal(expectedJobSpecRes)
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
-	})
-
-	t.Run("should return 400 if project query param is not passed", func(t *testing.T) {
-		wrongPath := "/"
-
-		client := new(mocks.JobSpecificationServiceClient)
-		defer client.AssertExpectations(t)
-
-		response := httptest.NewRecorder()
-		request := httptest.NewRequest(method, wrongPath, nil)
-		router := chi.NewRouter()
-		optimus.Routes(client)(router)
-		router.ServeHTTP(response, request)
-
-		assert.Equal(t, http.StatusBadRequest, response.Code)
 	})
 
 	t.Run("should return 500 for internal error", func(t *testing.T) {

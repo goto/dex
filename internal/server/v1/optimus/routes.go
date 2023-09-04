@@ -11,6 +11,6 @@ func Routes(optimusClient optimusv1beta1grpc.JobSpecificationServiceClient) func
 
 	return func(r chi.Router) {
 		r.Get("/projects/{project_name}/jobs/{job_name}", handler.findJob)
-		r.Get("/", handler.list)
+		r.Get("/projects/{project_name}/jobs", handler.list)
 	}
 }
