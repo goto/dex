@@ -6,14 +6,11 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"context"
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/goto/dex/generated/models"
 )
@@ -184,96 +181,5 @@ func (o *UpdateFirehoseInternalServerError) readResponse(response runtime.Client
 		return err
 	}
 
-	return nil
-}
-
-/*
-UpdateFirehoseBody update firehose body
-swagger:model UpdateFirehoseBody
-*/
-type UpdateFirehoseBody struct {
-
-	// configs
-	Configs *models.FirehoseConfig `json:"configs,omitempty"`
-
-	// description
-	// Example: This firehose consumes from booking events and ingests to redis
-	Description string `json:"description,omitempty"`
-}
-
-// Validate validates this update firehose body
-func (o *UpdateFirehoseBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateConfigs(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdateFirehoseBody) validateConfigs(formats strfmt.Registry) error {
-	if swag.IsZero(o.Configs) { // not required
-		return nil
-	}
-
-	if o.Configs != nil {
-		if err := o.Configs.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "configs")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this update firehose body based on the context it is used
-func (o *UpdateFirehoseBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateConfigs(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdateFirehoseBody) contextValidateConfigs(ctx context.Context, formats strfmt.Registry) error {
-
-	if o.Configs != nil {
-		if err := o.Configs.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "configs")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateFirehoseBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateFirehoseBody) UnmarshalBinary(b []byte) error {
-	var res UpdateFirehoseBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

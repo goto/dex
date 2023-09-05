@@ -87,8 +87,7 @@ func newSwaggerTransport(cmd *cobra.Command, r *httptransport.Runtime) *swaggerT
 	}
 }
 
-type debugTransport struct {
-}
+type debugTransport struct{}
 
 func (debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	log.Printf("%s %s", req.Method, req.URL)

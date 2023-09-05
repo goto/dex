@@ -179,14 +179,7 @@ paths:
         - in: body
           name: body
           schema:
-            type: object
-            properties:
-              description:
-                type: string
-                example: "This firehose consumes from booking events and ingests to redis"
-              configs:
-                type: object
-                $ref: "#/definitions/FirehoseConfig"
+            $ref: "#/definitions/FirehoseUpdateRequest"
       responses:
         "200":
           description: Found firehose with given URN
@@ -237,7 +230,6 @@ paths:
           description: internal error
           schema:
             $ref: "#/definitions/ErrorResponse"
-
   /dex/firehoses/{firehoseUrn}/reset:
     parameters:
       - in: path
@@ -952,6 +944,21 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Firehose"
+  FirehoseUpdateRequest:
+    type: object
+    required:
+      - group
+    properties:
+      group:
+        type: string
+        format: uuid
+        example: "e144ea5e-c7d6-48c4-a580-db31cb3389aa"
+      description:
+        type: string
+        example: "This firehose consumes from booking events and ingests to redis"
+      configs:
+        type: object
+        $ref: "#/definitions/FirehoseConfig"
   Firehose:
     type: object
     required:
