@@ -15,7 +15,7 @@ func stopCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop <firehoseURN>",
 		Short: "Stop the firehose if it's currently running.",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			spinner := printer.Spin("")
 			defer spinner.Stop()

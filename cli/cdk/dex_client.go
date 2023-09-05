@@ -3,6 +3,7 @@ package cdk
 import (
 	"context"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -61,12 +62,14 @@ func NewClient(cmd *cobra.Command) *client.DexAPI {
 		scheme = []string{"https"}
 	}
 
-	r := httptransport.New(cfg.Host, cfg.PathPrefix, scheme)
+	r := httptransport.New(cfg.Host, cfg.Prefix, scheme)
 	r.Context = cmd.Context()
 	r.Consumers["application/x-ndjson"] = runtime.ByteStreamConsumer()
 	r.DefaultAuthentication = httptransport.BearerToken(accessToken)
 	r.EnableConnectionReuse()
-
+	if cfg.Debug {
+		r.Transport = debugTransport{}
+	}
 	customTr := newSwaggerTransport(cmd, r)
 	return client.New(customTr, strfmt.Default)
 }
@@ -82,4 +85,12 @@ func newSwaggerTransport(cmd *cobra.Command, r *httptransport.Runtime) *swaggerT
 		Context: cmd.Context(),
 		Timeout: d,
 	}
+}
+
+type debugTransport struct {
+}
+
+func (debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	log.Printf("%s %s", req.Method, req.URL)
+	return http.DefaultTransport.RoundTrip(req)
 }
