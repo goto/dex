@@ -75,3 +75,53 @@ func TestServiceFindJobSpec(t *testing.T) {
 		assert.ErrorIs(t, err, expectedErr)
 	})
 }
+
+func TestServiceListJobs(t *testing.T) {
+	projectName := "test-project"
+	t.Run("should return list of jobs using project in argument", func(t *testing.T) {
+		jobSpecRes := &optimusv1beta1.JobSpecificationResponse{
+			ProjectName:   projectName,
+			NamespaceName: "test-namespcace",
+			Job: &optimusv1beta1.JobSpecification{
+				Version:  1,
+				Name:     "sample-job",
+				Owner:    "goto",
+				TaskName: "sample-task-name",
+			},
+		}
+
+		listJobsResp := &optimusv1beta1.GetJobSpecificationsResponse{
+			JobSpecificationResponses: []*optimusv1beta1.JobSpecificationResponse{
+				jobSpecRes,
+			},
+		}
+
+		expectedResp := []*optimusv1beta1.JobSpecificationResponse{jobSpecRes}
+
+		client := new(mocks.JobSpecificationServiceClient)
+		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
+			ProjectName: projectName,
+		}).Return(listJobsResp, nil)
+		defer client.AssertExpectations(t)
+
+		service := optimus.NewService(client)
+
+		resp, err := service.ListJobs(context.TODO(), projectName)
+		assert.Equal(t, expectedResp, resp)
+		assert.NoError(t, err)
+	})
+
+	t.Run("should return error if RPC request fails", func(t *testing.T) {
+		expectedErr := status.Error(codes.Internal, "Internal")
+
+		client := new(mocks.JobSpecificationServiceClient)
+		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
+			ProjectName: projectName,
+		}).Return(nil, expectedErr)
+		defer client.AssertExpectations(t)
+
+		service := optimus.NewService(client)
+		_, err := service.ListJobs(context.TODO(), projectName)
+		assert.ErrorIs(t, err, expectedErr)
+	})
+}
