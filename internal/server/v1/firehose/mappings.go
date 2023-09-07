@@ -74,6 +74,7 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 		},
 		DeploymentID: cfg.DeploymentID,
 		EnvVariables: cfg.EnvVars,
+		ResetOffset:  cfg.ResetOffset,
 	})
 }
 
