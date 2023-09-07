@@ -124,11 +124,12 @@ func requestLogger(lg *zap.Logger) middleware {
 				}{wrapped, flusher}
 			}
 
-			bodyCopy := bytes.NewBuffer(nil)
-			noOfBytes, err := io.Copy(bodyCopy, req.Body)
+			bodyBytes, err := io.ReadAll(req.Body)
 			if err != nil {
-				lg.Error("error copying request body: %v", zap.String("error", err.Error()))
+				lg.Debug("error reading request body: %v", zap.String("error", err.Error()))
 			}
+			reader := io.NopCloser(bytes.NewBuffer(bodyBytes))
+			req.Body = reader
 
 			next.ServeHTTP(fr, req)
 
@@ -146,19 +147,13 @@ func requestLogger(lg *zap.Logger) middleware {
 				zap.Int("status", wrapped.Status),
 			}
 
-			switch req.Method {
-			case http.MethodGet:
-				break
-			default:
-				if noOfBytes > 0 {
-					buf, _ := io.ReadAll(bodyCopy)
-					dst := &bytes.Buffer{}
-					err := json.Compact(dst, buf)
-					if err != nil {
-						lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
-					} else {
-						fields = append(fields, zap.String("request_body", dst.String()))
-					}
+			if len(bodyBytes) > 0 {
+				dst := bytes.NewBuffer(nil)
+				err = json.Compact(dst, bodyBytes)
+				if err != nil {
+					lg.Debug("error json compacting request body: %v", zap.String("error", err.Error()))
+				} else {
+					fields = append(fields, zap.String("request_body", dst.String()))
 				}
 			}
 
