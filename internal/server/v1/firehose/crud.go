@@ -226,18 +226,14 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
 
-	var updates struct {
-		Group       string                `json:"group"`
-		Description string                `json:"description"`
-		Configs     models.FirehoseConfig `json:"configs"`
-	}
+	var updates models.FirehoseUpdateRequest
 	if err := utils.ReadJSON(r, &updates); err != nil {
 		utils.WriteErr(w, err)
 		return
 	} else if err := updates.Configs.Validate(nil); err != nil {
 		utils.WriteErr(w, err)
 		return
-	} else if updates.Group == "" {
+	} else if *updates.Group == "" {
 		// TODO: move validation to be same with create
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("group is required"))
 		return
@@ -254,9 +250,9 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, errors.ErrInvalid.WithMsgf("kube_cluster cannot be updated"))
 		return
 	}
-	existingFirehose.Group = (*strfmt.UUID)(&updates.Group)
+	existingFirehose.Group = updates.Group
 	existingFirehose.Description = updates.Description
-	existingFirehose.Configs = &updates.Configs
+	existingFirehose.Configs = updates.Configs
 	existingFirehose.Configs.StopTime = sanitizeFirehoseStopTime(updates.Configs.StopTime)
 
 	groupID := existingFirehose.Group.String()

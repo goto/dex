@@ -22,7 +22,7 @@ func upgradeCommand() *cobra.Command {
 			defer spinner.Stop()
 
 			params := &operations.UpgradeFirehoseParams{
-				FirehoseUrn: args[1],
+				FirehoseUrn: args[0],
 				Body:        struct{}{},
 			}
 

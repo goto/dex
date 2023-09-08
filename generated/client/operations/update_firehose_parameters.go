@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+
+	"github.com/goto/dex/generated/models"
 )
 
 // NewUpdateFirehoseParams creates a new UpdateFirehoseParams object,
@@ -62,7 +64,7 @@ UpdateFirehoseParams contains all the parameters to send to the API endpoint
 type UpdateFirehoseParams struct {
 
 	// Body.
-	Body UpdateFirehoseBody
+	Body *models.FirehoseUpdateRequest
 
 	/* FirehoseUrn.
 
@@ -124,13 +126,13 @@ func (o *UpdateFirehoseParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the update firehose params
-func (o *UpdateFirehoseParams) WithBody(body UpdateFirehoseBody) *UpdateFirehoseParams {
+func (o *UpdateFirehoseParams) WithBody(body *models.FirehoseUpdateRequest) *UpdateFirehoseParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update firehose params
-func (o *UpdateFirehoseParams) SetBody(body UpdateFirehoseBody) {
+func (o *UpdateFirehoseParams) SetBody(body *models.FirehoseUpdateRequest) {
 	o.Body = body
 }
 
@@ -152,8 +154,10 @@ func (o *UpdateFirehoseParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	// path param firehoseUrn

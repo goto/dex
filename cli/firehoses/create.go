@@ -111,7 +111,8 @@ func updateFirehose(cmd *cobra.Command, urn string, updated models.Firehose) (*m
 
 	params := &operations.UpdateFirehoseParams{
 		FirehoseUrn: urn,
-		Body: operations.UpdateFirehoseBody{
+		Body: &models.FirehoseUpdateRequest{
+			Group:       updated.Group,
 			Configs:     updated.Configs,
 			Description: updated.Description,
 		},
