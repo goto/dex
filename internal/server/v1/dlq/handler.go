@@ -7,8 +7,8 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
-	entropyFirehose "github.com/goto/entropy/modules/firehose"
 
+	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/firehose"
@@ -30,7 +30,7 @@ func (h *Handler) listFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	conf := &entropyFirehose.Config{}
+	conf := &entropy.Config{}
 	err = utils.ProtoStructToGoVal(resp.GetResource().GetSpec().GetConfigs(), conf)
 	if err != nil {
 		utils.WriteErr(w, err)

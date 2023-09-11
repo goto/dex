@@ -7,11 +7,10 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
-	entropyFirehose "github.com/goto/entropy/modules/firehose"
-	entropyKafka "github.com/goto/entropy/pkg/kafka"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
@@ -27,7 +26,7 @@ const (
 )
 
 func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
-	var reqBody entropyKafka.ResetParams
+	var reqBody entropy.ResetParams
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -65,7 +64,7 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := entropyFirehose.ScaleParams{
+	params := entropy.ScaleParams{
 		Replicas: reqBody.Replicas,
 	}
 	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionScale, params)
@@ -85,7 +84,7 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := entropyFirehose.StartParams{}
+	params := entropy.StartParams{}
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[configSinkType] == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)
