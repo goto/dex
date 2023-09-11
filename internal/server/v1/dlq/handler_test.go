@@ -146,7 +146,7 @@ func TestListTopicDates(t *testing.T) {
 		Prefix:     "test-prefix",
 		Delim:      "",
 	}).Return(topicDates, nil)
-	handler := Handler{service: NewService(eService, gClient)}
+	handler := NewHandler(NewService(eService, gClient))
 	httpWriter := &mockHTTPWriter{}
 	httpRequest := &http.Request{}
 	handler.listFirehoseDLQ(httpWriter, httpRequest)
