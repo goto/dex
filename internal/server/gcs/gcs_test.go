@@ -80,5 +80,5 @@ func TestErrorForWrongPath(t *testing.T) {
 	})
 	assert.Nil(t, topicDates)
 	assert.Error(t, err)
-	assert.Equal(t, "Object is not in correct path, It should be topic/date/file-name\nPath: test-topic1/31", err.Error())
+	assert.Equal(t, "object is not in correct path, It should be topic/date/file-name: Path test-topic1/31", err.Error())
 }

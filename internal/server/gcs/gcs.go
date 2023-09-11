@@ -22,7 +22,7 @@ func NewClient(keyFilePath string) (*Client, error) {
 	return &Client{storageClient: SClient{gcsClient: client}}, nil
 }
 
-var errWrongPath = errors.New("object is not in correct path")
+var errWrongPath = errors.New("object is not in correct path, It should be topic/date/file-name")
 
 func wrongPath(name string) error {
 	return fmt.Errorf("%w: Path %s", errWrongPath, name)

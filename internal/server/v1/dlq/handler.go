@@ -1,7 +1,6 @@
 package dlq
 
 import (
-	"context"
 	"log"
 	"net/http"
 
@@ -24,7 +23,7 @@ func NewHandler(service *Service) *Handler {
 
 func (h *Handler) listFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	firehoseURN := h.firehoseURN(r)
-	resp, err := h.service.client.GetResource(context.Background(), &entropyv1beta1.GetResourceRequest{Urn: firehoseURN})
+	resp, err := h.service.client.GetResource(r.Context(), &entropyv1beta1.GetResourceRequest{Urn: firehoseURN})
 	if err != nil {
 		utils.WriteErr(w, err)
 		log.Println(err)
