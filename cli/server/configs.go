@@ -50,8 +50,9 @@ type optimusConfig struct {
 }
 
 type serveConfig struct {
-	Host string `mapstructure:"host" default:""`
-	Port int    `mapstructure:"port" default:"8080"`
+	Host           string `mapstructure:"host" default:""`
+	Port           int    `mapstructure:"port" default:"8080"`
+	GCSKeyFilePath string `mapstructure:"gcs_key_file_path"`
 }
 
 func (serveCfg serveConfig) Addr() string {

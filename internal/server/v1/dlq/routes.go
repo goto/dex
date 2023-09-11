@@ -1,12 +1,20 @@
 package dlq
 
 import (
+	"fmt"
+
 	entropyv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
 	"github.com/go-chi/chi/v5"
+
+	"github.com/goto/dex/internal/server/gcs"
 )
 
-func Routes(entropyClient entropyv1beta1rpc.ResourceServiceClient) func(r chi.Router) {
-	service := NewService(entropyClient)
+func Routes(entropyClient entropyv1beta1rpc.ResourceServiceClient, gcsKeyFilePath string) func(r chi.Router) {
+	gcsClient, err := gcs.NewClient(gcsKeyFilePath)
+	if err != nil {
+		fmt.Printf("Error while creating GCS %s\n", err.Error())
+	}
+	service := NewService(entropyClient, gcsClient)
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {

@@ -36,6 +36,7 @@ func Serve(ctx context.Context, addr string,
 	optimusClient optimusv1beta1.JobSpecificationServiceClient,
 	odinAddr string,
 	stencilAddr string,
+	gcsKeyFilePath string,
 ) error {
 	alertSvc := &alertsv1.Service{Siren: sirenClient}
 
@@ -60,7 +61,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
-		r.Route("/dlq", dlqv1.Routes(entropyClient))
+		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsKeyFilePath))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
 	})

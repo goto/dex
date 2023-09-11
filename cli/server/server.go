@@ -107,5 +107,6 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		optimusv1beta1.NewJobSpecificationServiceClient(optimusConn),
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
+		cfg.Service.GCSKeyFilePath,
 	)
 }

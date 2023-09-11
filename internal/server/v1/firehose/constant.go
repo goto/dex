@@ -24,3 +24,8 @@ const (
 	configStreamName               = "STREAM_NAME"
 	configStencilURL               = "SCHEMA_REGISTRY_STENCIL_URLS"
 )
+
+const (
+	ConfigDLQBucket          = "DLQ_GCS_BUCKET_NAME"
+	ConfigDLQDirectoryPrefix = "DLQ_GCS_DIRECTORY_PREFIX"
+)
