@@ -21,14 +21,16 @@ type MockIterator struct {
 func (m *MockIterator) Next() (*storage.ObjectAttrs, error) {
 	args := m.Called()
 	if args.Get(0) == nil {
-		return nil, args.Get(1).(error)
+		err, _ := args.Get(1).(error)
+		return nil, err
 	}
-	return args.Get(0).(*storage.ObjectAttrs), nil
+	attributes, _ := args.Get(0).(*storage.ObjectAttrs)
+	return attributes, nil
 }
 
 var mockIterator = &MockIterator{}
 
-func (client *MockStorageClient) Objects(context.Context, string, *storage.Query) WrapperIterator {
+func (*MockStorageClient) Objects(context.Context, string, *storage.Query) WrapperIterator {
 	return mockIterator
 }
 
@@ -53,7 +55,6 @@ func TestListTopicDates(t *testing.T) {
 	assert.Equal(t, int64(579), topicDates["test-topic1"]["2023-08-26"])
 	assert.Equal(t, int64(890), topicDates["test-topic1"]["2023-08-27"])
 	assert.Equal(t, int64(1696), topicDates["test-topic2"]["2023-08-28"])
-	fmt.Println(topicDates)
 }
 
 func TestErrorOnListTopic(t *testing.T) {

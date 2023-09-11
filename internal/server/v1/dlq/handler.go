@@ -2,7 +2,7 @@ package dlq
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"net/http"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
@@ -27,14 +27,14 @@ func (h *Handler) listFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.service.client.GetResource(context.Background(), &entropyv1beta1.GetResourceRequest{Urn: firehoseURN})
 	if err != nil {
 		utils.WriteErr(w, err)
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	conf := &entropy.Config{}
 	err = utils.ProtoStructToGoVal(resp.GetResource().GetSpec().GetConfigs(), conf)
 	if err != nil {
 		utils.WriteErr(w, err)
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	// check the variables for dlq related config.
@@ -47,7 +47,7 @@ func (h *Handler) listFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		utils.WriteErr(w, err)
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 

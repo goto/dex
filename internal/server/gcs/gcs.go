@@ -2,6 +2,7 @@ package gcs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -21,6 +22,12 @@ func NewClient(keyFilePath string) (*Client, error) {
 	return &Client{storageClient: SClient{gcsClient: client}}, nil
 }
 
+var errWrongPath = errors.New("object is not in correct path")
+
+func wrongPath(name string) error {
+	return fmt.Errorf("%w: Path %s", errWrongPath, name)
+}
+
 func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error) {
 	bucket := bucketInfo.BucketName
 	prefix := bucketInfo.Prefix
@@ -36,7 +43,7 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[strin
 	})
 	for {
 		attrs, err := it.Next()
-		if err == iterator.Done {
+		if errors.Is(iterator.Done, err) {
 			break
 		}
 		if err != nil {
@@ -44,7 +51,7 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[strin
 		}
 		splits := strings.Split(attrs.Name, "/")
 		if len(splits) != 3 {
-			return nil, fmt.Errorf("%s\nPath: %s", "Object is not in correct path, It should be topic/date/file-name", attrs.Name)
+			return nil, wrongPath(attrs.Name)
 		}
 		topicName := splits[0]
 		date := splits[1]
