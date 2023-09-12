@@ -1,8 +1,6 @@
 module github.com/goto/dex
 
-go 1.21
-
-toolchain go1.21.0
+go 1.20
 
 require (
 	buf.build/gen/go/gotocompany/proton/grpc/go v1.3.0-20230910125305-da3eb6608f25.1
