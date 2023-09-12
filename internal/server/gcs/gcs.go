@@ -13,6 +13,8 @@ import (
 	"google.golang.org/api/option"
 )
 
+const clientTimeout = time.Second * 120
+
 func NewClient(keyFilePath string) (*Client, error) {
 	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(keyFilePath))
 	if err != nil {
@@ -35,7 +37,7 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[strin
 	ctx := context.Background()
 	// map(topic -> map(Date -> size))
 	topicDateMap := make(map[string]map[string]int64)
-	ctx, cancel := context.WithTimeout(ctx, time.Second*120)
+	ctx, cancel := context.WithTimeout(ctx, clientTimeout)
 	defer cancel()
 	it := client.storageClient.Objects(ctx, bucket, &storage.Query{
 		Prefix:    prefix,
