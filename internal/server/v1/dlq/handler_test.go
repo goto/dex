@@ -3,6 +3,7 @@ package dlq
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -75,7 +76,6 @@ func (g *mockGcsClient) ListTopicDates(bucketInfo gcs.BucketInfo) (map[string]ma
 }
 
 type mockHTTPWriter struct {
-	mock.Mock
 	messages []string
 }
 
@@ -93,6 +93,10 @@ func (*mockHTTPWriter) WriteHeader(int) {
 
 func TestListTopicDates(t *testing.T) {
 	eService := &mockEntropyService{}
+	gClient := &mockGcsClient{}
+	handler := NewHandler(NewService(eService, gClient))
+	httpWriter := &mockHTTPWriter{}
+	httpRequest := &http.Request{}
 	config := &entropy.Config{
 		Stopped:      false,
 		StopTime:     nil,
@@ -134,7 +138,6 @@ func TestListTopicDates(t *testing.T) {
 				UpdatedBy: "",
 			},
 		}, nil)
-	gClient := &mockGcsClient{}
 	topicDates := make(map[string]map[string]int64)
 	topicDates["topic-1"] = make(map[string]int64)
 	topicDates["topic-2"] = make(map[string]int64)
@@ -146,11 +149,83 @@ func TestListTopicDates(t *testing.T) {
 		Prefix:     "test-prefix",
 		Delim:      "",
 	}).Return(topicDates, nil)
-	handler := NewHandler(NewService(eService, gClient))
-	httpWriter := &mockHTTPWriter{}
-	httpRequest := &http.Request{}
 	handler.listFirehoseDLQ(httpWriter, httpRequest)
 	expectedMap := make(map[string]map[string]map[string]int64)
 	_ = json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
 	assert.Equal(t, topicDates, expectedMap["dlq_list"])
+}
+
+func TestErrorFromGCSClient(t *testing.T) {
+	eService := &mockEntropyService{}
+	gClient := &mockGcsClient{}
+	handler := NewHandler(NewService(eService, gClient))
+	httpWriter := &mockHTTPWriter{}
+	httpRequest := &http.Request{}
+	config := &entropy.Config{
+		Stopped:      false,
+		StopTime:     nil,
+		Replicas:     0,
+		Namespace:    "",
+		DeploymentID: "",
+		EnvVariables: map[string]string{
+			firehose.ConfigDLQBucket:          "test-bucket",
+			firehose.ConfigDLQDirectoryPrefix: "test-prefix",
+		},
+		ResetOffset:   "",
+		Limits:        entropy.UsageSpec{},
+		Requests:      entropy.UsageSpec{},
+		Telegraf:      nil,
+		ChartValues:   nil,
+		InitContainer: entropy.InitContainer{},
+	}
+	configProto, _ := utils.GoValToProtoStruct(config)
+	eService.On(
+		"GetResource",
+		context.Background(),
+		mock.Anything,
+		[]grpc.CallOption(nil)).Return(
+		&entropyv1beta1.GetResourceResponse{
+			Resource: &entropyv1beta1.Resource{
+				Urn:       "",
+				Kind:      "",
+				Name:      "",
+				Project:   "",
+				Labels:    nil,
+				CreatedAt: nil,
+				UpdatedAt: nil,
+				Spec: &entropyv1beta1.ResourceSpec{
+					Configs:      configProto,
+					Dependencies: nil,
+				},
+				State:     nil,
+				CreatedBy: "",
+				UpdatedBy: "",
+			},
+		}, nil)
+	gClient.On("ListTopicDates", gcs.BucketInfo{
+		BucketName: "test-bucket",
+		Prefix:     "test-prefix",
+		Delim:      "",
+	}).Return(nil, fmt.Errorf("test-error"))
+	handler.listFirehoseDLQ(httpWriter, httpRequest)
+	expectedMap := make(map[string]interface{})
+	_ = json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	assert.Equal(t, "test-error", expectedMap["cause"])
+}
+
+func TestErrorFromFirehoseResource(t *testing.T) {
+	eService := &mockEntropyService{}
+	gClient := &mockGcsClient{}
+	handler := NewHandler(NewService(eService, gClient))
+	httpWriter := &mockHTTPWriter{}
+	httpRequest := &http.Request{}
+	eService.On(
+		"GetResource",
+		context.Background(),
+		mock.Anything,
+		[]grpc.CallOption(nil)).Return(nil, fmt.Errorf("test-error"))
+	handler.listFirehoseDLQ(httpWriter, httpRequest)
+	expectedMap := make(map[string]interface{})
+	_ = json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	assert.Equal(t, "test-error", expectedMap["cause"])
 }
