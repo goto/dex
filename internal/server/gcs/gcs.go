@@ -24,12 +24,6 @@ func NewClient(keyFilePath string) (*Client, error) {
 	return &Client{storageClient: SClient{gcsClient: client}}, nil
 }
 
-var errWrongPath = errors.New("object is not in correct path, It should be topic/date/file-name")
-
-func wrongPath(name string) error {
-	return fmt.Errorf("%w: Path %s", errWrongPath, name)
-}
-
 func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error) {
 	bucket := bucketInfo.BucketName
 	prefix := bucketInfo.Prefix
@@ -52,11 +46,12 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[strin
 			return nil, fmt.Errorf("Bucket(%q).Objects(): %w", bucket, err)
 		}
 		splits := strings.Split(attrs.Name, "/")
-		if len(splits) != 3 {
-			return nil, wrongPath(attrs.Name)
+		if len(splits) != 4 {
+			continue
 		}
-		topicName := splits[0]
-		date := splits[1]
+		// prefix/topic-name/date/object-name
+		topicName := splits[1]
+		date := splits[2]
 		if topicDateMap[topicName] == nil {
 			topicDateMap[topicName] = make(map[string]int64)
 		}

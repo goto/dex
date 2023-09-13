@@ -35,12 +35,12 @@ func (*MockStorageClient) Objects(context.Context, string, *storage.Query) Wrapp
 }
 
 func TestListTopicDates(t *testing.T) {
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic1/2023-08-26/file1", Size: 123}, nil).Once()
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic1/2023-08-26/file2", Size: 456}, nil).Once()
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic1/2023-08-27/file3", Size: 789}, nil).Once()
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic1/2023-08-27/file4", Size: 101}, nil).Once()
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic2/2023-08-28/file5", Size: 707}, nil).Once()
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic2/2023-08-28/file6", Size: 989}, nil).Once()
+	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "prefix/test-topic1/2023-08-26/file1", Size: 123}, nil).Once()
+	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "prefix/test-topic1/2023-08-26/file2", Size: 456}, nil).Once()
+	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "prefix/test-topic1/2023-08-27/file3", Size: 789}, nil).Once()
+	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "prefix/test-topic1/2023-08-27/file4", Size: 101}, nil).Once()
+	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "prefix/test-topic2/2023-08-28/file5", Size: 707}, nil).Once()
+	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "prefix/test-topic2/2023-08-28/file6", Size: 989}, nil).Once()
 	mockIterator.On("Next").Return(nil, iterator.Done).Once()
 	client := Client{storageClient: &MockStorageClient{}}
 	topicDates, err := client.ListTopicDates(BucketInfo{
@@ -68,17 +68,4 @@ func TestErrorOnListTopic(t *testing.T) {
 	assert.Nil(t, topicDates)
 	assert.Error(t, err)
 	assert.Equal(t, "Bucket(\"test-bucket\").Objects(): test-error", err.Error())
-}
-
-func TestErrorForWrongPath(t *testing.T) {
-	mockIterator.On("Next").Return(&storage.ObjectAttrs{Name: "test-topic1/31", Size: 123}, nil).Once()
-	client := Client{storageClient: &MockStorageClient{}}
-	topicDates, err := client.ListTopicDates(BucketInfo{
-		BucketName: "test-bucket",
-		Prefix:     "prefix",
-		Delim:      "",
-	})
-	assert.Nil(t, topicDates)
-	assert.Error(t, err)
-	assert.Equal(t, "object is not in correct path, It should be topic/date/file-name: Path test-topic1/31", err.Error())
 }
