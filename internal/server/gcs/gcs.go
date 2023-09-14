@@ -15,13 +15,13 @@ import (
 
 const clientTimeout = time.Second * 120
 
-func NewClient(keyFilePath string) (*Client, error) {
+func NewClient(keyFilePath string) (*SClient, error) {
 	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(keyFilePath))
 	if err != nil {
 		log.Printf("Failed to create GCSClient storageClient: %v\n", err)
 		return nil, err
 	}
-	return &Client{StorageClient: SClient{gcsClient: client}}, nil
+	return &SClient{gcsClient: client}, nil
 }
 
 func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error) {
