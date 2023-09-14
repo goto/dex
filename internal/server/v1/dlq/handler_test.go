@@ -82,19 +82,30 @@ func TestListTopicDates(t *testing.T) {
 				UpdatedBy: "",
 			},
 		}, nil)
-	topicDates := make(map[string]map[string]int64)
-	topicDates["topic-1"] = make(map[string]int64)
-	topicDates["topic-2"] = make(map[string]int64)
-	topicDates["topic-1"]["2023-08-26"] = int64(1234)
-	topicDates["topic-1"]["2023-12-10"] = int64(4321)
-	topicDates["topic-2"]["2023-09-20"] = int64(99)
+	topicDates := []gcs.TopicMetaData{
+		{
+			Topic:       "topic-1",
+			Date:        "2023-08-26",
+			SizeInBytes: 1234,
+		},
+		{
+			Topic:       "test-topic2",
+			Date:        "2023-12-10",
+			SizeInBytes: 4321,
+		},
+		{
+			Topic:       "topic-2",
+			Date:        "2023-09-20",
+			SizeInBytes: 99,
+		},
+	}
 	gClient.On("ListTopicDates", gcs.BucketInfo{
 		BucketName: "test-bucket",
 		Prefix:     "test-prefix",
 		Delim:      "",
 	}).Return(topicDates, nil)
 	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string]map[string]map[string]int64)
+	expectedMap := make(map[string][]gcs.TopicMetaData)
 	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
 	require.NoError(t, err)
 	assert.Equal(t, topicDates, expectedMap["dlq_list"])

@@ -2,6 +2,7 @@ package gcs_test
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"cloud.google.com/go/storage"
@@ -31,12 +32,38 @@ func TestListTopicDates(t *testing.T) {
 		Delim:      "",
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(topicDates))
-	assert.Equal(t, 2, len(topicDates["test-topic1"]))
-	assert.Equal(t, 1, len(topicDates["test-topic2"]))
-	assert.Equal(t, int64(579), topicDates["test-topic1"]["2023-08-26"])
-	assert.Equal(t, int64(890), topicDates["test-topic1"]["2023-08-27"])
-	assert.Equal(t, int64(1696), topicDates["test-topic2"]["2023-08-28"])
+	expected := []gcs.TopicMetaData{
+		{
+			Topic:       "test-topic1",
+			Date:        "2023-08-26",
+			SizeInBytes: 579,
+		},
+		{
+			Topic:       "test-topic2",
+			Date:        "2023-08-28",
+			SizeInBytes: 1696,
+		},
+		{
+			Topic:       "test-topic1",
+			Date:        "2023-08-27",
+			SizeInBytes: 890,
+		},
+	}
+	sortMetadata(expected)
+	sortMetadata(topicDates)
+	assert.Equal(t, expected, topicDates)
+}
+
+func sortMetadata(data []gcs.TopicMetaData) {
+	sort.Slice(data, func(i, j int) bool {
+		if data[i].Topic != data[j].Topic {
+			return data[i].Topic < data[j].Topic
+		}
+		if data[i].Date != data[j].Date {
+			return data[i].Date < data[j].Date
+		}
+		return data[i].SizeInBytes < data[j].SizeInBytes
+	})
 }
 
 func TestErrorOnListTopic(t *testing.T) {

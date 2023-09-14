@@ -15,7 +15,7 @@ import (
 
 const clientTimeout = time.Second * 120
 
-func NewClient(keyFilePath string) (*SClient, error) {
+func NewClient(keyFilePath string) (BlobObjectClient, error) {
 	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(keyFilePath))
 	if err != nil {
 		log.Printf("Failed to create GCSClient storageClient: %v\n", err)
@@ -24,12 +24,11 @@ func NewClient(keyFilePath string) (*SClient, error) {
 	return &SClient{gcsClient: client}, nil
 }
 
-func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error) {
+func (client Client) ListTopicDates(bucketInfo BucketInfo) ([]TopicMetaData, error) {
 	bucket := bucketInfo.BucketName
 	prefix := bucketInfo.Prefix
 	delim := bucketInfo.Delim
 	ctx := context.Background()
-	// map(topic -> map(Date -> size))
 	topicDateMap := make(map[string]map[string]int64)
 	ctx, cancel := context.WithTimeout(ctx, clientTimeout)
 	defer cancel()
@@ -57,5 +56,15 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[strin
 		}
 		topicDateMap[topicName][date] += attrs.Size
 	}
-	return topicDateMap, nil
+	var returnVal []TopicMetaData
+	for topic, dates := range topicDateMap {
+		for date, size := range dates {
+			returnVal = append(returnVal, TopicMetaData{
+				Topic:       topic,
+				Date:        date,
+				SizeInBytes: size,
+			})
+		}
+	}
+	return returnVal, nil
 }

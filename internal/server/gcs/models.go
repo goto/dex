@@ -8,7 +8,13 @@ import (
 
 // BlobStorageClient This is used in service
 type BlobStorageClient interface {
-	ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error)
+	ListTopicDates(bucketInfo BucketInfo) ([]TopicMetaData, error)
+}
+
+type TopicMetaData struct {
+	Topic       string `json:"topic"`
+	Date        string `json:"date"`
+	SizeInBytes int64  `json:"size_in_bytes"`
 }
 
 // BlobObjectClient This is used to abstract actual gcs client

@@ -13,19 +13,19 @@ type BlobStorageClient struct {
 }
 
 // ListTopicDates provides a mock function with given fields: bucketInfo
-func (_m *BlobStorageClient) ListTopicDates(bucketInfo gcs.BucketInfo) (map[string]map[string]int64, error) {
+func (_m *BlobStorageClient) ListTopicDates(bucketInfo gcs.BucketInfo) ([]gcs.TopicMetaData, error) {
 	ret := _m.Called(bucketInfo)
 
-	var r0 map[string]map[string]int64
+	var r0 []gcs.TopicMetaData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(gcs.BucketInfo) (map[string]map[string]int64, error)); ok {
+	if rf, ok := ret.Get(0).(func(gcs.BucketInfo) ([]gcs.TopicMetaData, error)); ok {
 		return rf(bucketInfo)
 	}
-	if rf, ok := ret.Get(0).(func(gcs.BucketInfo) map[string]map[string]int64); ok {
+	if rf, ok := ret.Get(0).(func(gcs.BucketInfo) []gcs.TopicMetaData); ok {
 		r0 = rf(bucketInfo)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]map[string]int64)
+			r0 = ret.Get(0).([]gcs.TopicMetaData)
 		}
 	}
 
