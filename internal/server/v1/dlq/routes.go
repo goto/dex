@@ -18,7 +18,7 @@ func Routes(entropyClient entropyv1beta1rpc.ResourceServiceClient, gcsKeyFilePat
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {
-		r.Get("/firehose/{firehose_urn}", handler.listFirehoseDLQ)
+		r.Get("/firehose/{firehose_urn}", handler.ListFirehoseDLQ)
 		r.Get("/jobs", handler.listDlqJobs)
 		r.Get("/jobs/{job_urn}", handler.getDlqJob)
 		r.Post("/jobs", handler.createDlqJob)

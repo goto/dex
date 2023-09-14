@@ -1,4 +1,4 @@
-package dlq
+package dlq_test
 
 import (
 	"context"
@@ -7,95 +7,40 @@ import (
 	"net/http"
 	"testing"
 
-	entropyv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"google.golang.org/grpc"
+	"github.com/stretchr/testify/require"
 
 	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/internal/server/utils"
+	"github.com/goto/dex/internal/server/v1/dlq"
 	"github.com/goto/dex/internal/server/v1/firehose"
+	"github.com/goto/dex/mocks"
 )
 
-type mockEntropyService struct {
-	mock.Mock
-}
-
-func (*mockEntropyService) ListResources(context.Context, *entropyv1beta1.ListResourcesRequest, ...grpc.CallOption) (*entropyv1beta1.ListResourcesResponse, error) {
-	panic("")
-}
-
-func (e *mockEntropyService) GetResource(ctx context.Context, in *entropyv1beta1.GetResourceRequest, opts ...grpc.CallOption) (*entropyv1beta1.GetResourceResponse, error) {
-	args := e.Called(ctx, in, opts)
-	if args.Get(0) == nil {
-		err, _ := args.Get(1).(error)
-		return nil, err
-	}
-	response, _ := args.Get(0).(*entropyv1beta1.GetResourceResponse)
-	return response, nil
-}
-
-func (*mockEntropyService) CreateResource(context.Context, *entropyv1beta1.CreateResourceRequest, ...grpc.CallOption) (*entropyv1beta1.CreateResourceResponse, error) {
-	panic("")
-}
-
-func (*mockEntropyService) UpdateResource(context.Context, *entropyv1beta1.UpdateResourceRequest, ...grpc.CallOption) (*entropyv1beta1.UpdateResourceResponse, error) {
-	panic("")
-}
-
-func (*mockEntropyService) DeleteResource(context.Context, *entropyv1beta1.DeleteResourceRequest, ...grpc.CallOption) (*entropyv1beta1.DeleteResourceResponse, error) {
-	panic("")
-}
-
-func (*mockEntropyService) ApplyAction(context.Context, *entropyv1beta1.ApplyActionRequest, ...grpc.CallOption) (*entropyv1beta1.ApplyActionResponse, error) {
-	panic("")
-}
-
-func (*mockEntropyService) GetLog(context.Context, *entropyv1beta1.GetLogRequest, ...grpc.CallOption) (entropyv1beta1rpc.ResourceService_GetLogClient, error) {
-	panic("")
-}
-
-func (*mockEntropyService) GetResourceRevisions(context.Context, *entropyv1beta1.GetResourceRevisionsRequest, ...grpc.CallOption) (*entropyv1beta1.GetResourceRevisionsResponse, error) {
-	panic("")
-}
-
-type mockGcsClient struct {
-	mock.Mock
-}
-
-func (g *mockGcsClient) ListTopicDates(bucketInfo gcs.BucketInfo) (map[string]map[string]int64, error) {
-	args := g.Called(bucketInfo)
-	if args.Get(0) == nil {
-		err, _ := args.Get(1).(error)
-		return nil, err
-	}
-	topicDates, _ := args.Get(0).(map[string]map[string]int64)
-	return topicDates, nil
-}
-
-type mockHTTPWriter struct {
+type testHTTPWriter struct {
 	messages []string
 }
 
-func (*mockHTTPWriter) Header() http.Header {
+func (*testHTTPWriter) Header() http.Header {
 	return http.Header{}
 }
 
-func (m *mockHTTPWriter) Write(bytes []byte) (int, error) {
+func (m *testHTTPWriter) Write(bytes []byte) (int, error) {
 	m.messages = append(m.messages, string(bytes[:]))
 	return 0, nil
 }
 
-func (*mockHTTPWriter) WriteHeader(int) {
+func (*testHTTPWriter) WriteHeader(int) {
 }
 
 func TestListTopicDates(t *testing.T) {
-	eService := &mockEntropyService{}
-	gClient := &mockGcsClient{}
-	handler := NewHandler(NewService(eService, gClient))
-	httpWriter := &mockHTTPWriter{}
+	eService := &mocks.ResourceServiceClient{}
+	gClient := &mocks.BlobStorageClient{}
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	config := &entropy.Config{
 		Stopped:      false,
@@ -118,8 +63,7 @@ func TestListTopicDates(t *testing.T) {
 	eService.On(
 		"GetResource",
 		context.Background(),
-		mock.Anything,
-		[]grpc.CallOption(nil)).Return(
+		&entropyv1beta1.GetResourceRequest{Urn: ""}).Return(
 		&entropyv1beta1.GetResourceResponse{
 			Resource: &entropyv1beta1.Resource{
 				Urn:       "",
@@ -149,17 +93,18 @@ func TestListTopicDates(t *testing.T) {
 		Prefix:     "test-prefix",
 		Delim:      "",
 	}).Return(topicDates, nil)
-	handler.listFirehoseDLQ(httpWriter, httpRequest)
+	handler.ListFirehoseDLQ(httpWriter, httpRequest)
 	expectedMap := make(map[string]map[string]map[string]int64)
-	_ = json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	require.NoError(t, err)
 	assert.Equal(t, topicDates, expectedMap["dlq_list"])
 }
 
 func TestErrorFromGCSClient(t *testing.T) {
-	eService := &mockEntropyService{}
-	gClient := &mockGcsClient{}
-	handler := NewHandler(NewService(eService, gClient))
-	httpWriter := &mockHTTPWriter{}
+	eService := &mocks.ResourceServiceClient{}
+	gClient := &mocks.BlobStorageClient{}
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	config := &entropy.Config{
 		Stopped:      false,
@@ -182,8 +127,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 	eService.On(
 		"GetResource",
 		context.Background(),
-		mock.Anything,
-		[]grpc.CallOption(nil)).Return(
+		&entropyv1beta1.GetResourceRequest{Urn: ""}).Return(
 		&entropyv1beta1.GetResourceResponse{
 			Resource: &entropyv1beta1.Resource{
 				Urn:       "",
@@ -207,25 +151,26 @@ func TestErrorFromGCSClient(t *testing.T) {
 		Prefix:     "test-prefix",
 		Delim:      "",
 	}).Return(nil, fmt.Errorf("test-error"))
-	handler.listFirehoseDLQ(httpWriter, httpRequest)
+	handler.ListFirehoseDLQ(httpWriter, httpRequest)
 	expectedMap := make(map[string]interface{})
-	_ = json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	require.NoError(t, err)
 	assert.Equal(t, "test-error", expectedMap["cause"])
 }
 
 func TestErrorFromFirehoseResource(t *testing.T) {
-	eService := &mockEntropyService{}
-	gClient := &mockGcsClient{}
-	handler := NewHandler(NewService(eService, gClient))
-	httpWriter := &mockHTTPWriter{}
+	eService := &mocks.ResourceServiceClient{}
+	gClient := &mocks.BlobStorageClient{}
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	eService.On(
 		"GetResource",
 		context.Background(),
-		mock.Anything,
-		[]grpc.CallOption(nil)).Return(nil, fmt.Errorf("test-error"))
-	handler.listFirehoseDLQ(httpWriter, httpRequest)
+		mock.Anything).Return(nil, fmt.Errorf("test-error"))
+	handler.ListFirehoseDLQ(httpWriter, httpRequest)
 	expectedMap := make(map[string]interface{})
-	_ = json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	require.NoError(t, err)
 	assert.Equal(t, "test-error", expectedMap["cause"])
 }

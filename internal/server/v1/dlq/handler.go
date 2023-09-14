@@ -21,7 +21,7 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) listFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	firehoseURN := h.firehoseURN(r)
 	resp, err := h.service.client.GetResource(r.Context(), &entropyv1beta1.GetResourceRequest{Urn: firehoseURN})
 	if err != nil {

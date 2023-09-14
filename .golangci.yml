@@ -135,7 +135,6 @@ issues:
         - gocritic
         - dupl
         - goerr113
-        - nosnakecase
     - path: cli
       linters:
         - forbidigo

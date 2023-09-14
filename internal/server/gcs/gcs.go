@@ -21,7 +21,7 @@ func NewClient(keyFilePath string) (*Client, error) {
 		log.Printf("Failed to create GCSClient storageClient: %v\n", err)
 		return nil, err
 	}
-	return &Client{storageClient: SClient{gcsClient: client}}, nil
+	return &Client{StorageClient: SClient{gcsClient: client}}, nil
 }
 
 func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error) {
@@ -33,7 +33,7 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) (map[string]map[strin
 	topicDateMap := make(map[string]map[string]int64)
 	ctx, cancel := context.WithTimeout(ctx, clientTimeout)
 	defer cancel()
-	it := client.storageClient.Objects(ctx, bucket, &storage.Query{
+	it := client.StorageClient.Objects(ctx, bucket, &storage.Query{
 		Prefix:    prefix,
 		Delimiter: delim,
 	})

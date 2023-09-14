@@ -8,10 +8,10 @@ import (
 
 type Service struct {
 	client    entropyv1beta1rpc.ResourceServiceClient
-	gcsClient gcs.StorageClient
+	gcsClient gcs.BlobStorageClient
 }
 
-func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.StorageClient) *Service {
+func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.BlobStorageClient) *Service {
 	return &Service{
 		client:    client,
 		gcsClient: gcsClient,

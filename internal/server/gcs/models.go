@@ -6,22 +6,22 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-// StorageClient This is used in service
-type StorageClient interface {
+// BlobStorageClient This is used in service
+type BlobStorageClient interface {
 	ListTopicDates(bucketInfo BucketInfo) (map[string]map[string]int64, error)
 }
 
-// WrapperClient This is used to abstract actual gcs client
-type WrapperClient interface {
-	Objects(ctx context.Context, bucket string, query *storage.Query) WrapperIterator
+// BlobObjectClient This is used to abstract actual gcs client
+type BlobObjectClient interface {
+	Objects(ctx context.Context, bucket string, query *storage.Query) ObjectIterator
 }
 
-type WrapperIterator interface {
+type ObjectIterator interface {
 	Next() (*storage.ObjectAttrs, error)
 }
 
 type Client struct {
-	storageClient WrapperClient
+	StorageClient BlobObjectClient
 }
 
 type BucketInfo struct {
@@ -34,6 +34,6 @@ type SClient struct {
 	gcsClient *storage.Client
 }
 
-func (c SClient) Objects(ctx context.Context, bucket string, query *storage.Query) WrapperIterator {
+func (c SClient) Objects(ctx context.Context, bucket string, query *storage.Query) ObjectIterator {
 	return c.gcsClient.Bucket(bucket).Objects(ctx, query)
 }
