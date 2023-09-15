@@ -11,6 +11,8 @@ import (
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+
+	"github.com/goto/dex/generated/models"
 )
 
 const clientTimeout = time.Second * 120
@@ -24,7 +26,7 @@ func NewClient(keyFilePath string) (BlobObjectClient, error) {
 	return &SClient{gcsClient: client}, nil
 }
 
-func (client Client) ListTopicDates(bucketInfo BucketInfo) ([]TopicMetaData, error) {
+func (client Client) ListDlqMetadata(bucketInfo BucketInfo) ([]models.DlqMetadata, error) {
 	bucket := bucketInfo.BucketName
 	prefix := bucketInfo.Prefix
 	delim := bucketInfo.Delim
@@ -56,10 +58,10 @@ func (client Client) ListTopicDates(bucketInfo BucketInfo) ([]TopicMetaData, err
 		}
 		topicDateMap[topicName][date] += attrs.Size
 	}
-	var returnVal []TopicMetaData
+	var returnVal []models.DlqMetadata
 	for topic, dates := range topicDateMap {
 		for date, size := range dates {
-			returnVal = append(returnVal, TopicMetaData{
+			returnVal = append(returnVal, models.DlqMetadata{
 				Topic:       topic,
 				Date:        date,
 				SizeInBytes: size,

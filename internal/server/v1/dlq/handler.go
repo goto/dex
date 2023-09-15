@@ -39,7 +39,7 @@ func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	// check the variables for dlq related config.
 	bucketName := conf.EnvVariables[firehose.ConfigDLQBucket]
 	directoryPrefix := conf.EnvVariables[firehose.ConfigDLQDirectoryPrefix]
-	topicDates, err := h.service.gcsClient.ListTopicDates(gcs.BucketInfo{
+	topicDates, err := h.service.gcsClient.ListDlqMetadata(gcs.BucketInfo{
 		BucketName: bucketName,
 		Prefix:     directoryPrefix,
 		Delim:      "",

@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/api/iterator"
 
+	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/mocks"
 )
@@ -26,13 +27,13 @@ func TestListTopicDates(t *testing.T) {
 	mc := &mocks.BlobObjectClient{}
 	mc.On("Objects", mock.Anything, mock.Anything, mock.Anything).Return(mt).Once()
 	client := gcs.Client{StorageClient: mc}
-	topicDates, err := client.ListTopicDates(gcs.BucketInfo{
+	topicDates, err := client.ListDlqMetadata(gcs.BucketInfo{
 		BucketName: "test-bucket",
 		Prefix:     "prefix",
 		Delim:      "",
 	})
 	assert.NoError(t, err)
-	expected := []gcs.TopicMetaData{
+	expected := []models.DlqMetadata{
 		{
 			Topic:       "test-topic1",
 			Date:        "2023-08-26",
@@ -54,7 +55,7 @@ func TestListTopicDates(t *testing.T) {
 	assert.Equal(t, expected, topicDates)
 }
 
-func sortMetadata(data []gcs.TopicMetaData) {
+func sortMetadata(data []models.DlqMetadata) {
 	sort.Slice(data, func(i, j int) bool {
 		if data[i].Topic != data[j].Topic {
 			return data[i].Topic < data[j].Topic
@@ -72,7 +73,7 @@ func TestErrorOnListTopic(t *testing.T) {
 	mt.On("Next").Return(nil, fmt.Errorf("test-error")).Once()
 	mc.On("Objects", mock.Anything, mock.Anything, mock.Anything).Return(mt).Once()
 	client := gcs.Client{StorageClient: mc}
-	topicDates, err := client.ListTopicDates(gcs.BucketInfo{
+	topicDates, err := client.ListDlqMetadata(gcs.BucketInfo{
 		BucketName: "test-bucket",
 		Prefix:     "prefix",
 		Delim:      "",

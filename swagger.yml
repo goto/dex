@@ -1207,16 +1207,16 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/AlertTemplate"
-  Dlq:
+  DlqMetadata:
     type: object
     properties:
       date:
         type: string
-        format: date
-        example: "2012-08-25"
-      size_in_kb:
+        example: "2022-10-24"
+      size_in_bytes:
         type: integer
-      topic_name:
+        format: int64
+      topic:
         type: string
   DlqJob:
     type: object

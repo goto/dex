@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/goto/dex/entropy"
+	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/dlq"
@@ -82,7 +83,7 @@ func TestListTopicDates(t *testing.T) {
 				UpdatedBy: "",
 			},
 		}, nil)
-	topicDates := []gcs.TopicMetaData{
+	topicDates := []models.DlqMetadata{
 		{
 			Topic:       "topic-1",
 			Date:        "2023-08-26",
@@ -99,13 +100,13 @@ func TestListTopicDates(t *testing.T) {
 			SizeInBytes: 99,
 		},
 	}
-	gClient.On("ListTopicDates", gcs.BucketInfo{
+	gClient.On("ListDlqMetadata", gcs.BucketInfo{
 		BucketName: "test-bucket",
 		Prefix:     "test-prefix",
 		Delim:      "",
 	}).Return(topicDates, nil)
 	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string][]gcs.TopicMetaData)
+	expectedMap := make(map[string][]models.DlqMetadata)
 	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
 	require.NoError(t, err)
 	assert.Equal(t, topicDates, expectedMap["dlq_list"])
@@ -157,7 +158,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 				UpdatedBy: "",
 			},
 		}, nil)
-	gClient.On("ListTopicDates", gcs.BucketInfo{
+	gClient.On("ListDlqMetadata", gcs.BucketInfo{
 		BucketName: "test-bucket",
 		Prefix:     "test-prefix",
 		Delim:      "",
