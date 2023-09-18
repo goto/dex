@@ -34,7 +34,7 @@ generate:
 	@echo "Cleanup old swagger output..."
 	@rm -rf generated/
 	@mkdir generated
-	@./swagger_darwin_amd64 generate client -t generated -f swagger.yml
+	@swagger generate client -t generated -f swagger.yml
 	@make format
 
 generate-mocks:
