@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"go.uber.org/zap"
 
+	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 	alertsv1 "github.com/goto/dex/internal/server/v1/alert"
@@ -34,6 +35,7 @@ func Serve(ctx context.Context, addr string,
 	sirenClient sirenv1beta1.SirenServiceClient,
 	compassClient compassv1beta1grpc.CompassServiceClient,
 	optimusClient optimusv1beta1.JobSpecificationServiceClient,
+	gcsClient gcs.BlobStorageClient,
 	odinAddr string,
 	stencilAddr string,
 ) error {
@@ -60,7 +62,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
-		r.Route("/dlq", dlqv1.Routes(entropyClient))
+		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
 	})

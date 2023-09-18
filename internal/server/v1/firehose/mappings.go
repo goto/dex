@@ -9,10 +9,10 @@ import (
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-openapi/strfmt"
-	entropyFirehose "github.com/goto/entropy/modules/firehose"
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/protobuf/types/known/structpb"
 
+	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/pkg/errors"
@@ -65,11 +65,11 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 		stopTime = &t
 	}
 
-	return utils.GoValToProtoStruct(entropyFirehose.Config{
+	return utils.GoValToProtoStruct(entropy.Config{
 		Stopped:  cfg.Stopped,
 		StopTime: stopTime,
 		Replicas: int(cfg.Replicas),
-		ChartValues: &entropyFirehose.ChartValues{
+		ChartValues: &entropy.ChartValues{
 			ImageTag: cfg.Image,
 		},
 		DeploymentID: cfg.DeploymentID,
@@ -120,7 +120,7 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 	firehose.Labels = labels
 	firehose.Description = labels[labelDescription]
 
-	var modConf entropyFirehose.Config
+	var modConf entropy.Config
 	if err := utils.ProtoStructToGoVal(spec.GetConfigs(), &modConf); err != nil {
 		return firehose, err
 	}

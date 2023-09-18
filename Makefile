@@ -41,6 +41,10 @@ generate-mocks:
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc --name=SirenServiceClient
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc --name=ShieldServiceClient
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc --name=JobSpecificationServiceClient
+	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc --name=ResourceServiceClient
+	@mockery --srcpkg=./internal/server/gcs --name=BlobStorageClient
+	@mockery --srcpkg=./internal/server/gcs --name=BlobObjectClient
+	@mockery --srcpkg=./internal/server/gcs --name=ObjectIterator
 
 clean: tidy
 	@echo "Cleaning up build directories..."
@@ -64,3 +68,4 @@ download:
 setup:
 	@go install github.com/vektra/mockery/v2@v2.30.1
 	@go install mvdan.cc/gofumpt@v0.5.0
+	@go install github.com/daixiang0/gci@v0.11.1
