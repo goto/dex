@@ -1477,6 +1477,43 @@ func TestSubscriptionServiceSetAlertChannels(t *testing.T) {
 				},
 			},
 			{
+				description: "pagerduty subscription only for production",
+				forms: []alert.AlertChannelForm{
+					{
+						ChannelCriticality:  alert.ChannelCriticalityCritical,
+						PagerdutyServiceKey: "test-pd-key-91283",
+						ChannelType:         "pagerduty",
+					},
+				},
+				setupSiren: func(siren *mocks.SirenServiceClient) {
+					siren.On("CreateReceiver", ctx, &sirenv1beta1.CreateReceiverRequest{
+						Name: fmt.Sprintf("%s-%s-pagerduty-critical", shieldOrg.Slug, shieldGroup.Slug),
+						Type: "pagerduty",
+						Labels: map[string]string{
+							"team":     shieldGroup.Slug,
+							"org":      shieldOrg.Slug,
+							"severity": "CRITICAL",
+						},
+						Configurations: newStruct(t, map[string]interface{}{
+							"service_key": "test-pd-key-91283",
+						}),
+					}).Return(&sirenv1beta1.CreateReceiverResponse{Id: 81}, nil).Once()
+					siren.On("CreateSubscription", ctx, &sirenv1beta1.CreateSubscriptionRequest{
+						Urn:       fmt.Sprintf("%s-%s-critical-production", shieldOrg.Slug, shieldGroup.Slug),
+						Namespace: sirenNamespaceID,
+						Receivers: []*sirenv1beta1.ReceiverMetadata{
+							{Id: 81},
+						},
+						Match: map[string]string{
+							"severity":    "CRITICAL",
+							"team":        shieldGroup.GetSlug(),
+							"environment": "production",
+						},
+						CreatedBy: userID,
+					}).Return(&sirenv1beta1.CreateSubscriptionResponse{Id: 12}, nil).Maybe()
+				},
+			},
+			{
 				description: "should not create new subscription on update receiver",
 				existingReceivers: []*sirenv1beta1.Receiver{
 					{

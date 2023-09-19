@@ -248,23 +248,8 @@ func (svc *SubscriptionService) SetAlertChannels(ctx context.Context, userID str
 				return nil, fmt.Errorf("error creating receiver (index=\"%d\"): %w", i, err)
 			}
 
-			// create a subscription using the new receiver
-			_, err = svc.sirenClient.CreateSubscription(ctx, &sirenv1beta1.CreateSubscriptionRequest{
-				Urn:       fmt.Sprintf("%s-%s-%s", org.GetSlug(), group.GetSlug(), strings.ToLower(string(form.ChannelCriticality))),
-				Namespace: namespaceID,
-				Receivers: []*sirenv1beta1.ReceiverMetadata{
-					{
-						Id: newReceiver.Id,
-					},
-				},
-				Match: map[string]string{
-					"severity": string(form.ChannelCriticality),
-					"team":     group.GetSlug(),
-				},
-				CreatedBy: userID,
-			})
-			if err != nil {
-				return nil, fmt.Errorf("error creating subscription: %w", err)
+			if err = svc.createTeamSubscription(ctx, form, userID, newReceiver.Id, namespaceID, org.GetSlug(), group.GetSlug()); err != nil {
+				return nil, fmt.Errorf("error creating team subscription: %w", err)
 			}
 
 			currentReceiver = newReceiver
@@ -343,6 +328,44 @@ func (svc *SubscriptionService) updateReceiver(ctx context.Context, receiver *si
 	})
 	if err != nil {
 		return fmt.Errorf("error updating receiver: %w", err)
+	}
+
+	return nil
+}
+
+func (svc *SubscriptionService) createTeamSubscription(ctx context.Context, form AlertChannelForm, userID string, receiverID, namespaceID uint64, orgSlug, groupSlug string) error {
+	var environment string
+	if form.ChannelType == string(ChannelTypePagerduty) {
+		environment = "production"
+	}
+
+	urn := fmt.Sprintf("%s-%s-%s", orgSlug, groupSlug, strings.ToLower(string(form.ChannelCriticality))) // e.g. gojek-my-team-critical
+	match := map[string]string{
+		"severity": string(form.ChannelCriticality),
+		"team":     groupSlug,
+	}
+
+	if environment != "" {
+		// modify urn
+		urn = fmt.Sprintf("%s-%s", urn, environment) // e.g. {current_urn}-production
+
+		// modify match
+		match["environment"] = environment
+	}
+
+	_, err := svc.sirenClient.CreateSubscription(ctx, &sirenv1beta1.CreateSubscriptionRequest{
+		Urn:       urn,
+		Namespace: namespaceID,
+		Receivers: []*sirenv1beta1.ReceiverMetadata{
+			{
+				Id: receiverID,
+			},
+		},
+		Match:     match,
+		CreatedBy: userID,
+	})
+	if err != nil {
+		return fmt.Errorf("error creating subscription: %w", err)
 	}
 
 	return nil
