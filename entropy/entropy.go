@@ -76,6 +76,5 @@ type StartParams struct {
 }
 
 type ResetParams struct {
-	To       string `json:"to"`
-	Datetime string `json:"datetime"`
+	To string `json:"to"`
 }
