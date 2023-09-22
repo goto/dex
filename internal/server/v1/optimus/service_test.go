@@ -30,7 +30,7 @@ func TestServiceFindJobSpec(t *testing.T) {
 			},
 		}
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 			JobName:     jobName,
@@ -48,7 +48,7 @@ func TestServiceFindJobSpec(t *testing.T) {
 	})
 
 	t.Run("should return not found, if job could not be found", func(t *testing.T) {
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 			JobName:     jobName,
@@ -63,7 +63,7 @@ func TestServiceFindJobSpec(t *testing.T) {
 	t.Run("should return error, if client fails", func(t *testing.T) {
 		expectedErr := status.Error(codes.Internal, "Internal")
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 			JobName:     jobName,
@@ -98,7 +98,7 @@ func TestServiceListJobs(t *testing.T) {
 
 		expectedResp := []*optimusv1beta1.JobSpecificationResponse{jobSpecRes}
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 		}).Return(listJobsResp, nil)
@@ -114,7 +114,7 @@ func TestServiceListJobs(t *testing.T) {
 	t.Run("should return error if RPC request fails", func(t *testing.T) {
 		expectedErr := status.Error(codes.Internal, "Internal")
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", context.TODO(), &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 		}).Return(nil, expectedErr)

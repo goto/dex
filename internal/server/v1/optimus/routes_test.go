@@ -37,7 +37,7 @@ func TestRoutesFindJobSpec(t *testing.T) {
 			},
 		}
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 			JobName:     jobName,
@@ -63,7 +63,7 @@ func TestRoutesFindJobSpec(t *testing.T) {
 	})
 
 	t.Run("should return 404 if job could not be found", func(t *testing.T) {
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 			JobName:     jobName,
@@ -82,7 +82,7 @@ func TestRoutesFindJobSpec(t *testing.T) {
 	t.Run("should return 500 for internal error", func(t *testing.T) {
 		clientError := status.Error(codes.Internal, "Internal")
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 			JobName:     jobName,
@@ -131,7 +131,7 @@ func TestRoutesListJobs(t *testing.T) {
 			jobSpec2,
 		}
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 		}).Return(&optimusv1beta1.GetJobSpecificationsResponse{
@@ -157,7 +157,7 @@ func TestRoutesListJobs(t *testing.T) {
 	t.Run("should return 500 for internal error", func(t *testing.T) {
 		clientError := status.Error(codes.Internal, "Internal")
 
-		client := new(mocks.JobSpecificationServiceClient)
+		client := new(mocks.ShieldServiceClient)
 		client.On("GetJobSpecifications", mock.Anything, &optimusv1beta1.GetJobSpecificationsRequest{
 			ProjectName: projectName,
 		}).Return(nil, clientError)
