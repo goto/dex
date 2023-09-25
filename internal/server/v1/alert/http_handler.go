@@ -17,11 +17,13 @@ import (
 
 type Handler struct {
 	subscriptionService *SubscriptionService
+	alertService        *Service
 }
 
-func NewHandler(subscriptionService *SubscriptionService) *Handler {
+func NewHandler(subscriptionService *SubscriptionService, alertService *Service) *Handler {
 	return &Handler{
 		subscriptionService: subscriptionService,
+		alertService:        alertService,
 	}
 }
 
@@ -287,3 +289,73 @@ func (h *Handler) setAlertChannels(w http.ResponseWriter, r *http.Request) {
 		"alert_channels": alertChannels,
 	})
 }
+
+func (h *Handler) getAlerts(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fmt.Println("here")
+	projectSlug := chi.URLParam(r, "project_slug")
+	resourceUrn := chi.URLParam(r, "resource_urn")
+
+	alerts, err := h.alertService.ListAlerts(ctx, projectSlug, resourceUrn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK,
+		utils.ListResponse[Alert]{Items: alerts})
+}
+
+func (h *Handler) getAlertPolicy(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	resourceType := chi.URLParam(r, "resource_type")
+	projectSlug := chi.URLParam(r, "project_slug")
+	resourceUrn := chi.URLParam(r, "resource_urn")
+
+	policy, err := h.alertService.GetAlertPolicy(ctx, projectSlug, resourceUrn, resourceType)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	var suppliedAlertVariableNames = []string{"name", "team", "entity"}
+
+	policy.Rules = RemoveSuppliedVariablesFromRules(policy.Rules, suppliedAlertVariableNames)
+
+	utils.WriteJSON(w, http.StatusOK, policy)
+}
+
+// func (h *Handler) setAlertPolicy(w http.ResponseWriter, r *http.Request) {
+// 	ctx := r.Context()
+
+// 	resourceType := chi.URLParam(r, "resource_type")
+// 	resourceUrn := chi.URLParam(r, "resource_urn")
+// 	projectSlug := chi.URLParam(r, "project_slug")
+
+// 	var policyDef Policy
+// 	if err := utils.ReadJSON(r, &policyDef); err != nil {
+// 		utils.WriteErr(w, err)
+// 		return
+// 	}
+
+// 	entity, err := h.sirenService.GetProjectDataSource(ctx, projectSlug)
+// 	if err != nil {
+// 		utils.WriteErr(w, err)
+// 		return
+// 	}
+
+// 	policyDef.Rules = AddSuppliedVariablesFromRules(policyDef.Rules, map[string]string{
+// 		"team":   group.slug,
+// 		"name":   resourceUrn,
+// 		"entity": entity,
+// 	})
+
+// 	alertPolicy, err := h.sirenService.UpsertAlertPolicy(ctx, projectSlug, policyDef)
+// 	if err != nil {
+// 		utils.WriteErr(w, err)
+// 		return
+// 	}
+
+// 	utils.WriteJSON(w, http.StatusOK, alertPolicy)
+
+// }
