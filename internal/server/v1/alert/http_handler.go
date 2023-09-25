@@ -292,7 +292,6 @@ func (h *Handler) setAlertChannels(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getAlerts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	fmt.Println("here")
 	projectSlug := chi.URLParam(r, "project_slug")
 	resourceUrn := chi.URLParam(r, "resource_urn")
 
