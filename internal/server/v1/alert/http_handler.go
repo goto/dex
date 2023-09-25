@@ -324,38 +324,3 @@ func (h *Handler) getAlertPolicy(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, policy)
 }
-
-// func (h *Handler) setAlertPolicy(w http.ResponseWriter, r *http.Request) {
-// 	ctx := r.Context()
-
-// 	resourceType := chi.URLParam(r, "resource_type")
-// 	resourceUrn := chi.URLParam(r, "resource_urn")
-// 	projectSlug := chi.URLParam(r, "project_slug")
-
-// 	var policyDef Policy
-// 	if err := utils.ReadJSON(r, &policyDef); err != nil {
-// 		utils.WriteErr(w, err)
-// 		return
-// 	}
-
-// 	entity, err := h.sirenService.GetProjectDataSource(ctx, projectSlug)
-// 	if err != nil {
-// 		utils.WriteErr(w, err)
-// 		return
-// 	}
-
-// 	policyDef.Rules = AddSuppliedVariablesFromRules(policyDef.Rules, map[string]string{
-// 		"team":   group.slug,
-// 		"name":   resourceUrn,
-// 		"entity": entity,
-// 	})
-
-// 	alertPolicy, err := h.sirenService.UpsertAlertPolicy(ctx, projectSlug, policyDef)
-// 	if err != nil {
-// 		utils.WriteErr(w, err)
-// 		return
-// 	}
-
-// 	utils.WriteJSON(w, http.StatusOK, alertPolicy)
-
-// }

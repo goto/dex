@@ -41,6 +41,5 @@ func AlertRoutes(
 
 		r.Get("/{project_slug}/{resource_urn}", handler.getAlerts)
 		r.Get("/{resource_type}/{project_slug}/{resource_urn}/policies", handler.getAlertPolicy)
-		// r.Put("/{resource_type}/{project_slug}/{resource_urn}/policies", handler.setAlertPolicy)
 	}
 }
