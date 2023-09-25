@@ -26,6 +26,12 @@ type Service struct {
 	Siren sirenv1beta1grpc.SirenServiceClient
 }
 
+func NewService(siren sirenv1beta1grpc.SirenServiceClient) *Service {
+	return &Service{
+		Siren: siren,
+	}
+}
+
 func (svc *Service) HandleListTemplates() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

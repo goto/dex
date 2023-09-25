@@ -11,7 +11,8 @@ func SubscriptionRoutes(
 	shield shieldv1beta1rpc.ShieldServiceClient,
 ) func(chi.Router) {
 	subSrv := NewSubscriptionService(siren, shield)
-	handler := NewHandler(subSrv)
+	alertSrv := NewService(siren)
+	handler := NewHandler(subSrv, alertSrv)
 
 	return func(r chi.Router) {
 		// CRUD operations
@@ -32,7 +33,8 @@ func AlertRoutes(
 	shield shieldv1beta1rpc.ShieldServiceClient,
 ) func(chi.Router) {
 	subSrv := NewSubscriptionService(siren, shield)
-	handler := NewHandler(subSrv, Service)
+	alertSrv := NewService(siren)
+	handler := NewHandler(subSrv, alertSrv)
 
 	return func(r chi.Router) {
 		// CRUD operations
