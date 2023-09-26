@@ -39,7 +39,7 @@ func Serve(ctx context.Context, addr string,
 	odinAddr string,
 	stencilAddr string,
 ) error {
-	alertSvc := &alertsv1.Service{Siren: sirenClient}
+	alertSvc := alertsv1.NewService(sirenClient)
 
 	router := chi.NewRouter()
 	curRoute := currentRouteGetter(router)
