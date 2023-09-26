@@ -63,7 +63,6 @@ func (svc *Service) ListJobs(ctx context.Context, projectSlug string) ([]*optimu
 }
 
 func (svc *Service) createOptimusClient(ctx context.Context, projectName string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
-
 	optimusHostStr, err := svc.fetchHostname(ctx, projectName)
 	if err != nil {
 		return nil, err
@@ -77,7 +76,6 @@ func (svc *Service) createOptimusClient(ctx context.Context, projectName string)
 }
 
 func (svc *Service) fetchHostname(ctx context.Context, projectName string) (string, error) {
-
 	// retrieve hostname from cache
 	if hostname, exists := svc.cache.data[projectName]; exists {
 		return hostname, nil
@@ -108,5 +106,4 @@ func (svc *Service) fetchHostname(ctx context.Context, projectName string) (stri
 
 		return optimusHostStr, nil
 	}
-
 }
