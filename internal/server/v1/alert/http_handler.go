@@ -317,9 +317,7 @@ func (h *Handler) getAlertPolicy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var suppliedAlertVariableNames = []string{"name", "team", "entity"}
-
-	policy.Rules = RemoveSuppliedVariablesFromRules(policy.Rules, suppliedAlertVariableNames)
+	policy.Rules = RemoveSuppliedVariablesFromRules(policy.Rules, SuppliedVariables)
 
 	utils.WriteJSON(w, http.StatusOK, policy)
 }
