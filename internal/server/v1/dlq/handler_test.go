@@ -43,7 +43,7 @@ func TestListTopicDates(t *testing.T) {
 	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
-	config := &entropy.Config{
+	config := &entropy.FirehoseConfig{
 		Stopped:      false,
 		StopTime:     nil,
 		Replicas:     0,
@@ -58,7 +58,7 @@ func TestListTopicDates(t *testing.T) {
 		Requests:      entropy.UsageSpec{},
 		Telegraf:      nil,
 		ChartValues:   nil,
-		InitContainer: entropy.InitContainer{},
+		InitContainer: entropy.FirehoseInitContainer{},
 	}
 	configProto, _ := utils.GoValToProtoStruct(config)
 	eService.On(
@@ -118,7 +118,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
-	config := &entropy.Config{
+	config := &entropy.FirehoseConfig{
 		Stopped:      false,
 		StopTime:     nil,
 		Replicas:     0,
@@ -133,7 +133,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 		Requests:      entropy.UsageSpec{},
 		Telegraf:      nil,
 		ChartValues:   nil,
-		InitContainer: entropy.InitContainer{},
+		InitContainer: entropy.FirehoseInitContainer{},
 	}
 	configProto, _ := utils.GoValToProtoStruct(config)
 	eService.On(
