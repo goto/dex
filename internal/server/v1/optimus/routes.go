@@ -6,7 +6,7 @@ import (
 )
 
 func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient) func(r chi.Router) {
-	service := NewService(shieldClient)
+	service := NewService(shieldClient, &OptimusClient{})
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {

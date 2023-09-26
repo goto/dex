@@ -7,8 +7,6 @@ import (
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/optimus/core/v1beta1"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/goto/dex/pkg/errors"
 )
@@ -16,17 +14,19 @@ import (
 type Service struct {
 	shieldClient shieldv1beta1rpc.ShieldServiceClient
 	cache        *Cache
+	builder      OptimusClientBuilder
 }
 
-func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient) *Service {
+func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, builder OptimusClientBuilder) *Service {
 	return &Service{
 		shieldClient: shieldClient,
 		cache:        NewCache(),
+		builder:      builder,
 	}
 }
 
 func (svc *Service) FindJobSpec(ctx context.Context, jobName, projectSlug string) (*optimusv1beta1.JobSpecificationResponse, error) {
-	optimusCl, err := svc.createOptimusClient(ctx, projectSlug)
+	optimusCl, err := svc.getOptimusClient(ctx, projectSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (svc *Service) FindJobSpec(ctx context.Context, jobName, projectSlug string
 }
 
 func (svc *Service) ListJobs(ctx context.Context, projectSlug string) ([]*optimusv1beta1.JobSpecificationResponse, error) {
-	optimusCl, err := svc.createOptimusClient(ctx, projectSlug)
+	optimusCl, err := svc.getOptimusClient(ctx, projectSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -63,48 +63,42 @@ func (svc *Service) ListJobs(ctx context.Context, projectSlug string) ([]*optimu
 	return res.JobSpecificationResponses, nil
 }
 
-func (svc *Service) createOptimusClient(ctx context.Context, projectName string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
-	optimusHostStr, err := svc.fetchHostname(ctx, projectName)
-	if err != nil {
-		return nil, err
-	}
-
-	optimusConn, err := grpc.Dial(optimusHostStr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
-	}
-	return optimusv1beta1grpc.NewJobSpecificationServiceClient(optimusConn), nil
-}
-
-func (svc *Service) fetchHostname(ctx context.Context, projectName string) (string, error) {
+func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
 	// retrieve hostname from cache
-	if hostname, exists := svc.cache.data[projectName]; exists {
-		return hostname, nil
+
+	if cl, exists := svc.cache.data[projectSlug]; exists {
+
+		return cl, nil
 	} else {
 		// retrieve hostname from shield
 		prj, err := svc.shieldClient.GetProject(ctx, &shieldv1beta1.GetProjectRequest{
-			Id: projectName,
+			Id: projectSlug,
 		})
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		metadata := prj.Project.Metadata.AsMap()
 		optimusHost, exists := metadata[optimusHostKey]
 		if !exists {
-			return "", ErrOptimusHostNotFound
+			return nil, ErrOptimusHostNotFound
 		}
 
 		optimusHostStr, isString := optimusHost.(string)
 		if !isString {
-			return "", ErrOptimusHostNotString
+			return nil, ErrOptimusHostNotString
+		}
+
+		cl, err := svc.builder.BuildOptimusClient(ctx, optimusHostStr)
+		if err != nil {
+			return nil, err
 		}
 
 		// store hostname in cache
 		svc.cache.mu.Lock()
-		svc.cache.data[projectName] = optimusHostStr
+		svc.cache.data[projectSlug] = cl
 		svc.cache.mu.Unlock()
 
-		return optimusHostStr, nil
+		return cl, nil
 	}
 }
