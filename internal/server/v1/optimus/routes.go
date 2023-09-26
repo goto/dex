@@ -10,7 +10,7 @@ func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient) func(r chi.Router
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {
-		r.Get("/projects/{project_name}/jobs/{job_name}", handler.findJob)
-		r.Get("/projects/{project_name}/jobs", handler.list)
+		r.Get("/projects/{project_slug}/jobs/{job_name}", handler.findJob)
+		r.Get("/projects/{project_slug}/jobs", handler.list)
 	}
 }
