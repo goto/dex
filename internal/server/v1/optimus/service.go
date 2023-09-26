@@ -98,7 +98,7 @@ func (svc *Service) fetchHostname(ctx context.Context, projectName string) (stri
 
 		optimusHostStr, isString := optimusHost.(string)
 		if !isString {
-			return "", ErrOptimusHostNotFound
+			return "", ErrOptimusHostNotString
 		}
 
 		// store hostname in cache
