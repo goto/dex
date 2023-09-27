@@ -67,7 +67,6 @@ func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (o
 	// retrieve hostname from cache
 
 	if cl, exists := svc.cache.data[projectSlug]; exists {
-
 		return cl, nil
 	} else {
 		// retrieve hostname from shield

@@ -16,7 +16,6 @@ type OptimusClientBuilder interface {
 }
 
 func (client *OptimusClient) BuildOptimusClient(ctx context.Context, hostname string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
-
 	optimusConn, err := grpc.Dial(hostname, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
