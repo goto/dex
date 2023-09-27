@@ -307,11 +307,17 @@ func (h *Handler) getAlerts(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getAlertPolicy(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	resourceType := chi.URLParam(r, "resource_type")
 	projectSlug := chi.URLParam(r, "project_slug")
 	resourceUrn := chi.URLParam(r, "resource_urn")
 
-	policy, err := h.alertService.GetAlertPolicy(ctx, projectSlug, resourceUrn, resourceType)
+	templates, exists := r.URL.Query()["template"]
+	if !exists || len(templates) == 0 || templates[0] == "" {
+		utils.WriteErrMsg(w, http.StatusBadRequest, "template is required in querystring, possible values \"?template=firehose\"")
+		return
+	}
+	template := templates[0]
+
+	policy, err := h.alertService.GetAlertPolicy(ctx, projectSlug, resourceUrn, template)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
