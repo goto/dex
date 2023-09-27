@@ -15,6 +15,6 @@ func Routes(entropyClient entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs
 		r.Get("/firehose/{firehose_urn}", handler.ListFirehoseDLQ)
 		r.Get("/jobs", handler.listDlqJobs)
 		r.Get("/jobs/{job_urn}", handler.getDlqJob)
-		r.Post("/jobs", handler.createDlqJob)
+		r.Post("/firehose/{firehose_urn}/dlq_jobs", handler.createDlqJob)
 	}
 }

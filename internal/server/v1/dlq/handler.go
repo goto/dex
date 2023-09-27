@@ -61,9 +61,32 @@ func (*Handler) listDlqJobs(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
-func (*Handler) createDlqJob(w http.ResponseWriter, _ *http.Request) {
+type dlqJobReqBody struct {
+	ErrorTypes string `json:"error_types,omitempty"`
+	BatchSize  int64  `json:"batch_size,omitempty"`
+	BlobBatch  int64  `json:"blob_batch,omitempty"`
+	NumThreads int64  `json:"num_threads,omitempty"`
+	Topic      string `json:"topic,omitempty"`
+}
+
+func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var def dlqJobReqBody
+
+	if err := utils.ReadJSON(r, &def); err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	dlq_job, err := h.service.mapDlqJob(def, ctx)
+	if err != nil {
+		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+			"error": err,
+		})
+		return
+	}
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_job": nil,
+		"dlq_job": dlq_job,
 	})
 }
 
