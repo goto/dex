@@ -68,36 +68,35 @@ func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (o
 
 	if cl, exists := svc.cache.data[projectSlug]; exists {
 		return cl, nil
-	} else {
-		// retrieve hostname from shield
-		prj, err := svc.shieldClient.GetProject(ctx, &shieldv1beta1.GetProjectRequest{
-			Id: projectSlug,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		metadata := prj.Project.Metadata.AsMap()
-		optimusHost, exists := metadata[optimusHostKey]
-		if !exists {
-			return nil, ErrOptimusHostNotFound
-		}
-
-		optimusHostStr, isString := optimusHost.(string)
-		if !isString {
-			return nil, ErrOptimusHostNotString
-		}
-
-		cl, err := svc.builder.BuildOptimusClient(ctx, optimusHostStr)
-		if err != nil {
-			return nil, err
-		}
-
-		// store hostname in cache
-		svc.cache.mu.Lock()
-		svc.cache.data[projectSlug] = cl
-		svc.cache.mu.Unlock()
-
-		return cl, nil
 	}
+	// retrieve hostname from shield
+	prj, err := svc.shieldClient.GetProject(ctx, &shieldv1beta1.GetProjectRequest{
+		Id: projectSlug,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	metadata := prj.Project.Metadata.AsMap()
+	optimusHost, exists := metadata[optimusHostKey]
+	if !exists {
+		return nil, ErrOptimusHostNotFound
+	}
+
+	optimusHostStr, isString := optimusHost.(string)
+	if !isString {
+		return nil, ErrOptimusHostNotString
+	}
+
+	cl, err := svc.builder.BuildOptimusClient(optimusHostStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// store hostname in cache
+	svc.cache.mu.Lock()
+	svc.cache.data[projectSlug] = cl
+	svc.cache.mu.Unlock()
+
+	return cl, nil
 }
