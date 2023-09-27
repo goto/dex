@@ -11,7 +11,8 @@ func SubscriptionRoutes(
 	shield shieldv1beta1rpc.ShieldServiceClient,
 ) func(chi.Router) {
 	subSrv := NewSubscriptionService(siren, shield)
-	handler := NewHandler(subSrv)
+	alertSrv := NewService(siren)
+	handler := NewHandler(subSrv, alertSrv)
 
 	return func(r chi.Router) {
 		// CRUD operations
@@ -24,5 +25,21 @@ func SubscriptionRoutes(
 
 		r.Get("/groups/{group_id}/alert_channels", handler.getAlertChannels)
 		r.Put("/groups/{group_id}/alert_channels", handler.setAlertChannels)
+	}
+}
+
+func AlertRoutes(
+	siren sirenv1beta1rpc.SirenServiceClient,
+	shield shieldv1beta1rpc.ShieldServiceClient,
+) func(chi.Router) {
+	subSrv := NewSubscriptionService(siren, shield)
+	alertSrv := NewService(siren)
+	handler := NewHandler(subSrv, alertSrv)
+
+	return func(r chi.Router) {
+		// CRUD operations
+
+		r.Get("/{project_slug}/{resource_urn}", handler.getAlerts)
+		r.Get("/{project_slug}/{resource_urn}/policies", handler.getAlertPolicy)
 	}
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"go.uber.org/zap"
 
+	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 	alertsv1 "github.com/goto/dex/internal/server/v1/alert"
@@ -32,10 +33,11 @@ func Serve(ctx context.Context, addr string,
 	entropyClient entropyv1beta1.ResourceServiceClient,
 	sirenClient sirenv1beta1.SirenServiceClient,
 	compassClient compassv1beta1grpc.CompassServiceClient,
+	gcsClient gcs.BlobStorageClient,
 	odinAddr string,
 	stencilAddr string,
 ) error {
-	alertSvc := &alertsv1.Service{Siren: sirenClient}
+	alertSvc := alertsv1.NewService(sirenClient)
 
 	router := chi.NewRouter()
 	curRoute := currentRouteGetter(router)
@@ -57,8 +59,10 @@ func Serve(ctx context.Context, addr string,
 		r.Get("/alertTemplates", alertSvc.HandleListTemplates())
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(shieldClient))
+		r.Route("/alerts", alertsv1.AlertRoutes(sirenClient, shieldClient))
+		r.Route("/optimus", optimusv1.Routes(shieldClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
-		r.Route("/dlq", dlqv1.Routes(entropyClient))
+		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
 	})

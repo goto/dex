@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/goto/dex/internal/server"
+	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/pkg/logger"
 	"github.com/goto/dex/pkg/telemetry"
 )
@@ -94,11 +95,16 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		return err
 	}
 
+	gcsClient, err := gcs.NewClient(cfg.Service.GCSKeyFilePath)
+	if err != nil {
+		return err
+	}
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,
 		shieldv1beta1.NewShieldServiceClient(shieldConn),
 		entropyv1beta1.NewResourceServiceClient(entropyConn),
 		sirenv1beta1.NewSirenServiceClient(sirenConn),
 		compassv1beta1grpc.NewCompassServiceClient(compassConn),
+		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
 	)
