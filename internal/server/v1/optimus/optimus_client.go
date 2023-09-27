@@ -6,13 +6,13 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type OptimusClient struct{}
-
 type OptimusClientBuilder interface {
 	BuildOptimusClient(hostname string) (optimusv1beta1grpc.JobSpecificationServiceClient, error)
 }
 
-func (*OptimusClient) BuildOptimusClient(hostname string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
+type clientBuilder struct{}
+
+func (*clientBuilder) BuildOptimusClient(hostname string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
 	optimusConn, err := grpc.Dial(hostname, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err

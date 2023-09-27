@@ -58,7 +58,6 @@ func Serve(ctx context.Context, addr string,
 	router.Route("/dex", func(r chi.Router) {
 		r.Get("/alertTemplates", alertSvc.HandleListTemplates())
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
-		r.Route("/optimus", optimusv1.Routes(shieldClient))
 		r.Route("/alerts", alertsv1.AlertRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(shieldClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))

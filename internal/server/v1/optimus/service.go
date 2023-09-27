@@ -2,6 +2,7 @@ package optimus
 
 import (
 	"context"
+	"sync"
 
 	optimusv1beta1grpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
@@ -13,15 +14,16 @@ import (
 
 type Service struct {
 	shieldClient shieldv1beta1rpc.ShieldServiceClient
-	cache        *Cache
 	builder      OptimusClientBuilder
+	mu           sync.RWMutex
+	data         map[string]optimusv1beta1grpc.JobSpecificationServiceClient
 }
 
 func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, builder OptimusClientBuilder) *Service {
 	return &Service{
 		shieldClient: shieldClient,
-		cache:        NewCache(),
 		builder:      builder,
+		data:         make(map[string]optimusv1beta1grpc.JobSpecificationServiceClient),
 	}
 }
 
@@ -66,7 +68,7 @@ func (svc *Service) ListJobs(ctx context.Context, projectSlug string) ([]*optimu
 func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
 	// retrieve hostname from cache
 
-	if cl, exists := svc.cache.data[projectSlug]; exists {
+	if cl, exists := svc.data[projectSlug]; exists {
 		return cl, nil
 	}
 	// retrieve hostname from shield
@@ -94,9 +96,9 @@ func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (o
 	}
 
 	// store hostname in cache
-	svc.cache.mu.Lock()
-	svc.cache.data[projectSlug] = cl
-	svc.cache.mu.Unlock()
+	svc.mu.Lock()
+	svc.data[projectSlug] = cl
+	svc.mu.Unlock()
 
 	return cl, nil
 }
