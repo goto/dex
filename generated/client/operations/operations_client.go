@@ -35,7 +35,11 @@ type ClientService interface {
 
 	DeleteAlertSubscription(params *DeleteAlertSubscriptionParams, opts ...ClientOption) (*DeleteAlertSubscriptionOK, error)
 
+	GetAlertPolicy(params *GetAlertPolicyParams, opts ...ClientOption) (*GetAlertPolicyOK, error)
+
 	GetAlertSubscription(params *GetAlertSubscriptionParams, opts ...ClientOption) (*GetAlertSubscriptionOK, error)
+
+	GetAlerts(params *GetAlertsParams, opts ...ClientOption) (*GetAlertsOK, error)
 
 	GetFirehose(params *GetFirehoseParams, opts ...ClientOption) (*GetFirehoseOK, error)
 
@@ -169,6 +173,46 @@ func (a *Client) DeleteAlertSubscription(params *DeleteAlertSubscriptionParams, 
 }
 
 /*
+GetAlertPolicy gets alert policies
+
+Get alert policies for a resource.
+*/
+func (a *Client) GetAlertPolicy(params *GetAlertPolicyParams, opts ...ClientOption) (*GetAlertPolicyOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetAlertPolicyParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "getAlertPolicy",
+		Method:             "GET",
+		PathPattern:        "/dex/alerts/{projectSlug}/{resourceUrn}/policies",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetAlertPolicyReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetAlertPolicyOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getAlertPolicy: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 GetAlertSubscription gets existing siren subscription
 
 Get an existing Siren's alert subscription.
@@ -205,6 +249,46 @@ func (a *Client) GetAlertSubscription(params *GetAlertSubscriptionParams, opts .
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for getAlertSubscription: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+GetAlerts triggereds alerts for a resource
+
+Triggered alerts for a resource.
+*/
+func (a *Client) GetAlerts(params *GetAlertsParams, opts ...ClientOption) (*GetAlertsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetAlertsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "getAlerts",
+		Method:             "GET",
+		PathPattern:        "/dex/alerts/{projectSlug}/{resourceUrn}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetAlertsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetAlertsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getAlerts: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

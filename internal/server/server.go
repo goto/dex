@@ -39,7 +39,7 @@ func Serve(ctx context.Context, addr string,
 	odinAddr string,
 	stencilAddr string,
 ) error {
-	alertSvc := &alertsv1.Service{Siren: sirenClient}
+	alertSvc := alertsv1.NewService(sirenClient)
 
 	router := chi.NewRouter()
 	curRoute := currentRouteGetter(router)
@@ -60,6 +60,7 @@ func Serve(ctx context.Context, addr string,
 	router.Route("/dex", func(r chi.Router) {
 		r.Get("/alertTemplates", alertSvc.HandleListTemplates())
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
+		r.Route("/alerts", alertsv1.AlertRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))

@@ -877,6 +877,72 @@ paths:
           description: Internal Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /dex/alerts/{projectSlug}/{resourceUrn}:
+    parameters:
+      - in: path
+        name: projectSlug
+        type: string
+        required: true
+        description: Shield project slug.
+      - in: path
+        name: resourceUrn
+        type: string
+        required: true
+        description: Siren resource identifier.
+    get:
+      summary: Triggered alerts for a resource.
+      description: Triggered alerts for a resource.
+      operationId: getAlerts
+      responses:
+        "200":
+          description: alerts for given firehose URN.
+          schema:
+            $ref: "#/definitions/AlertArray"
+        "404":
+          description: Could not find alerts for given URN
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: internal error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /dex/alerts/{projectSlug}/{resourceUrn}/policies:
+    parameters:
+      - in: path
+        name: projectSlug
+        type: string
+        required: true
+        description: Shield project slug.
+      - in: path
+        name: resourceUrn
+        type: string
+        required: true
+        description: Siren resource identifier.
+      - in: query
+        name: template
+        type: string
+        enum:
+          - firehose
+          - optimus
+        required: true
+        description: Siren template tag.
+    get:
+      summary: Get alert policies.
+      description: Get alert policies for a resource.
+      operationId: getAlertPolicy
+      responses:
+        "200":
+          description: Found alert policy for given URN.
+          schema:
+            $ref: "#/definitions/AlertPolicy"
+        "404":
+          description: Could not find policies for given URN
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: internal error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
 definitions:
   Response:
     type: object
