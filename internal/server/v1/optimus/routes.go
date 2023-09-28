@@ -5,8 +5,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient) func(r chi.Router) {
-	service := NewService(shieldClient, &clientBuilder{})
+func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, optimusClient OptimusClientBuilder) func(r chi.Router) {
+	service := NewService(shieldClient, optimusClient)
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {

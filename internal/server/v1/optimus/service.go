@@ -67,10 +67,10 @@ func (svc *Service) ListJobs(ctx context.Context, projectSlug string) ([]*optimu
 
 func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
 	// retrieve hostname from cache
-
 	if cl, exists := svc.data[projectSlug]; exists {
 		return cl, nil
 	}
+
 	// retrieve hostname from shield
 	prj, err := svc.shieldClient.GetProject(ctx, &shieldv1beta1.GetProjectRequest{
 		Id: projectSlug,

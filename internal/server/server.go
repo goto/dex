@@ -30,6 +30,7 @@ import (
 func Serve(ctx context.Context, addr string,
 	nrApp *newrelic.Application, logger *zap.Logger,
 	shieldClient shieldv1beta1.ShieldServiceClient,
+	optimusClient optimusv1.OptimusClientBuilder,
 	entropyClient entropyv1beta1.ResourceServiceClient,
 	sirenClient sirenv1beta1.SirenServiceClient,
 	compassClient compassv1beta1grpc.CompassServiceClient,
@@ -59,7 +60,7 @@ func Serve(ctx context.Context, addr string,
 		r.Get("/alertTemplates", alertSvc.HandleListTemplates())
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
 		r.Route("/alerts", alertsv1.AlertRoutes(sirenClient, shieldClient))
-		r.Route("/optimus", optimusv1.Routes(shieldClient))
+		r.Route("/optimus", optimusv1.Routes(shieldClient, optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
