@@ -16,7 +16,11 @@ type OptimusClientBuilderMock interface {
 func (mock *OptimusClientMock) BuildOptimusClient(hostname string) (optimusv1beta1grpc.JobSpecificationServiceClient, error) {
 	args := mock.Called(hostname)
 	if args[0] == nil {
-		return nil, args[1].(error)
+		return nil, args.Error(1)
 	}
-	return args.Get(0).(optimusv1beta1grpc.JobSpecificationServiceClient), args.Error(1)
+
+	if client, ok := args[0].(optimusv1beta1grpc.JobSpecificationServiceClient); ok {
+		return client, args.Error(1)
+	}
+	return nil, args.Error(1)
 }

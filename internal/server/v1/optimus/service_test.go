@@ -23,7 +23,6 @@ func TestServiceFindJobSpec(t *testing.T) {
 	hostname := "optimus.staging.golabs.io:80"
 
 	t.Run("should return job spec using job name and project name from argument", func(t *testing.T) {
-
 		projectRes := &shieldv1beta1.GetProjectResponse{
 			Project: &shieldv1beta1.Project{
 				Slug: "test-project",
@@ -293,7 +292,6 @@ func TestServiceListJobs(t *testing.T) {
 		_, err := service.ListJobs(context.TODO(), projectName)
 		assert.ErrorIs(t, err, expectedErr)
 	})
-
 }
 
 func newStruct(t *testing.T, d map[string]interface{}) *structpb.Struct {
