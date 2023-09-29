@@ -1229,6 +1229,10 @@ definitions:
       date:
         type: string
         example: "2012-10-30"
+      stopped:
+        type: boolean
+      replicas:
+        type: integer
       status:
         type: string
         enum:

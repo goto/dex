@@ -46,6 +46,9 @@ type DlqJob struct {
 	// Shield's project slug
 	Project string `json:"project,omitempty"`
 
+	// replicas
+	Replicas int64 `json:"replicas,omitempty"`
+
 	// resource id
 	ResourceID string `json:"resource_id,omitempty"`
 
@@ -56,6 +59,9 @@ type DlqJob struct {
 	// status
 	// Enum: [pending error running stopped]
 	Status string `json:"status,omitempty"`
+
+	// stopped
+	Stopped bool `json:"stopped,omitempty"`
 
 	// topic
 	Topic string `json:"topic,omitempty"`
