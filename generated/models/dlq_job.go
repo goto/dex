@@ -50,7 +50,8 @@ type DlqJob struct {
 	ResourceID string `json:"resource_id,omitempty"`
 
 	// resource type
-	ResourceType *string `json:"resource_type,omitempty"`
+	// Enum: [firehose]
+	ResourceType string `json:"resource_type,omitempty"`
 
 	// status
 	// Enum: [pending error running stopped]
@@ -78,6 +79,10 @@ func (m *DlqJob) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateResourceType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -98,6 +103,45 @@ func (m *DlqJob) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var dlqJobTypeResourceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["firehose"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		dlqJobTypeResourceTypePropEnum = append(dlqJobTypeResourceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// DlqJobResourceTypeFirehose captures enum value "firehose"
+	DlqJobResourceTypeFirehose string = "firehose"
+)
+
+// prop value enum
+func (m *DlqJob) validateResourceTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, dlqJobTypeResourceTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *DlqJob) validateResourceType(formats strfmt.Registry) error {
+	if swag.IsZero(m.ResourceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateResourceTypeEnum("resource_type", "body", m.ResourceType); err != nil {
 		return err
 	}
 

@@ -1242,7 +1242,8 @@ definitions:
         type: string
       resource_type:
         type: string
-        default: firehose
+        enum:
+          - firehose
       error_types:
         type: string
         description: "List of firehose error types, comma separated"
