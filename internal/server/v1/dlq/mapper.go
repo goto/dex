@@ -11,6 +11,11 @@ import (
 	"github.com/goto/dex/internal/server/utils"
 )
 
+// from app config
+// from firehose
+// hardcoded
+// user
+
 func mapToEntropyResource(job *models.DlqJob) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(job)
 	if err != nil {
@@ -20,11 +25,17 @@ func mapToEntropyResource(job *models.DlqJob) (*entropyv1beta1.Resource, error) 
 	return &entropyv1beta1.Resource{
 		Urn:     job.Urn,
 		Kind:    entropy.ResourceKindJob,
-		Name:    buildResourceName(job),
+		Name:    buildEntropyResourceName(job),
 		Project: job.Project,
 		Labels:  buildResourceLabels(job),
 		Spec: &entropyv1beta1.ResourceSpec{
 			Configs: cfgStruct,
+			Dependencies: []*entropyv1beta1.ResourceDependency{
+				{
+					Key:   "kube_cluster",
+					Value: "", // from firehose
+				},
+			},
 		},
 	}, nil
 }
@@ -32,44 +43,70 @@ func mapToEntropyResource(job *models.DlqJob) (*entropyv1beta1.Resource, error) 
 func makeConfigStruct(job *models.DlqJob) (*structpb.Value, error) {
 	return utils.GoValToProtoStruct(entropy.JobConfig{
 		Stopped:   job.Stopped,
-		Replicas:  int32(job.Replicas),
-		Namespace: "", // decide with streaming where to store namespace
-		Name:      "", // decide with streaming job name
+		Replicas:  1,
+		Namespace: "", // same with firehose deployment namespace
+		Name:      buildJobName(job),
 		Containers: []entropy.JobContainer{
 			{
-				Name:            "dlq",
-				Image:           "test-image", // ask streaming for image name, and also if it can be modified via UI/client
-				ImagePullPolicy: "Always",
-				Command:         []string{""}, // confirm with streaming team for commands
+				Name:            "dlq-job",
+				Image:           "asia.gcr.io/systems-0001/dlq-processor:0.1.0", // from app config
+				ImagePullPolicy: "IfNotPresent",
 				SecretsVolumes: []entropy.JobSecret{ // confirm with streaming for required secrets
 					{
-						Name:  "",
-						Mount: "",
-					},
-				},
-				ConfigMapsVolumes: []entropy.JobConfigMap{ // confirm with streaming for required secrets
-					{
-						Name:  "",
-						Mount: "",
+						Name:  "firehose-bigquery-sink-credential", // from firehose config
+						Mount: "/etc/secret/gcp",                   // from firehose config
 					},
 				},
 				Limits: &entropy.UsageSpec{
-					CPU:    "",
-					Memory: "",
+					CPU:    "0.5", // user
+					Memory: "2gb", // user
 				},
 				Requests: &entropy.UsageSpec{
-					CPU:    "",
-					Memory: "",
+					CPU:    "0.5", // user
+					Memory: "2gb", // user
 				},
 				EnvConfigMaps: []string{},
-				EnvVariables:  map[string]string{},
+				EnvVariables: map[string]string{
+					// all firehose ENV_VARS +
+					"DLQ_BATCH_SIZE":     "100",                // user
+					"DLQ_NUM_THREADS":    "1",                  // user
+					"DLQ_ERROR_TYPES":    "DEFAULT_ERROR",      // user
+					"DLQ_INPUT_DATE":     "2023-04-10",         // user (internally created)
+					"DLQ_TOPIC_NAME":     "gofood-booking-log", // user
+					"METRIC_STATSD_TAGS": "TBA",
+				},
+			},
+			{
+				Name:            "telegraf",
+				Image:           "telegraf:1.18.0-alpine",
+				ImagePullPolicy: "IfNotPresent",
+				ConfigMapsVolumes: []entropy.JobConfigMap{ // confirm with streaming for required secrets
+					{
+						Name:  "dlq-processor-telegraf",
+						Mount: "/etc/telegraf",
+					},
+				},
+				EnvConfigMaps: []string{},
+				EnvVariables: map[string]string{
+					// To be updated by streaming
+					"APP_NAME":        "", //
+					"PROMETHEUS_HOST": "", // from app config
+				},
 			},
 		},
-		JobLabels: map[string]string{},
+		JobLabels: map[string]string{
+			"firehose_deployment": "", // firehose deployment
+			"topic":               "",
+			"date":                "",
+		},
 		Volumes: []entropy.JobVolume{
 			{
-				Name: "",
-				Kind: "",
+				Name: "firehose-bigquery-sink-credential", // make sure it is similar to how we mount it
+				Kind: "secret",
+			},
+			{
+				Name: "dlq-processor-telegraf", // make sure it is similar to how we mount it
+				Kind: "configMap",
 			},
 		},
 	})
@@ -77,22 +114,29 @@ func makeConfigStruct(job *models.DlqJob) (*structpb.Value, error) {
 
 func buildResourceLabels(job *models.DlqJob) map[string]string {
 	return map[string]string{
-		"batch_size":    fmt.Sprintf("%d", job.BatchSize),
-		"blob_batch":    fmt.Sprintf("%d", job.BlobBatch),
-		"num_threads":   job.ErrorTypes,
-		"date":          job.Date,
-		"resource_id":   job.ResourceID,
-		"resource_type": job.ResourceType,
-		"topic":         job.Topic,
+		"firehose": job.ResourceID,
+		"date":     job.Date,
+		"topic":    job.Topic,
+		"job_type": "dlq",
 	}
 }
 
-func buildResourceName(job *models.DlqJob) string {
+func buildEntropyResourceName(job *models.DlqJob) string {
 	return fmt.Sprintf(
 		"%s-%s-%s-%s",
-		job.ResourceID,
-		job.ResourceType,
-		job.Topic,
+		job.ResourceID,   // firehose urn
+		job.ResourceType, // firehose / dagger
+		job.Topic,        //
+		job.Date,         //
+	)
+}
+
+func buildJobName(job *models.DlqJob) string {
+	randomKey := "91238192"
+	return fmt.Sprintf(
+		"%s-%s-%s",
 		job.Date,
+		job.Topic,
+		randomKey,
 	)
 }
