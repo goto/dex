@@ -78,7 +78,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	def.Project = prj.GetSlug()
 
-	err = api.buildEnvVars(r.Context(), &def, reqCtx.UserID, true)
+	err = api.buildEnvVars(r.Context(), &def, reqCtx.UserID, false)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return
@@ -269,7 +269,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		labels[labelDescription] = existingFirehose.Description
 	}
 
-	err = api.buildEnvVars(r.Context(), &existingFirehose, reqCtx.UserID, true)
+	err = api.buildEnvVars(r.Context(), &existingFirehose, reqCtx.UserID, false)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return
@@ -385,7 +385,8 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	)
 
 	_, hasTopicUpdate := req.Configs.EnvVars[configSourceKafkaTopic]
-	err = api.buildEnvVars(r.Context(), &existing, reqCtx.UserID, hasTopicUpdate)
+	skipStencil := !hasTopicUpdate
+	err = api.buildEnvVars(r.Context(), &existing, reqCtx.UserID, skipStencil)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return

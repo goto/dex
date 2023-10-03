@@ -9,7 +9,7 @@ import (
 	"github.com/goto/dex/odin"
 )
 
-func (api *firehoseAPI) buildEnvVars(ctx context.Context, firehose *models.Firehose, userID string, fetchStencilURL bool) error {
+func (api *firehoseAPI) buildEnvVars(ctx context.Context, firehose *models.Firehose, userID string, skipStencil bool) error {
 	streamURN := buildStreamURN(*firehose.Configs.StreamName, firehose.Project)
 
 	if firehose.Configs.EnvVars[configSourceKafkaBrokers] == "" {
@@ -21,7 +21,7 @@ func (api *firehoseAPI) buildEnvVars(ctx context.Context, firehose *models.Fireh
 	}
 
 	firehose.Configs.EnvVars["SCHEMA_REGISTRY_STENCIL_ENABLE"] = trueString
-	if fetchStencilURL || firehose.Configs.EnvVars[configStencilURL] == "" {
+	if firehose.Configs.EnvVars[configStencilURL] == "" && !skipStencil {
 		stencilUrls, err := api.getStencilURLs(
 			ctx,
 			userID,
