@@ -24,6 +24,7 @@ import (
 	kubernetesv1 "github.com/goto/dex/internal/server/v1/kubernetes"
 	optimusv1 "github.com/goto/dex/internal/server/v1/optimus"
 	projectsv1 "github.com/goto/dex/internal/server/v1/project"
+	warden "github.com/goto/dex/internal/server/v1/warden"
 )
 
 // Serve initialises all the HTTP API routes, starts listening for requests at addr, and blocks until
@@ -66,6 +67,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
+		r.Route("/warden", warden.Routes())
 	})
 
 	logger.Info("starting server", zap.String("addr", addr))
