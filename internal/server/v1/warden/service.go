@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+
 	"github.com/goto/dex/internal/server/reqctx"
 )
 
@@ -22,13 +23,11 @@ type Doer interface {
 
 func NewService(doer Doer) *Service {
 	return &Service{
-
 		hostName: hostName,
 	}
 }
 
 func (c *Service) TeamList(ctx context.Context) (any, error) {
-
 	reqCtx := reqctx.From(ctx)
 
 	fmt.Println("Email:", reqCtx)
@@ -46,7 +45,6 @@ func (c *Service) TeamList(ctx context.Context) (any, error) {
 	}
 
 	return data, nil
-
 }
 
 type TeamListResponse struct {

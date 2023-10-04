@@ -22,5 +22,4 @@ func (h *Handler) teamList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, teamListResp)
-
 }
