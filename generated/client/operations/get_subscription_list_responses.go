@@ -46,7 +46,7 @@ func (o *GetSubscriptionListReader) ReadResponse(response runtime.ClientResponse
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /dex/subscriptions] getSubscriptionList", response, response.Code())
 	}
 }
 
@@ -56,7 +56,7 @@ func NewGetSubscriptionListOK() *GetSubscriptionListOK {
 }
 
 /*
-	GetSubscriptionListOK describes a response with status code 200, with default header values.
+GetSubscriptionListOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -64,9 +64,44 @@ type GetSubscriptionListOK struct {
 	Payload *GetSubscriptionListOKBody
 }
 
+// IsSuccess returns true when this get subscription list o k response has a 2xx status code
+func (o *GetSubscriptionListOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get subscription list o k response has a 3xx status code
+func (o *GetSubscriptionListOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get subscription list o k response has a 4xx status code
+func (o *GetSubscriptionListOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get subscription list o k response has a 5xx status code
+func (o *GetSubscriptionListOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get subscription list o k response a status code equal to that given
+func (o *GetSubscriptionListOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get subscription list o k response
+func (o *GetSubscriptionListOK) Code() int {
+	return 200
+}
+
 func (o *GetSubscriptionListOK) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions][%d] getSubscriptionListOK  %+v", 200, o.Payload)
 }
+
+func (o *GetSubscriptionListOK) String() string {
+	return fmt.Sprintf("[GET /dex/subscriptions][%d] getSubscriptionListOK  %+v", 200, o.Payload)
+}
+
 func (o *GetSubscriptionListOK) GetPayload() *GetSubscriptionListOKBody {
 	return o.Payload
 }
@@ -89,7 +124,7 @@ func NewGetSubscriptionListBadRequest() *GetSubscriptionListBadRequest {
 }
 
 /*
-	GetSubscriptionListBadRequest describes a response with status code 400, with default header values.
+GetSubscriptionListBadRequest describes a response with status code 400, with default header values.
 
 Validation Error
 */
@@ -97,9 +132,44 @@ type GetSubscriptionListBadRequest struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get subscription list bad request response has a 2xx status code
+func (o *GetSubscriptionListBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get subscription list bad request response has a 3xx status code
+func (o *GetSubscriptionListBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get subscription list bad request response has a 4xx status code
+func (o *GetSubscriptionListBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get subscription list bad request response has a 5xx status code
+func (o *GetSubscriptionListBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get subscription list bad request response a status code equal to that given
+func (o *GetSubscriptionListBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the get subscription list bad request response
+func (o *GetSubscriptionListBadRequest) Code() int {
+	return 400
+}
+
 func (o *GetSubscriptionListBadRequest) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions][%d] getSubscriptionListBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *GetSubscriptionListBadRequest) String() string {
+	return fmt.Sprintf("[GET /dex/subscriptions][%d] getSubscriptionListBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *GetSubscriptionListBadRequest) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -122,7 +192,7 @@ func NewGetSubscriptionListInternalServerError() *GetSubscriptionListInternalSer
 }
 
 /*
-	GetSubscriptionListInternalServerError describes a response with status code 500, with default header values.
+GetSubscriptionListInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -130,9 +200,44 @@ type GetSubscriptionListInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get subscription list internal server error response has a 2xx status code
+func (o *GetSubscriptionListInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get subscription list internal server error response has a 3xx status code
+func (o *GetSubscriptionListInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get subscription list internal server error response has a 4xx status code
+func (o *GetSubscriptionListInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get subscription list internal server error response has a 5xx status code
+func (o *GetSubscriptionListInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get subscription list internal server error response a status code equal to that given
+func (o *GetSubscriptionListInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get subscription list internal server error response
+func (o *GetSubscriptionListInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetSubscriptionListInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions][%d] getSubscriptionListInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetSubscriptionListInternalServerError) String() string {
+	return fmt.Sprintf("[GET /dex/subscriptions][%d] getSubscriptionListInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetSubscriptionListInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -187,6 +292,8 @@ func (o *GetSubscriptionListOKBody) validateSubscriptions(formats strfmt.Registr
 			if err := o.Subscriptions[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getSubscriptionListOK" + "." + "subscriptions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getSubscriptionListOK" + "." + "subscriptions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -216,9 +323,16 @@ func (o *GetSubscriptionListOKBody) contextValidateSubscriptions(ctx context.Con
 	for i := 0; i < len(o.Subscriptions); i++ {
 
 		if o.Subscriptions[i] != nil {
+
+			if swag.IsZero(o.Subscriptions[i]) { // not required
+				return nil
+			}
+
 			if err := o.Subscriptions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getSubscriptionListOK" + "." + "subscriptions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getSubscriptionListOK" + "." + "subscriptions" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

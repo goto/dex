@@ -42,7 +42,7 @@ func (o *GetAlertsReader) ReadResponse(response runtime.ClientResponse, consumer
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /dex/alerts/{projectSlug}/{resourceUrn}] getAlerts", response, response.Code())
 	}
 }
 
@@ -52,7 +52,7 @@ func NewGetAlertsOK() *GetAlertsOK {
 }
 
 /*
-	GetAlertsOK describes a response with status code 200, with default header values.
+GetAlertsOK describes a response with status code 200, with default header values.
 
 alerts for given firehose URN.
 */
@@ -60,9 +60,44 @@ type GetAlertsOK struct {
 	Payload *models.AlertArray
 }
 
+// IsSuccess returns true when this get alerts o k response has a 2xx status code
+func (o *GetAlertsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get alerts o k response has a 3xx status code
+func (o *GetAlertsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alerts o k response has a 4xx status code
+func (o *GetAlertsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alerts o k response has a 5xx status code
+func (o *GetAlertsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alerts o k response a status code equal to that given
+func (o *GetAlertsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get alerts o k response
+func (o *GetAlertsOK) Code() int {
+	return 200
+}
+
 func (o *GetAlertsOK) Error() string {
 	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}][%d] getAlertsOK  %+v", 200, o.Payload)
 }
+
+func (o *GetAlertsOK) String() string {
+	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}][%d] getAlertsOK  %+v", 200, o.Payload)
+}
+
 func (o *GetAlertsOK) GetPayload() *models.AlertArray {
 	return o.Payload
 }
@@ -85,7 +120,7 @@ func NewGetAlertsNotFound() *GetAlertsNotFound {
 }
 
 /*
-	GetAlertsNotFound describes a response with status code 404, with default header values.
+GetAlertsNotFound describes a response with status code 404, with default header values.
 
 Could not find alerts for given URN
 */
@@ -93,9 +128,44 @@ type GetAlertsNotFound struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get alerts not found response has a 2xx status code
+func (o *GetAlertsNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alerts not found response has a 3xx status code
+func (o *GetAlertsNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alerts not found response has a 4xx status code
+func (o *GetAlertsNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get alerts not found response has a 5xx status code
+func (o *GetAlertsNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alerts not found response a status code equal to that given
+func (o *GetAlertsNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get alerts not found response
+func (o *GetAlertsNotFound) Code() int {
+	return 404
+}
+
 func (o *GetAlertsNotFound) Error() string {
 	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}][%d] getAlertsNotFound  %+v", 404, o.Payload)
 }
+
+func (o *GetAlertsNotFound) String() string {
+	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}][%d] getAlertsNotFound  %+v", 404, o.Payload)
+}
+
 func (o *GetAlertsNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -118,7 +188,7 @@ func NewGetAlertsInternalServerError() *GetAlertsInternalServerError {
 }
 
 /*
-	GetAlertsInternalServerError describes a response with status code 500, with default header values.
+GetAlertsInternalServerError describes a response with status code 500, with default header values.
 
 internal error
 */
@@ -126,9 +196,44 @@ type GetAlertsInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get alerts internal server error response has a 2xx status code
+func (o *GetAlertsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alerts internal server error response has a 3xx status code
+func (o *GetAlertsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alerts internal server error response has a 4xx status code
+func (o *GetAlertsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alerts internal server error response has a 5xx status code
+func (o *GetAlertsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get alerts internal server error response a status code equal to that given
+func (o *GetAlertsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get alerts internal server error response
+func (o *GetAlertsInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetAlertsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}][%d] getAlertsInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetAlertsInternalServerError) String() string {
+	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}][%d] getAlertsInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetAlertsInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

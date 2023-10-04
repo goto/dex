@@ -42,7 +42,7 @@ func (o *GetAlertPolicyReader) ReadResponse(response runtime.ClientResponse, con
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies] getAlertPolicy", response, response.Code())
 	}
 }
 
@@ -52,7 +52,7 @@ func NewGetAlertPolicyOK() *GetAlertPolicyOK {
 }
 
 /*
-	GetAlertPolicyOK describes a response with status code 200, with default header values.
+GetAlertPolicyOK describes a response with status code 200, with default header values.
 
 Found alert policy for given URN.
 */
@@ -60,9 +60,44 @@ type GetAlertPolicyOK struct {
 	Payload *models.AlertPolicy
 }
 
+// IsSuccess returns true when this get alert policy o k response has a 2xx status code
+func (o *GetAlertPolicyOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get alert policy o k response has a 3xx status code
+func (o *GetAlertPolicyOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert policy o k response has a 4xx status code
+func (o *GetAlertPolicyOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alert policy o k response has a 5xx status code
+func (o *GetAlertPolicyOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alert policy o k response a status code equal to that given
+func (o *GetAlertPolicyOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get alert policy o k response
+func (o *GetAlertPolicyOK) Code() int {
+	return 200
+}
+
 func (o *GetAlertPolicyOK) Error() string {
 	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies][%d] getAlertPolicyOK  %+v", 200, o.Payload)
 }
+
+func (o *GetAlertPolicyOK) String() string {
+	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies][%d] getAlertPolicyOK  %+v", 200, o.Payload)
+}
+
 func (o *GetAlertPolicyOK) GetPayload() *models.AlertPolicy {
 	return o.Payload
 }
@@ -85,7 +120,7 @@ func NewGetAlertPolicyNotFound() *GetAlertPolicyNotFound {
 }
 
 /*
-	GetAlertPolicyNotFound describes a response with status code 404, with default header values.
+GetAlertPolicyNotFound describes a response with status code 404, with default header values.
 
 Could not find policies for given URN
 */
@@ -93,9 +128,44 @@ type GetAlertPolicyNotFound struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get alert policy not found response has a 2xx status code
+func (o *GetAlertPolicyNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alert policy not found response has a 3xx status code
+func (o *GetAlertPolicyNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert policy not found response has a 4xx status code
+func (o *GetAlertPolicyNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get alert policy not found response has a 5xx status code
+func (o *GetAlertPolicyNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alert policy not found response a status code equal to that given
+func (o *GetAlertPolicyNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get alert policy not found response
+func (o *GetAlertPolicyNotFound) Code() int {
+	return 404
+}
+
 func (o *GetAlertPolicyNotFound) Error() string {
 	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies][%d] getAlertPolicyNotFound  %+v", 404, o.Payload)
 }
+
+func (o *GetAlertPolicyNotFound) String() string {
+	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies][%d] getAlertPolicyNotFound  %+v", 404, o.Payload)
+}
+
 func (o *GetAlertPolicyNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -118,7 +188,7 @@ func NewGetAlertPolicyInternalServerError() *GetAlertPolicyInternalServerError {
 }
 
 /*
-	GetAlertPolicyInternalServerError describes a response with status code 500, with default header values.
+GetAlertPolicyInternalServerError describes a response with status code 500, with default header values.
 
 internal error
 */
@@ -126,9 +196,44 @@ type GetAlertPolicyInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get alert policy internal server error response has a 2xx status code
+func (o *GetAlertPolicyInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alert policy internal server error response has a 3xx status code
+func (o *GetAlertPolicyInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert policy internal server error response has a 4xx status code
+func (o *GetAlertPolicyInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alert policy internal server error response has a 5xx status code
+func (o *GetAlertPolicyInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get alert policy internal server error response a status code equal to that given
+func (o *GetAlertPolicyInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get alert policy internal server error response
+func (o *GetAlertPolicyInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetAlertPolicyInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies][%d] getAlertPolicyInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetAlertPolicyInternalServerError) String() string {
+	return fmt.Sprintf("[GET /dex/alerts/{projectSlug}/{resourceUrn}/policies][%d] getAlertPolicyInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetAlertPolicyInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

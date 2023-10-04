@@ -47,7 +47,7 @@ func (o *SetGroupAlertChannelsReader) ReadResponse(response runtime.ClientRespon
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[PUT /dex/subscriptions/groups/{id}/alert_channels] setGroupAlertChannels", response, response.Code())
 	}
 }
 
@@ -57,7 +57,7 @@ func NewSetGroupAlertChannelsOK() *SetGroupAlertChannelsOK {
 }
 
 /*
-	SetGroupAlertChannelsOK describes a response with status code 200, with default header values.
+SetGroupAlertChannelsOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -65,9 +65,44 @@ type SetGroupAlertChannelsOK struct {
 	Payload *SetGroupAlertChannelsOKBody
 }
 
+// IsSuccess returns true when this set group alert channels o k response has a 2xx status code
+func (o *SetGroupAlertChannelsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this set group alert channels o k response has a 3xx status code
+func (o *SetGroupAlertChannelsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this set group alert channels o k response has a 4xx status code
+func (o *SetGroupAlertChannelsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this set group alert channels o k response has a 5xx status code
+func (o *SetGroupAlertChannelsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this set group alert channels o k response a status code equal to that given
+func (o *SetGroupAlertChannelsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the set group alert channels o k response
+func (o *SetGroupAlertChannelsOK) Code() int {
+	return 200
+}
+
 func (o *SetGroupAlertChannelsOK) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/groups/{id}/alert_channels][%d] setGroupAlertChannelsOK  %+v", 200, o.Payload)
 }
+
+func (o *SetGroupAlertChannelsOK) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/groups/{id}/alert_channels][%d] setGroupAlertChannelsOK  %+v", 200, o.Payload)
+}
+
 func (o *SetGroupAlertChannelsOK) GetPayload() *SetGroupAlertChannelsOKBody {
 	return o.Payload
 }
@@ -90,7 +125,7 @@ func NewSetGroupAlertChannelsNotFound() *SetGroupAlertChannelsNotFound {
 }
 
 /*
-	SetGroupAlertChannelsNotFound describes a response with status code 404, with default header values.
+SetGroupAlertChannelsNotFound describes a response with status code 404, with default header values.
 
 Group Not Found Error
 */
@@ -98,9 +133,44 @@ type SetGroupAlertChannelsNotFound struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this set group alert channels not found response has a 2xx status code
+func (o *SetGroupAlertChannelsNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this set group alert channels not found response has a 3xx status code
+func (o *SetGroupAlertChannelsNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this set group alert channels not found response has a 4xx status code
+func (o *SetGroupAlertChannelsNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this set group alert channels not found response has a 5xx status code
+func (o *SetGroupAlertChannelsNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this set group alert channels not found response a status code equal to that given
+func (o *SetGroupAlertChannelsNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the set group alert channels not found response
+func (o *SetGroupAlertChannelsNotFound) Code() int {
+	return 404
+}
+
 func (o *SetGroupAlertChannelsNotFound) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/groups/{id}/alert_channels][%d] setGroupAlertChannelsNotFound  %+v", 404, o.Payload)
 }
+
+func (o *SetGroupAlertChannelsNotFound) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/groups/{id}/alert_channels][%d] setGroupAlertChannelsNotFound  %+v", 404, o.Payload)
+}
+
 func (o *SetGroupAlertChannelsNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -123,7 +193,7 @@ func NewSetGroupAlertChannelsInternalServerError() *SetGroupAlertChannelsInterna
 }
 
 /*
-	SetGroupAlertChannelsInternalServerError describes a response with status code 500, with default header values.
+SetGroupAlertChannelsInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -131,9 +201,44 @@ type SetGroupAlertChannelsInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this set group alert channels internal server error response has a 2xx status code
+func (o *SetGroupAlertChannelsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this set group alert channels internal server error response has a 3xx status code
+func (o *SetGroupAlertChannelsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this set group alert channels internal server error response has a 4xx status code
+func (o *SetGroupAlertChannelsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this set group alert channels internal server error response has a 5xx status code
+func (o *SetGroupAlertChannelsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this set group alert channels internal server error response a status code equal to that given
+func (o *SetGroupAlertChannelsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the set group alert channels internal server error response
+func (o *SetGroupAlertChannelsInternalServerError) Code() int {
+	return 500
+}
+
 func (o *SetGroupAlertChannelsInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/groups/{id}/alert_channels][%d] setGroupAlertChannelsInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *SetGroupAlertChannelsInternalServerError) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/groups/{id}/alert_channels][%d] setGroupAlertChannelsInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *SetGroupAlertChannelsInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -197,6 +302,8 @@ func (o *SetGroupAlertChannelsBody) validateAlertChannels(formats strfmt.Registr
 			if err := o.AlertChannels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "alert_channels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "alert_channels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -226,9 +333,16 @@ func (o *SetGroupAlertChannelsBody) contextValidateAlertChannels(ctx context.Con
 	for i := 0; i < len(o.AlertChannels); i++ {
 
 		if o.AlertChannels[i] != nil {
+
+			if swag.IsZero(o.AlertChannels[i]) { // not required
+				return nil
+			}
+
 			if err := o.AlertChannels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "alert_channels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "alert_channels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -295,6 +409,8 @@ func (o *SetGroupAlertChannelsOKBody) validateAlertChannels(formats strfmt.Regis
 			if err := o.AlertChannels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("setGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("setGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -324,9 +440,16 @@ func (o *SetGroupAlertChannelsOKBody) contextValidateAlertChannels(ctx context.C
 	for i := 0; i < len(o.AlertChannels); i++ {
 
 		if o.AlertChannels[i] != nil {
+
+			if swag.IsZero(o.AlertChannels[i]) { // not required
+				return nil
+			}
+
 			if err := o.AlertChannels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("setGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("setGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

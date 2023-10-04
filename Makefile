@@ -42,6 +42,7 @@ generate-mocks:
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc --name=ShieldServiceClient
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc --name=JobSpecificationServiceClient
 	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc --name=ResourceServiceClient
+	@mockery --srcpkg="buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc" --name=CompassServiceClient
 	@mockery --srcpkg=./internal/server/gcs --name=BlobStorageClient
 	@mockery --srcpkg=./internal/server/gcs --name=BlobObjectClient
 	@mockery --srcpkg=./internal/server/gcs --name=ObjectIterator

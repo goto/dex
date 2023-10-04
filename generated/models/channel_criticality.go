@@ -20,8 +20,12 @@ import (
 type ChannelCriticality string
 
 func NewChannelCriticality(value ChannelCriticality) *ChannelCriticality {
-	v := value
-	return &v
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated ChannelCriticality.
+func (m ChannelCriticality) Pointer() *ChannelCriticality {
+	return &m
 }
 
 const (
