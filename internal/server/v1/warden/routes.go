@@ -5,7 +5,7 @@ import (
 )
 
 func Routes() func(r chiv5.Router) {
-	service := NewService(nil)
+	service := NewService()
 	handler := NewHandler(service)
 	return func(r chiv5.Router) {
 		r.Get("/users/me/warden_teams", handler.teamList)

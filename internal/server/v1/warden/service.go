@@ -3,7 +3,6 @@ package warden
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -11,48 +10,58 @@ import (
 	"github.com/goto/dex/internal/server/reqctx"
 )
 
-const hostName = "https://go-cloud.golabs.io/api/v1/users/akarsh.satija@gojek.com/teams"
+const baseURL = "https://go-cloud.golabs.io"
+const endpoint = "/api/v1"
 
 type Service struct {
-	hostName string
 }
 
-type Doer interface {
-	Do(req *http.Request) (*http.Response, error)
+func NewService() *Service {
+	return &Service{}
 }
 
-func NewService(doer Doer) *Service {
-	return &Service{
-		hostName: hostName,
-	}
-}
+func (c *Service) TeamList(ctx context.Context) (*TeamData, error) {
 
-func (c *Service) TeamList(ctx context.Context) (any, error) {
+	userPath := "/users/"
+	teamsEndpoint := "/teams"
 	reqCtx := reqctx.From(ctx)
 
-	fmt.Println("Email:", reqCtx)
+	if reqCtx.UserEmail == "" {
+		return nil, ErrUserNotFound
+	}
 
-	resp, err := http.Get("https://go-cloud.golabs.io/api/v1/users/sudheer.pal@gojek.com/teams")
+	url := baseURL + endpoint + userPath + reqCtx.UserEmail + teamsEndpoint
+
+	resp, err := http.Get(url)
+
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var data any
+	var data TeamListResponse
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	if data.Success {
+		return &data.Data, nil
+	}
+
+	return nil, ErrTeamNotFound
 }
 
 type TeamListResponse struct {
-	Success bool   `json:"success"`
-	Data    []Team `json:"data"`
+	Success bool     `json:"success"`
+	Data    TeamData `json:"data"`
+}
+
+type TeamData struct {
+	Teams []Team `json:"teams"`
 }
 
 type Team struct {
-	Identifier uuid.UUID `json:"identifier"`
 	Name       string    `json:"name"`
+	Identifier uuid.UUID `json:"identifier"`
 }
