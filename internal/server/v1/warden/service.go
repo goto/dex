@@ -20,7 +20,7 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func (c *Service) TeamList(ctx context.Context) (*TeamData, error) {
+func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
 
 	userPath := "/users/"
 	teamsEndpoint := "/teams"
