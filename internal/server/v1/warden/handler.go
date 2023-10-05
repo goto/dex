@@ -1,6 +1,7 @@
 package warden
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/goto/dex/internal/server/utils"
@@ -17,11 +18,11 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) teamList(w http.ResponseWriter, r *http.Request) {
 	teamListResp, err := h.service.TeamList(r.Context())
 
-	if err == ErrUserNotFound {
+	if errors.Is(err, ErrUserNotFound) {
 		utils.WriteErrMsg(w, http.StatusUnauthorized, ErrUserNotFound.Error())
 		return
 	}
-	if err == ErrTeamNotFound {
+	if errors.Is(err, ErrTeamNotFound) {
 		utils.WriteErrMsg(w, http.StatusNotFound, ErrTeamNotFound.Error())
 		return
 	}

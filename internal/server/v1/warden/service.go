@@ -32,7 +32,7 @@ func (c *Service) TeamList(ctx context.Context) (*TeamData, error) {
 
 	url := baseURL + endpoint + userPath + reqCtx.UserEmail + teamsEndpoint
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) //nolint
 
 	if err != nil {
 		return nil, err
