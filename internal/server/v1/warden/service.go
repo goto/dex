@@ -10,18 +10,18 @@ import (
 	"github.com/goto/dex/internal/server/reqctx"
 )
 
-const baseURL = "https://go-cloud.golabs.io"
-const endpoint = "/api/v1"
+const (
+	baseURL  = "https://go-cloud.golabs.io"
+	endpoint = "/api/v1"
+)
 
-type Service struct {
-}
+type Service struct{}
 
 func NewService() *Service {
 	return &Service{}
 }
 
 func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
-
 	userPath := "/users/"
 	teamsEndpoint := "/teams"
 	reqCtx := reqctx.From(ctx)
@@ -33,7 +33,6 @@ func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
 	url := baseURL + endpoint + userPath + reqCtx.UserEmail + teamsEndpoint
 
 	resp, err := http.Get(url) //nolint
-
 	if err != nil {
 		return nil, err
 	}
