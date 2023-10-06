@@ -7,15 +7,15 @@ import (
 	"github.com/goto/dex/internal/server/utils"
 )
 
-type Handler struct {
+type handler struct {
 	service *Service
 }
 
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+func NewHandler(service *Service) *handler {
+	return &handler{service: service}
 }
 
-func (h *Handler) teamList(w http.ResponseWriter, r *http.Request) {
+func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
 	teamListResp, err := h.service.TeamList(r.Context())
 
 	if errors.Is(err, ErrUserNotFound) {
