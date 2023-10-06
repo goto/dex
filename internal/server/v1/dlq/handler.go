@@ -16,6 +16,9 @@ import (
 type Handler struct {
 	service *Service
 }
+type DlqConfig struct {
+	ContainerImage string `json:"container_image,omitempty"`
+}
 
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
@@ -62,6 +65,12 @@ func (*Handler) listDlqJobs(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (*Handler) createDlqJob(w http.ResponseWriter, _ *http.Request) {
+	// transform request body into DlqJob (validation?)
+	// fetch firehose details
+	// enrich DlqJob with firehose details
+	// map DlqJob to entropy resource -> return entropy.Resource (kind = job)
+	// entropy create resource
+
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"dlq_job": nil,
 	})

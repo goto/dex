@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/goto/dex/entropy"
+	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/utils"
 )
 
@@ -72,8 +73,35 @@ type DlqJob struct {
 
 	// urn
 	Urn string `json:"urn,omitempty"`
+
+	//firehose
+	EnvVars []string `json:"env_vars,omitempty"`
+
+	KubeCluster string `json:"kube_cluster,omitempty"`
+
+	FirehoseDeployment string `json:"firehose_deployment,omitempty"`
+
+	ContainerImage string `json:"container_image,omitempty"`
+
+	PrometheusHost string `json:"prometheus_host,omitempty"`
 }
 
+func enrichDlqJob(job *DlqJob, f models.Firehose, ac DlqConfig) error {
+	var env_vars []string
+	for key := range f.Configs.EnvVars {
+		env_vars = append(env_vars, key)
+	}
+
+	job = &DlqJob{
+		FirehoseDeployment: f.Configs.DeploymentID,
+		KubeCluster:        *f.Configs.KubeCluster,
+		EnvVars:            env_vars,
+		// ContainerImage:     ac.ContainerImage,
+	}
+	return nil
+}
+
+// DlqJob param here is expected to have been enriched with firehose config
 func mapToEntropyResource(job DlqJob) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(job)
 	if err != nil {
@@ -91,27 +119,59 @@ func mapToEntropyResource(job DlqJob) (*entropyv1beta1.Resource, error) {
 			Dependencies: []*entropyv1beta1.ResourceDependency{
 				{
 					Key:   "kube_cluster",
-					Value: "", // from firehose
+					Value: job.KubeCluster, // from firehose configs.kube_cluster
 				},
 			},
 		},
 	}, nil
 }
 
+// TODO:
+func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
+	var resourceID, resourceType, topic, date string
+
+	_, err := fmt.Sscanf(r.Name, "%s-%s-%s-%s", &resourceID, &resourceType, &topic, &date)
+	if err != nil {
+		return nil, err
+	}
+	job := DlqJob{
+		BatchSize:          0, // Need to find the value
+		BlobBatch:          0, // Need to find the value
+		CreatedAt:          strfmt.DateTime(r.CreatedAt.AsTime()),
+		CreatedBy:          "", // Need to find the value
+		Date:               date,
+		ErrorTypes:         "", // Need to find the value
+		NumThreads:         0,  // Need to find the value
+		Project:            r.Project,
+		Replicas:           1, // Don't know how to access spec.Config.Replicas
+		ResourceID:         resourceID,
+		ResourceType:       resourceType,
+		Status:             "",    // Need to find the value
+		Stopped:            false, // Need to find the value
+		Topic:              topic,
+		UpdatedAt:          strfmt.DateTime{}, // need to find the value
+		Urn:                r.Urn,
+		KubeCluster:        "", // Don't know how to access r.Spec.Dependencies.Value,
+		FirehoseDeployment: "", // Don't know how to access r.Spec.Configs.Namespace,
+	}
+
+	return &job, nil
+}
+
 func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
 	return utils.GoValToProtoStruct(entropy.JobConfig{
 		Replicas:  1,
-		Namespace: "", // same with firehose deployment namespace
+		Namespace: job.FirehoseDeployment, // same with firehose deployment namespace
 		Name:      "",
 		Containers: []entropy.JobContainer{
 			{
 				Name:            "dlq-job",
-				Image:           "asia.gcr.io/systems-0001/dlq-processor:0.1.0", // from app config
+				Image:           job.ContainerImage, // from app config
 				ImagePullPolicy: "IfNotPresent",
 				SecretsVolumes: []entropy.JobSecret{ // confirm with streaming for required secrets
 					{
-						Name:  "firehose-bigquery-sink-credential", // from firehose config
-						Mount: "/etc/secret/gcp",                   // from firehose config
+						Name:  "firehose-bigquery-sink-credential", // hard coded, try look in entropy firehose?
+						Mount: "/etc/secret/gcp",                   // from firehose configs.DLQ_GCS_CREDENTIAL_PATH
 					},
 				},
 				Limits: entropy.UsageSpec{
@@ -143,8 +203,8 @@ func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
 				},
 				EnvVariables: map[string]string{
 					// To be updated by streaming
-					"APP_NAME":        "", //
-					"PROMETHEUS_HOST": "", // from app config
+					"APP_NAME":        "",                 //
+					"PROMETHEUS_HOST": job.PrometheusHost, // from app config
 					"DEPLOYMENT_NAME": "deployment-name",
 					"TEAM":            "de",
 					"TOPIC":           "test-topic",
