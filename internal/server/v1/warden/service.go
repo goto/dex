@@ -13,21 +13,29 @@ import (
 	"github.com/goto/dex/internal/server/reqctx"
 )
 
+//go:generate mockery --with-expecter --keeptree --case snake --name Doer
+
 const (
 	baseURL = "https://go-cloud.golabs.io"
 )
 
 type Service struct {
 	shieldClient shieldv1beta1rpc.ShieldServiceClient
+	doer         Doer
 }
 
-func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient) *Service {
+type Doer interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer Doer) *Service {
 	return &Service{
 		shieldClient: shieldClient,
+		doer:         doer,
 	}
 }
 
-func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
+func (c *Service) TeamList(ctx context.Context) (*TeamData, error) {
 	endpoint := "/api/v1"
 	userPath := "/users/"
 	teamsEndpoint := "/teams"
@@ -40,7 +48,12 @@ func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
 
 	url := baseURL + endpoint + userPath + reqCtx.UserEmail + teamsEndpoint
 
-	resp, err := http.Get(url) //nolint
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.doer.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +73,7 @@ func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
 }
 
 func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID string) (map[string]any, error) {
-	shielTeam, err := c.TeamByUUID(ctx, wardenTeamID)
+	wardenTeam, err := c.TeamByUUID(ctx, wardenTeamID)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +92,8 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 		metaData = make(map[string]any)
 	}
 
-	metaData["team-id"] = shielTeam.Identifier
-	metaData["product-group-id"] = shielTeam.ProductGroupID
+	metaData["team-id"] = wardenTeam.Identifier
+	metaData["product-group-id"] = wardenTeam.ProductGroupID
 
 	updatedMetaData, err := structpb.NewStruct(metaData)
 	if err != nil {
@@ -103,13 +116,18 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 	return UpdatedGroupRes.Group.Metadata.AsMap(), nil
 }
 
-func (*Service) TeamByUUID(_ context.Context, teamByUUID string) (*Team, error) {
+func (c *Service) TeamByUUID(_ context.Context, teamByUUID string) (*Team, error) {
 	endpoint := "/api/v2"
 	teamPath := "/teams/"
 
 	url := baseURL + endpoint + teamPath + teamByUUID
 
-	resp, err := http.Get(url) //nolint
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.doer.Do(req)
 	if err != nil {
 		return nil, err
 	}

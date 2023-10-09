@@ -38,13 +38,13 @@ generate:
 	@make format
 
 generate-mocks:
-	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc --name=SirenServiceClient
-	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc --name=ShieldServiceClient
-	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc --name=JobSpecificationServiceClient
-	@mockery --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc --name=ResourceServiceClient
-	@mockery --srcpkg=./internal/server/gcs --name=BlobStorageClient
-	@mockery --srcpkg=./internal/server/gcs --name=BlobObjectClient
-	@mockery --srcpkg=./internal/server/gcs --name=ObjectIterator
+	@mockery --with-expecter --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc --name=SirenServiceClient
+	@mockery --with-expecter --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc --name=ShieldServiceClient
+	@mockery --with-expecter --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc --name=JobSpecificationServiceClient
+	@mockery --with-expecter --srcpkg=buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc --name=ResourceServiceClient
+	@mockery --with-expecter --srcpkg=./internal/server/gcs --name=BlobStorageClient
+	@mockery --with-expecter --srcpkg=./internal/server/gcs --name=BlobObjectClient
+	@mockery --with-expecter --srcpkg=./internal/server/gcs --name=ObjectIterator
 
 clean: tidy
 	@echo "Cleaning up build directories..."

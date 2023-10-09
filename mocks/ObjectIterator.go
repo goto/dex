@@ -12,6 +12,14 @@ type ObjectIterator struct {
 	mock.Mock
 }
 
+type ObjectIterator_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *ObjectIterator) EXPECT() *ObjectIterator_Expecter {
+	return &ObjectIterator_Expecter{mock: &_m.Mock}
+}
+
 // Next provides a mock function with given fields:
 func (_m *ObjectIterator) Next() (*storage.ObjectAttrs, error) {
 	ret := _m.Called()
@@ -36,6 +44,33 @@ func (_m *ObjectIterator) Next() (*storage.ObjectAttrs, error) {
 	}
 
 	return r0, r1
+}
+
+// ObjectIterator_Next_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Next'
+type ObjectIterator_Next_Call struct {
+	*mock.Call
+}
+
+// Next is a helper method to define mock.On call
+func (_e *ObjectIterator_Expecter) Next() *ObjectIterator_Next_Call {
+	return &ObjectIterator_Next_Call{Call: _e.mock.On("Next")}
+}
+
+func (_c *ObjectIterator_Next_Call) Run(run func()) *ObjectIterator_Next_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *ObjectIterator_Next_Call) Return(_a0 *storage.ObjectAttrs, _a1 error) *ObjectIterator_Next_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ObjectIterator_Next_Call) RunAndReturn(run func() (*storage.ObjectAttrs, error)) *ObjectIterator_Next_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewObjectIterator creates a new instance of ObjectIterator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

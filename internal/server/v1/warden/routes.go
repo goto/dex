@@ -5,8 +5,8 @@ import (
 	chiv5 "github.com/go-chi/chi/v5"
 )
 
-func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient) func(r chiv5.Router) {
-	service := NewService(shieldClient)
+func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer Doer) func(r chiv5.Router) {
+	service := NewService(shieldClient, doer)
 	handler := NewHandler(service)
 	return func(r chiv5.Router) {
 		r.Get("/users/me/warden_teams", handler.teamList)

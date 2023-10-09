@@ -18,6 +18,14 @@ type JobSpecificationServiceClient struct {
 	mock.Mock
 }
 
+type JobSpecificationServiceClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *JobSpecificationServiceClient) EXPECT() *JobSpecificationServiceClient_Expecter {
+	return &JobSpecificationServiceClient_Expecter{mock: &_m.Mock}
+}
+
 // AddJobSpecifications provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) AddJobSpecifications(ctx context.Context, in *corev1beta1.AddJobSpecificationsRequest, opts ...grpc.CallOption) (*corev1beta1.AddJobSpecificationsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -49,6 +57,43 @@ func (_m *JobSpecificationServiceClient) AddJobSpecifications(ctx context.Contex
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_AddJobSpecifications_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddJobSpecifications'
+type JobSpecificationServiceClient_AddJobSpecifications_Call struct {
+	*mock.Call
+}
+
+// AddJobSpecifications is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.AddJobSpecificationsRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) AddJobSpecifications(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_AddJobSpecifications_Call {
+	return &JobSpecificationServiceClient_AddJobSpecifications_Call{Call: _e.mock.On("AddJobSpecifications",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_AddJobSpecifications_Call) Run(run func(ctx context.Context, in *corev1beta1.AddJobSpecificationsRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_AddJobSpecifications_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.AddJobSpecificationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_AddJobSpecifications_Call) Return(_a0 *corev1beta1.AddJobSpecificationsResponse, _a1 error) *JobSpecificationServiceClient_AddJobSpecifications_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_AddJobSpecifications_Call) RunAndReturn(run func(context.Context, *corev1beta1.AddJobSpecificationsRequest, ...grpc.CallOption) (*corev1beta1.AddJobSpecificationsResponse, error)) *JobSpecificationServiceClient_AddJobSpecifications_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ChangeJobNamespace provides a mock function with given fields: ctx, in, opts
@@ -84,6 +129,43 @@ func (_m *JobSpecificationServiceClient) ChangeJobNamespace(ctx context.Context,
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_ChangeJobNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangeJobNamespace'
+type JobSpecificationServiceClient_ChangeJobNamespace_Call struct {
+	*mock.Call
+}
+
+// ChangeJobNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.ChangeJobNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) ChangeJobNamespace(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_ChangeJobNamespace_Call {
+	return &JobSpecificationServiceClient_ChangeJobNamespace_Call{Call: _e.mock.On("ChangeJobNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_ChangeJobNamespace_Call) Run(run func(ctx context.Context, in *corev1beta1.ChangeJobNamespaceRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_ChangeJobNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.ChangeJobNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_ChangeJobNamespace_Call) Return(_a0 *corev1beta1.ChangeJobNamespaceResponse, _a1 error) *JobSpecificationServiceClient_ChangeJobNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_ChangeJobNamespace_Call) RunAndReturn(run func(context.Context, *corev1beta1.ChangeJobNamespaceRequest, ...grpc.CallOption) (*corev1beta1.ChangeJobNamespaceResponse, error)) *JobSpecificationServiceClient_ChangeJobNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CheckJobSpecification provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) CheckJobSpecification(ctx context.Context, in *corev1beta1.CheckJobSpecificationRequest, opts ...grpc.CallOption) (*corev1beta1.CheckJobSpecificationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -115,6 +197,43 @@ func (_m *JobSpecificationServiceClient) CheckJobSpecification(ctx context.Conte
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_CheckJobSpecification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckJobSpecification'
+type JobSpecificationServiceClient_CheckJobSpecification_Call struct {
+	*mock.Call
+}
+
+// CheckJobSpecification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.CheckJobSpecificationRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) CheckJobSpecification(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_CheckJobSpecification_Call {
+	return &JobSpecificationServiceClient_CheckJobSpecification_Call{Call: _e.mock.On("CheckJobSpecification",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_CheckJobSpecification_Call) Run(run func(ctx context.Context, in *corev1beta1.CheckJobSpecificationRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_CheckJobSpecification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.CheckJobSpecificationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_CheckJobSpecification_Call) Return(_a0 *corev1beta1.CheckJobSpecificationResponse, _a1 error) *JobSpecificationServiceClient_CheckJobSpecification_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_CheckJobSpecification_Call) RunAndReturn(run func(context.Context, *corev1beta1.CheckJobSpecificationRequest, ...grpc.CallOption) (*corev1beta1.CheckJobSpecificationResponse, error)) *JobSpecificationServiceClient_CheckJobSpecification_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CheckJobSpecifications provides a mock function with given fields: ctx, in, opts
@@ -150,6 +269,43 @@ func (_m *JobSpecificationServiceClient) CheckJobSpecifications(ctx context.Cont
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_CheckJobSpecifications_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckJobSpecifications'
+type JobSpecificationServiceClient_CheckJobSpecifications_Call struct {
+	*mock.Call
+}
+
+// CheckJobSpecifications is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.CheckJobSpecificationsRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) CheckJobSpecifications(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_CheckJobSpecifications_Call {
+	return &JobSpecificationServiceClient_CheckJobSpecifications_Call{Call: _e.mock.On("CheckJobSpecifications",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_CheckJobSpecifications_Call) Run(run func(ctx context.Context, in *corev1beta1.CheckJobSpecificationsRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_CheckJobSpecifications_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.CheckJobSpecificationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_CheckJobSpecifications_Call) Return(_a0 corev1beta1grpc.JobSpecificationService_CheckJobSpecificationsClient, _a1 error) *JobSpecificationServiceClient_CheckJobSpecifications_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_CheckJobSpecifications_Call) RunAndReturn(run func(context.Context, *corev1beta1.CheckJobSpecificationsRequest, ...grpc.CallOption) (corev1beta1grpc.JobSpecificationService_CheckJobSpecificationsClient, error)) *JobSpecificationServiceClient_CheckJobSpecifications_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateJobSpecification provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) CreateJobSpecification(ctx context.Context, in *corev1beta1.CreateJobSpecificationRequest, opts ...grpc.CallOption) (*corev1beta1.CreateJobSpecificationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -181,6 +337,43 @@ func (_m *JobSpecificationServiceClient) CreateJobSpecification(ctx context.Cont
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_CreateJobSpecification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateJobSpecification'
+type JobSpecificationServiceClient_CreateJobSpecification_Call struct {
+	*mock.Call
+}
+
+// CreateJobSpecification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.CreateJobSpecificationRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) CreateJobSpecification(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_CreateJobSpecification_Call {
+	return &JobSpecificationServiceClient_CreateJobSpecification_Call{Call: _e.mock.On("CreateJobSpecification",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_CreateJobSpecification_Call) Run(run func(ctx context.Context, in *corev1beta1.CreateJobSpecificationRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_CreateJobSpecification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.CreateJobSpecificationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_CreateJobSpecification_Call) Return(_a0 *corev1beta1.CreateJobSpecificationResponse, _a1 error) *JobSpecificationServiceClient_CreateJobSpecification_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_CreateJobSpecification_Call) RunAndReturn(run func(context.Context, *corev1beta1.CreateJobSpecificationRequest, ...grpc.CallOption) (*corev1beta1.CreateJobSpecificationResponse, error)) *JobSpecificationServiceClient_CreateJobSpecification_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // DeleteJobSpecification provides a mock function with given fields: ctx, in, opts
@@ -216,6 +409,43 @@ func (_m *JobSpecificationServiceClient) DeleteJobSpecification(ctx context.Cont
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_DeleteJobSpecification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteJobSpecification'
+type JobSpecificationServiceClient_DeleteJobSpecification_Call struct {
+	*mock.Call
+}
+
+// DeleteJobSpecification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.DeleteJobSpecificationRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) DeleteJobSpecification(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_DeleteJobSpecification_Call {
+	return &JobSpecificationServiceClient_DeleteJobSpecification_Call{Call: _e.mock.On("DeleteJobSpecification",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_DeleteJobSpecification_Call) Run(run func(ctx context.Context, in *corev1beta1.DeleteJobSpecificationRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_DeleteJobSpecification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.DeleteJobSpecificationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_DeleteJobSpecification_Call) Return(_a0 *corev1beta1.DeleteJobSpecificationResponse, _a1 error) *JobSpecificationServiceClient_DeleteJobSpecification_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_DeleteJobSpecification_Call) RunAndReturn(run func(context.Context, *corev1beta1.DeleteJobSpecificationRequest, ...grpc.CallOption) (*corev1beta1.DeleteJobSpecificationResponse, error)) *JobSpecificationServiceClient_DeleteJobSpecification_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeployJobSpecification provides a mock function with given fields: ctx, opts
 func (_m *JobSpecificationServiceClient) DeployJobSpecification(ctx context.Context, opts ...grpc.CallOption) (corev1beta1grpc.JobSpecificationService_DeployJobSpecificationClient, error) {
 	_va := make([]interface{}, len(opts))
@@ -247,6 +477,42 @@ func (_m *JobSpecificationServiceClient) DeployJobSpecification(ctx context.Cont
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_DeployJobSpecification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeployJobSpecification'
+type JobSpecificationServiceClient_DeployJobSpecification_Call struct {
+	*mock.Call
+}
+
+// DeployJobSpecification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) DeployJobSpecification(ctx interface{}, opts ...interface{}) *JobSpecificationServiceClient_DeployJobSpecification_Call {
+	return &JobSpecificationServiceClient_DeployJobSpecification_Call{Call: _e.mock.On("DeployJobSpecification",
+		append([]interface{}{ctx}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_DeployJobSpecification_Call) Run(run func(ctx context.Context, opts ...grpc.CallOption)) *JobSpecificationServiceClient_DeployJobSpecification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_DeployJobSpecification_Call) Return(_a0 corev1beta1grpc.JobSpecificationService_DeployJobSpecificationClient, _a1 error) *JobSpecificationServiceClient_DeployJobSpecification_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_DeployJobSpecification_Call) RunAndReturn(run func(context.Context, ...grpc.CallOption) (corev1beta1grpc.JobSpecificationService_DeployJobSpecificationClient, error)) *JobSpecificationServiceClient_DeployJobSpecification_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetDeployJobsStatus provides a mock function with given fields: ctx, in, opts
@@ -282,6 +548,43 @@ func (_m *JobSpecificationServiceClient) GetDeployJobsStatus(ctx context.Context
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_GetDeployJobsStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDeployJobsStatus'
+type JobSpecificationServiceClient_GetDeployJobsStatus_Call struct {
+	*mock.Call
+}
+
+// GetDeployJobsStatus is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.GetDeployJobsStatusRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) GetDeployJobsStatus(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_GetDeployJobsStatus_Call {
+	return &JobSpecificationServiceClient_GetDeployJobsStatus_Call{Call: _e.mock.On("GetDeployJobsStatus",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_GetDeployJobsStatus_Call) Run(run func(ctx context.Context, in *corev1beta1.GetDeployJobsStatusRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_GetDeployJobsStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.GetDeployJobsStatusRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetDeployJobsStatus_Call) Return(_a0 *corev1beta1.GetDeployJobsStatusResponse, _a1 error) *JobSpecificationServiceClient_GetDeployJobsStatus_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetDeployJobsStatus_Call) RunAndReturn(run func(context.Context, *corev1beta1.GetDeployJobsStatusRequest, ...grpc.CallOption) (*corev1beta1.GetDeployJobsStatusResponse, error)) *JobSpecificationServiceClient_GetDeployJobsStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetJobSpecification provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) GetJobSpecification(ctx context.Context, in *corev1beta1.GetJobSpecificationRequest, opts ...grpc.CallOption) (*corev1beta1.GetJobSpecificationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -313,6 +616,43 @@ func (_m *JobSpecificationServiceClient) GetJobSpecification(ctx context.Context
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_GetJobSpecification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetJobSpecification'
+type JobSpecificationServiceClient_GetJobSpecification_Call struct {
+	*mock.Call
+}
+
+// GetJobSpecification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.GetJobSpecificationRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) GetJobSpecification(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_GetJobSpecification_Call {
+	return &JobSpecificationServiceClient_GetJobSpecification_Call{Call: _e.mock.On("GetJobSpecification",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_GetJobSpecification_Call) Run(run func(ctx context.Context, in *corev1beta1.GetJobSpecificationRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_GetJobSpecification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.GetJobSpecificationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetJobSpecification_Call) Return(_a0 *corev1beta1.GetJobSpecificationResponse, _a1 error) *JobSpecificationServiceClient_GetJobSpecification_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetJobSpecification_Call) RunAndReturn(run func(context.Context, *corev1beta1.GetJobSpecificationRequest, ...grpc.CallOption) (*corev1beta1.GetJobSpecificationResponse, error)) *JobSpecificationServiceClient_GetJobSpecification_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetJobSpecifications provides a mock function with given fields: ctx, in, opts
@@ -348,6 +688,43 @@ func (_m *JobSpecificationServiceClient) GetJobSpecifications(ctx context.Contex
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_GetJobSpecifications_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetJobSpecifications'
+type JobSpecificationServiceClient_GetJobSpecifications_Call struct {
+	*mock.Call
+}
+
+// GetJobSpecifications is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.GetJobSpecificationsRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) GetJobSpecifications(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_GetJobSpecifications_Call {
+	return &JobSpecificationServiceClient_GetJobSpecifications_Call{Call: _e.mock.On("GetJobSpecifications",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_GetJobSpecifications_Call) Run(run func(ctx context.Context, in *corev1beta1.GetJobSpecificationsRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_GetJobSpecifications_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.GetJobSpecificationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetJobSpecifications_Call) Return(_a0 *corev1beta1.GetJobSpecificationsResponse, _a1 error) *JobSpecificationServiceClient_GetJobSpecifications_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetJobSpecifications_Call) RunAndReturn(run func(context.Context, *corev1beta1.GetJobSpecificationsRequest, ...grpc.CallOption) (*corev1beta1.GetJobSpecificationsResponse, error)) *JobSpecificationServiceClient_GetJobSpecifications_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetJobTask provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) GetJobTask(ctx context.Context, in *corev1beta1.GetJobTaskRequest, opts ...grpc.CallOption) (*corev1beta1.GetJobTaskResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -379,6 +756,43 @@ func (_m *JobSpecificationServiceClient) GetJobTask(ctx context.Context, in *cor
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_GetJobTask_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetJobTask'
+type JobSpecificationServiceClient_GetJobTask_Call struct {
+	*mock.Call
+}
+
+// GetJobTask is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.GetJobTaskRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) GetJobTask(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_GetJobTask_Call {
+	return &JobSpecificationServiceClient_GetJobTask_Call{Call: _e.mock.On("GetJobTask",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_GetJobTask_Call) Run(run func(ctx context.Context, in *corev1beta1.GetJobTaskRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_GetJobTask_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.GetJobTaskRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetJobTask_Call) Return(_a0 *corev1beta1.GetJobTaskResponse, _a1 error) *JobSpecificationServiceClient_GetJobTask_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetJobTask_Call) RunAndReturn(run func(context.Context, *corev1beta1.GetJobTaskRequest, ...grpc.CallOption) (*corev1beta1.GetJobTaskResponse, error)) *JobSpecificationServiceClient_GetJobTask_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetWindow provides a mock function with given fields: ctx, in, opts
@@ -414,6 +828,43 @@ func (_m *JobSpecificationServiceClient) GetWindow(ctx context.Context, in *core
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_GetWindow_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetWindow'
+type JobSpecificationServiceClient_GetWindow_Call struct {
+	*mock.Call
+}
+
+// GetWindow is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.GetWindowRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) GetWindow(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_GetWindow_Call {
+	return &JobSpecificationServiceClient_GetWindow_Call{Call: _e.mock.On("GetWindow",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_GetWindow_Call) Run(run func(ctx context.Context, in *corev1beta1.GetWindowRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_GetWindow_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.GetWindowRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetWindow_Call) Return(_a0 *corev1beta1.GetWindowResponse, _a1 error) *JobSpecificationServiceClient_GetWindow_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_GetWindow_Call) RunAndReturn(run func(context.Context, *corev1beta1.GetWindowRequest, ...grpc.CallOption) (*corev1beta1.GetWindowResponse, error)) *JobSpecificationServiceClient_GetWindow_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // JobInspect provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) JobInspect(ctx context.Context, in *corev1beta1.JobInspectRequest, opts ...grpc.CallOption) (*corev1beta1.JobInspectResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -445,6 +896,43 @@ func (_m *JobSpecificationServiceClient) JobInspect(ctx context.Context, in *cor
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_JobInspect_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'JobInspect'
+type JobSpecificationServiceClient_JobInspect_Call struct {
+	*mock.Call
+}
+
+// JobInspect is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.JobInspectRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) JobInspect(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_JobInspect_Call {
+	return &JobSpecificationServiceClient_JobInspect_Call{Call: _e.mock.On("JobInspect",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_JobInspect_Call) Run(run func(ctx context.Context, in *corev1beta1.JobInspectRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_JobInspect_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.JobInspectRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_JobInspect_Call) Return(_a0 *corev1beta1.JobInspectResponse, _a1 error) *JobSpecificationServiceClient_JobInspect_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_JobInspect_Call) RunAndReturn(run func(context.Context, *corev1beta1.JobInspectRequest, ...grpc.CallOption) (*corev1beta1.JobInspectResponse, error)) *JobSpecificationServiceClient_JobInspect_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListJobSpecification provides a mock function with given fields: ctx, in, opts
@@ -480,6 +968,43 @@ func (_m *JobSpecificationServiceClient) ListJobSpecification(ctx context.Contex
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_ListJobSpecification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListJobSpecification'
+type JobSpecificationServiceClient_ListJobSpecification_Call struct {
+	*mock.Call
+}
+
+// ListJobSpecification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.ListJobSpecificationRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) ListJobSpecification(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_ListJobSpecification_Call {
+	return &JobSpecificationServiceClient_ListJobSpecification_Call{Call: _e.mock.On("ListJobSpecification",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_ListJobSpecification_Call) Run(run func(ctx context.Context, in *corev1beta1.ListJobSpecificationRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_ListJobSpecification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.ListJobSpecificationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_ListJobSpecification_Call) Return(_a0 *corev1beta1.ListJobSpecificationResponse, _a1 error) *JobSpecificationServiceClient_ListJobSpecification_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_ListJobSpecification_Call) RunAndReturn(run func(context.Context, *corev1beta1.ListJobSpecificationRequest, ...grpc.CallOption) (*corev1beta1.ListJobSpecificationResponse, error)) *JobSpecificationServiceClient_ListJobSpecification_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // RefreshJobs provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) RefreshJobs(ctx context.Context, in *corev1beta1.RefreshJobsRequest, opts ...grpc.CallOption) (corev1beta1grpc.JobSpecificationService_RefreshJobsClient, error) {
 	_va := make([]interface{}, len(opts))
@@ -511,6 +1036,43 @@ func (_m *JobSpecificationServiceClient) RefreshJobs(ctx context.Context, in *co
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_RefreshJobs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RefreshJobs'
+type JobSpecificationServiceClient_RefreshJobs_Call struct {
+	*mock.Call
+}
+
+// RefreshJobs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.RefreshJobsRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) RefreshJobs(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_RefreshJobs_Call {
+	return &JobSpecificationServiceClient_RefreshJobs_Call{Call: _e.mock.On("RefreshJobs",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_RefreshJobs_Call) Run(run func(ctx context.Context, in *corev1beta1.RefreshJobsRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_RefreshJobs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.RefreshJobsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_RefreshJobs_Call) Return(_a0 corev1beta1grpc.JobSpecificationService_RefreshJobsClient, _a1 error) *JobSpecificationServiceClient_RefreshJobs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_RefreshJobs_Call) RunAndReturn(run func(context.Context, *corev1beta1.RefreshJobsRequest, ...grpc.CallOption) (corev1beta1grpc.JobSpecificationService_RefreshJobsClient, error)) *JobSpecificationServiceClient_RefreshJobs_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ReplaceAllJobSpecifications provides a mock function with given fields: ctx, opts
@@ -546,6 +1108,42 @@ func (_m *JobSpecificationServiceClient) ReplaceAllJobSpecifications(ctx context
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReplaceAllJobSpecifications'
+type JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call struct {
+	*mock.Call
+}
+
+// ReplaceAllJobSpecifications is a helper method to define mock.On call
+//   - ctx context.Context
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) ReplaceAllJobSpecifications(ctx interface{}, opts ...interface{}) *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call {
+	return &JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call{Call: _e.mock.On("ReplaceAllJobSpecifications",
+		append([]interface{}{ctx}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call) Run(run func(ctx context.Context, opts ...grpc.CallOption)) *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call) Return(_a0 corev1beta1grpc.JobSpecificationService_ReplaceAllJobSpecificationsClient, _a1 error) *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call) RunAndReturn(run func(context.Context, ...grpc.CallOption) (corev1beta1grpc.JobSpecificationService_ReplaceAllJobSpecificationsClient, error)) *JobSpecificationServiceClient_ReplaceAllJobSpecifications_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SyncJobsState provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) SyncJobsState(ctx context.Context, in *corev1beta1.SyncJobsStateRequest, opts ...grpc.CallOption) (*corev1beta1.SyncJobsStateResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -577,6 +1175,43 @@ func (_m *JobSpecificationServiceClient) SyncJobsState(ctx context.Context, in *
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_SyncJobsState_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SyncJobsState'
+type JobSpecificationServiceClient_SyncJobsState_Call struct {
+	*mock.Call
+}
+
+// SyncJobsState is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.SyncJobsStateRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) SyncJobsState(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_SyncJobsState_Call {
+	return &JobSpecificationServiceClient_SyncJobsState_Call{Call: _e.mock.On("SyncJobsState",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_SyncJobsState_Call) Run(run func(ctx context.Context, in *corev1beta1.SyncJobsStateRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_SyncJobsState_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.SyncJobsStateRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_SyncJobsState_Call) Return(_a0 *corev1beta1.SyncJobsStateResponse, _a1 error) *JobSpecificationServiceClient_SyncJobsState_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_SyncJobsState_Call) RunAndReturn(run func(context.Context, *corev1beta1.SyncJobsStateRequest, ...grpc.CallOption) (*corev1beta1.SyncJobsStateResponse, error)) *JobSpecificationServiceClient_SyncJobsState_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateJobSpecifications provides a mock function with given fields: ctx, in, opts
@@ -612,6 +1247,43 @@ func (_m *JobSpecificationServiceClient) UpdateJobSpecifications(ctx context.Con
 	return r0, r1
 }
 
+// JobSpecificationServiceClient_UpdateJobSpecifications_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateJobSpecifications'
+type JobSpecificationServiceClient_UpdateJobSpecifications_Call struct {
+	*mock.Call
+}
+
+// UpdateJobSpecifications is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.UpdateJobSpecificationsRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) UpdateJobSpecifications(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_UpdateJobSpecifications_Call {
+	return &JobSpecificationServiceClient_UpdateJobSpecifications_Call{Call: _e.mock.On("UpdateJobSpecifications",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_UpdateJobSpecifications_Call) Run(run func(ctx context.Context, in *corev1beta1.UpdateJobSpecificationsRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_UpdateJobSpecifications_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.UpdateJobSpecificationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_UpdateJobSpecifications_Call) Return(_a0 *corev1beta1.UpdateJobSpecificationsResponse, _a1 error) *JobSpecificationServiceClient_UpdateJobSpecifications_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_UpdateJobSpecifications_Call) RunAndReturn(run func(context.Context, *corev1beta1.UpdateJobSpecificationsRequest, ...grpc.CallOption) (*corev1beta1.UpdateJobSpecificationsResponse, error)) *JobSpecificationServiceClient_UpdateJobSpecifications_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateJobsState provides a mock function with given fields: ctx, in, opts
 func (_m *JobSpecificationServiceClient) UpdateJobsState(ctx context.Context, in *corev1beta1.UpdateJobsStateRequest, opts ...grpc.CallOption) (*corev1beta1.UpdateJobsStateResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -643,6 +1315,43 @@ func (_m *JobSpecificationServiceClient) UpdateJobsState(ctx context.Context, in
 	}
 
 	return r0, r1
+}
+
+// JobSpecificationServiceClient_UpdateJobsState_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateJobsState'
+type JobSpecificationServiceClient_UpdateJobsState_Call struct {
+	*mock.Call
+}
+
+// UpdateJobsState is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *corev1beta1.UpdateJobsStateRequest
+//   - opts ...grpc.CallOption
+func (_e *JobSpecificationServiceClient_Expecter) UpdateJobsState(ctx interface{}, in interface{}, opts ...interface{}) *JobSpecificationServiceClient_UpdateJobsState_Call {
+	return &JobSpecificationServiceClient_UpdateJobsState_Call{Call: _e.mock.On("UpdateJobsState",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *JobSpecificationServiceClient_UpdateJobsState_Call) Run(run func(ctx context.Context, in *corev1beta1.UpdateJobsStateRequest, opts ...grpc.CallOption)) *JobSpecificationServiceClient_UpdateJobsState_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*corev1beta1.UpdateJobsStateRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_UpdateJobsState_Call) Return(_a0 *corev1beta1.UpdateJobsStateResponse, _a1 error) *JobSpecificationServiceClient_UpdateJobsState_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *JobSpecificationServiceClient_UpdateJobsState_Call) RunAndReturn(run func(context.Context, *corev1beta1.UpdateJobsStateRequest, ...grpc.CallOption) (*corev1beta1.UpdateJobsStateResponse, error)) *JobSpecificationServiceClient_UpdateJobsState_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewJobSpecificationServiceClient creates a new instance of JobSpecificationServiceClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
