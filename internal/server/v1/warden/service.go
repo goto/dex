@@ -103,11 +103,11 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 	return UpdatedGroupRes.Group.Metadata.AsMap(), nil
 }
 
-func (*Service) TeamByUuid(_ context.Context, uuid string) (*Team, error) {
+func (*Service) TeamByUuid(_ context.Context, TeamByUUID string) (*Team, error) {
 	endpoint := "/api/v2"
 	teamPath := "/teams/"
 
-	url := baseURL + endpoint + teamPath + uuid
+	url := baseURL + endpoint + teamPath + TeamByUUID
 
 	resp, err := http.Get(url) //nolint
 	if err != nil {
