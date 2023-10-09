@@ -51,7 +51,7 @@ type optimusConfig struct {
 }
 
 type dlqConfig struct {
-	Addr string `mapstructure:"addr"`
+	DlqJobImage string `mapstructure:"dlq_job_image"`
 }
 
 type serveConfig struct {

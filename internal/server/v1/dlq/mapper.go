@@ -86,7 +86,7 @@ type DlqJob struct {
 	PrometheusHost string `json:"prometheus_host,omitempty"`
 }
 
-func enrichDlqJob(job *DlqJob, f models.Firehose, ac DlqConfig) error {
+func enrichDlqJob(job *DlqJob, f models.Firehose, cfg *DlqJobConfig) error {
 	var env_vars []string
 	for key := range f.Configs.EnvVars {
 		env_vars = append(env_vars, key)
@@ -96,7 +96,8 @@ func enrichDlqJob(job *DlqJob, f models.Firehose, ac DlqConfig) error {
 		FirehoseDeployment: f.Configs.DeploymentID,
 		KubeCluster:        *f.Configs.KubeCluster,
 		EnvVars:            env_vars,
-		// ContainerImage:     ac.ContainerImage,
+		ContainerImage:     cfg.DlqJobImage,
+		PrometheusHost:     cfg.PrometheusHost,
 	}
 	return nil
 }

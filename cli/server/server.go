@@ -9,6 +9,7 @@ import (
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	"github.com/MakeNowJust/heredoc"
+	dlqv1 "github.com/goto/dex/internal/server/v1/dlq"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -104,6 +105,11 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 	if err != nil {
 		return err
 	}
+
+	dlqConfig := &dlqv1.DlqJobConfig{
+		// TODO: map cfg.Dlq
+	}
+
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,
 		shieldv1beta1.NewShieldServiceClient(shieldConn),
 		entropyv1beta1.NewResourceServiceClient(entropyConn),
@@ -113,5 +119,6 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
+		dlqConfig,
 	)
 }

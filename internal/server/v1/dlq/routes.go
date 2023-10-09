@@ -7,8 +7,12 @@ import (
 	"github.com/goto/dex/internal/server/gcs"
 )
 
-func Routes(entropyClient entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.BlobStorageClient) func(r chi.Router) {
-	service := NewService(entropyClient, gcsClient)
+func Routes(
+	entropyClient entropyv1beta1rpc.ResourceServiceClient,
+	gcsClient gcs.BlobStorageClient,
+	cfg *DlqJobConfig,
+) func(r chi.Router) {
+	service := NewService(entropyClient, gcsClient, cfg)
 	handler := NewHandler(service)
 
 	return func(r chi.Router) {
