@@ -60,7 +60,7 @@ func (*Service) TeamList(ctx context.Context) (*TeamData, error) {
 }
 
 func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID string) (map[string]any, error) {
-	shielTeam, err := c.TeamByUuid(ctx, wardenTeamID)
+	shielTeam, err := c.TeamByUUID(ctx, wardenTeamID)
 	if err != nil {
 		return nil, err
 	}
@@ -103,11 +103,11 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 	return UpdatedGroupRes.Group.Metadata.AsMap(), nil
 }
 
-func (*Service) TeamByUuid(_ context.Context, TeamByUUID string) (*Team, error) {
+func (*Service) TeamByUUID(_ context.Context, teamByUUID string) (*Team, error) {
 	endpoint := "/api/v2"
 	teamPath := "/teams/"
 
-	url := baseURL + endpoint + teamPath + TeamByUUID
+	url := baseURL + endpoint + teamPath + teamByUUID
 
 	resp, err := http.Get(url) //nolint
 	if err != nil {
