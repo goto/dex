@@ -2,6 +2,7 @@ package warden
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -50,7 +51,7 @@ func TestHandler_teamList(t *testing.T) {
 		r.Use(reqctx.WithRequestCtx())
 		r.Route("/dex/warden", Routes(nil, doer))
 
-		req, err := http.NewRequest(http.MethodGet, "/dex/warden/users/me/warden_teams", nil)
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/dex/warden/users/me/warden_teams", nil)
 		assert.NoError(t, err)
 		req.Header.Add("X-Auth-Email", "test@email.com")
 
@@ -72,6 +73,63 @@ func TestHandler_teamList(t *testing.T) {
 			"short_code": "T394"
 			}
 			]}`, resp.Body.String())
+	})
+
+	t.Run("should return 404 when user email is not present in warden", func(t *testing.T) {
+		doer := mocks.NewDoer(t)
+		doer.EXPECT().Do(mock.Anything).Return(&http.Response{
+			StatusCode: http.StatusOK,
+			Body: io.NopCloser(bytes.NewBufferString(`{
+				"success": false,
+				"errors": [],
+				"data": {
+				"teams": [
+				{
+				"name": "data_fabric",
+				"created_at": "2023-08-25T03:52:13.548Z",
+				"updated_at": "2023-08-25T03:52:13.548Z",
+				"owner_id": 433,
+				"parent_team_identifier": "2079834a-05c4-420d-bfc8-44b934adea9f",
+				"identifier": "b5aea046-dab3-4dac-b1ea-e1eef423226b",
+				"product_group_name": "data_engineering",
+				"product_group_id": "2079834a-05c4-420d-bfc8-44b934adea9f",
+				"labels": null,
+				"short_code": "T394"
+				}
+				]
+				},
+				"status": "ok"
+				}`)),
+		}, nil)
+
+		r := chi.NewRouter()
+		r.Use(reqctx.WithRequestCtx())
+		r.Route("/dex/warden", Routes(nil, doer))
+
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/dex/warden/users/me/warden_teams", nil)
+		assert.NoError(t, err)
+		req.Header.Add("X-Auth-Email", "test@email.com")
+
+		resp := httptest.NewRecorder()
+		r.ServeHTTP(resp, req)
+
+		assert.Equal(t, http.StatusNotFound, resp.Code)
+	})
+
+	t.Run("should return not authorised when X-Auth-Email is not present is header", func(t *testing.T) {
+		doer := mocks.NewDoer(t)
+
+		r := chi.NewRouter()
+		r.Use(reqctx.WithRequestCtx())
+		r.Route("/dex/warden", Routes(nil, doer))
+
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/dex/warden/users/me/warden_teams", nil)
+		assert.NoError(t, err)
+
+		resp := httptest.NewRecorder()
+		r.ServeHTTP(resp, req)
+
+		assert.Equal(t, http.StatusUnauthorized, resp.Code)
 	})
 }
 
@@ -130,7 +188,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		r.Use(reqctx.WithRequestCtx())
 		r.Route("/dex/warden", Routes(shieldClient, doer))
 
-		req, err := http.NewRequest(http.MethodPatch, "/dex/warden/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/dex/warden/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
 		assert.NoError(t, err)
 
 		resp := httptest.NewRecorder()
@@ -142,5 +200,59 @@ func TestHandler_updateGroup(t *testing.T) {
 			"product-group-id": "2079834a-05c4-420d-bfc8-44b934adea9f",
 			"team-id": "b5aea046-dab3-4dac-b1ea-e1eef423226b"
 		}`, resp.Body.String())
+	})
+
+	t.Run("should return 500 when warden_team_id is invalid", func(t *testing.T) {
+		shieldClient := shareMocks.NewShieldServiceClient(t)
+
+		doer := mocks.NewDoer(t)
+		doer.EXPECT().Do(mock.Anything).Return(&http.Response{
+			StatusCode: http.StatusOK,
+			Body: io.NopCloser(bytes.NewBufferString(`{
+				"success": false,
+				"data": {
+					"name": "data_fabric",
+					"created_at": "2023-08-25T03:52:13.548Z",
+					"updated_at": "2023-08-25T03:52:13.548Z",
+					"owner_id": 433,
+					"parent_team_identifier": "2079834a-05c4-420d-bfc8-44b934adea9f",
+					"identifier": "b5aea046-dab3-4dac-b1ea-e1eef423226b",
+					"product_group_name": "data_engineering",
+					"product_group_id": "2079834a-05c4-420d-bfc8-44b934adea9f",
+					"labels": null,
+					"short_code": "T394"
+				},
+				"errors": []
+			}`)),
+		}, nil)
+
+		r := chi.NewRouter()
+		r.Use(reqctx.WithRequestCtx())
+		r.Route("/dex/warden", Routes(shieldClient, doer))
+
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/dex/warden/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
+		assert.NoError(t, err)
+
+		resp := httptest.NewRecorder()
+		r.ServeHTTP(resp, req)
+
+		assert.Equal(t, http.StatusInternalServerError, resp.Code)
+	})
+
+	t.Run("should return error when warden_team_id is empty string", func(t *testing.T) {
+		shieldClient := shareMocks.NewShieldServiceClient(t)
+		doer := mocks.NewDoer(t)
+
+		r := chi.NewRouter()
+		r.Use(reqctx.WithRequestCtx())
+		r.Route("/dex/warden", Routes(shieldClient, doer))
+
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/dex/warden/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": ""}`))
+		assert.NoError(t, err)
+
+		resp := httptest.NewRecorder()
+		r.ServeHTTP(resp, req)
+
+		assert.Equal(t, http.StatusBadRequest, resp.Code)
 	})
 }

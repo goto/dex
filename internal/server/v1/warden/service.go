@@ -48,7 +48,7 @@ func (c *Service) TeamList(ctx context.Context) (*TeamData, error) {
 
 	url := baseURL + endpoint + userPath + reqCtx.UserEmail + teamsEndpoint
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -116,13 +116,13 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 	return UpdatedGroupRes.Group.Metadata.AsMap(), nil
 }
 
-func (c *Service) TeamByUUID(_ context.Context, teamByUUID string) (*Team, error) {
+func (c *Service) TeamByUUID(ctx context.Context, teamByUUID string) (*Team, error) {
 	endpoint := "/api/v2"
 	teamPath := "/teams/"
 
 	url := baseURL + endpoint + teamPath + teamByUUID
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
