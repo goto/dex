@@ -67,7 +67,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
-		r.Route("/warden", warden.Routes())
+		r.Route("/warden", warden.Routes(shieldClient))
 	})
 
 	logger.Info("starting server", zap.String("addr", addr))
