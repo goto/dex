@@ -9,7 +9,6 @@ import (
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	"github.com/MakeNowJust/heredoc"
-	dlqv1 "github.com/goto/dex/internal/server/v1/dlq"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -18,6 +17,7 @@ import (
 
 	"github.com/goto/dex/internal/server"
 	"github.com/goto/dex/internal/server/gcs"
+	dlqv1 "github.com/goto/dex/internal/server/v1/dlq"
 	"github.com/goto/dex/pkg/logger"
 	"github.com/goto/dex/pkg/telemetry"
 )

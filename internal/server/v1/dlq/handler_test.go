@@ -40,7 +40,7 @@ func (*testHTTPWriter) WriteHeader(int) {
 func TestListTopicDates(t *testing.T) {
 	eService := &mocks.ResourceServiceClient{}
 	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	config := &entropy.FirehoseConfig{
@@ -115,7 +115,7 @@ func TestListTopicDates(t *testing.T) {
 func TestErrorFromGCSClient(t *testing.T) {
 	eService := &mocks.ResourceServiceClient{}
 	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	config := &entropy.FirehoseConfig{
@@ -173,7 +173,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 func TestErrorFromFirehoseResource(t *testing.T) {
 	eService := &mocks.ResourceServiceClient{}
 	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	eService.On(
