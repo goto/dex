@@ -19,7 +19,6 @@ func NewHandler(service *Service) *handler {
 }
 
 func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
-
 	reqCtx := reqctx.From(r.Context())
 	const errEmailMissedInHeader = "user email not in header"
 
@@ -29,7 +28,6 @@ func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	teamListResp, err := h.service.TeamList(r.Context(), reqCtx.UserEmail)
-
 	if err != nil {
 		if errors.Is(err, ErrEmailNotOnWarden) {
 			utils.WriteErrMsg(w, http.StatusNotFound, ErrEmailNotOnWarden.Error())

@@ -19,14 +19,14 @@ const (
 
 type Service struct {
 	shieldClient shieldv1beta1rpc.ShieldServiceClient
-	doer         HttpClient
+	doer         HTTPClient
 }
 
-type HttpClient interface {
+type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HttpClient) *Service {
+func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HTTPClient) *Service {
 	return &Service{
 		shieldClient: shieldClient,
 		doer:         doer,

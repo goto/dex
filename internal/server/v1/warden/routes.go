@@ -5,7 +5,7 @@ import (
 	chiv5 "github.com/go-chi/chi/v5"
 )
 
-func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HttpClient) func(r chiv5.Router) {
+func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HTTPClient) func(r chiv5.Router) {
 	service := NewService(shieldClient, doer)
 	handler := NewHandler(service)
 	return func(r chiv5.Router) {
