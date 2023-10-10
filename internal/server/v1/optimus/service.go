@@ -2,6 +2,7 @@ package optimus
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	optimusv1beta1grpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
@@ -29,8 +30,9 @@ func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, builder Optim
 
 func (svc *Service) FindJobSpec(ctx context.Context, jobName, projectSlug string) (*optimusv1beta1.JobSpecificationResponse, error) {
 	optimusCl, err := svc.getOptimusClient(ctx, projectSlug)
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting optimus host: %w", err)
 	}
 
 	res, err := optimusCl.GetJobSpecifications(ctx, &optimusv1beta1.GetJobSpecificationsRequest{
@@ -38,7 +40,7 @@ func (svc *Service) FindJobSpec(ctx context.Context, jobName, projectSlug string
 		JobName:     jobName,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting optimus job list: %w", err)
 	}
 
 	list := res.JobSpecificationResponses
@@ -52,14 +54,14 @@ func (svc *Service) FindJobSpec(ctx context.Context, jobName, projectSlug string
 func (svc *Service) ListJobs(ctx context.Context, projectSlug string) ([]*optimusv1beta1.JobSpecificationResponse, error) {
 	optimusCl, err := svc.getOptimusClient(ctx, projectSlug)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting optimus host: %w", err)
 	}
 
 	res, err := optimusCl.GetJobSpecifications(ctx, &optimusv1beta1.GetJobSpecificationsRequest{
 		ProjectName: projectSlug,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting optimus job list: %w", err)
 	}
 
 	return res.JobSpecificationResponses, nil
@@ -87,7 +89,7 @@ func (svc *Service) getOptimusClient(ctx context.Context, projectSlug string) (o
 
 	optimusHostStr, isString := optimusHost.(string)
 	if !isString {
-		return nil, ErrOptimusHostNotString
+		return nil, ErrOptimusHostInvalid
 	}
 
 	cl, err := svc.builder.BuildOptimusClient(optimusHostStr)
