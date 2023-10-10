@@ -28,7 +28,6 @@ func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.Bl
 // TODO: replace *DlqJob with a generated models.DlqJob
 func (s *Service) CreateDLQJob(dlqJob *DlqJob) error {
 	// validate dlqJob for creation
-
 	// fetch firehose details
 	// enrich DlqJob with firehose details
 	// map DlqJob to entropy resource -> return entropy.Resource (kind = job)

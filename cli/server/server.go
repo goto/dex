@@ -107,7 +107,9 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 	}
 
 	dlqConfig := &dlqv1.DlqJobConfig{
-		// TODO: map cfg.Dlq
+		// TODO: map cfg.Dlq\
+		DlqJobImage:    cfg.Dlq.DlqJobImage,
+		PrometheusHost: cfg.Dlq.PrometheusHost,
 	}
 
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,

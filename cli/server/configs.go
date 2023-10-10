@@ -51,7 +51,8 @@ type optimusConfig struct {
 }
 
 type dlqConfig struct {
-	DlqJobImage string `mapstructure:"dlq_job_image"`
+	DlqJobImage    string `mapstructure:"dlq_job_image"`
+	PrometheusHost string `mapstructure:"prometheus_host"`
 }
 
 type serveConfig struct {

@@ -2,6 +2,8 @@ package dlq
 
 import (
 	"fmt"
+	"strconv"
+	"time"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -75,7 +77,7 @@ type DlqJob struct {
 	Urn string `json:"urn,omitempty"`
 
 	//firehose
-	EnvVars []string `json:"env_vars,omitempty"`
+	EnvVars map[string]string `json:"env_vars,omitempty"`
 
 	KubeCluster string `json:"kube_cluster,omitempty"`
 
@@ -84,20 +86,22 @@ type DlqJob struct {
 	ContainerImage string `json:"container_image,omitempty"`
 
 	PrometheusHost string `json:"prometheus_host,omitempty"`
+
+	DlqGcsCredentialPath string `json:"dlq_gcs_credential_path,omitempty"`
 }
 
 func enrichDlqJob(job *DlqJob, f models.Firehose, cfg *DlqJobConfig) error {
-	var env_vars []string
-	for key := range f.Configs.EnvVars {
-		env_vars = append(env_vars, key)
-	}
 
 	job = &DlqJob{
-		FirehoseDeployment: f.Configs.DeploymentID,
-		KubeCluster:        *f.Configs.KubeCluster,
-		EnvVars:            env_vars,
-		ContainerImage:     cfg.DlqJobImage,
-		PrometheusHost:     cfg.PrometheusHost,
+		ResourceID:           f.Urn,
+		ResourceType:         "firehose",                      // this can be firehose/dagger
+		Date:                 time.Now().Format("2006-01-02"), // taking time when this is created still look for further changes
+		FirehoseDeployment:   f.Configs.DeploymentID,
+		KubeCluster:          *f.Configs.KubeCluster,
+		ContainerImage:       cfg.DlqJobImage,
+		PrometheusHost:       cfg.PrometheusHost,
+		EnvVars:              f.Configs.EnvVars,
+		DlqGcsCredentialPath: f.Configs.EnvVars["DLQ_GCS_CREDENTIAL_PATH"],
 	}
 	return nil
 }
@@ -136,30 +140,60 @@ func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
 		return nil, err
 	}
 	job := DlqJob{
-		BatchSize:          0, // Need to find the value
-		BlobBatch:          0, // Need to find the value
-		CreatedAt:          strfmt.DateTime(r.CreatedAt.AsTime()),
-		CreatedBy:          "", // Need to find the value
-		Date:               date,
-		ErrorTypes:         "", // Need to find the value
-		NumThreads:         0,  // Need to find the value
-		Project:            r.Project,
-		Replicas:           1, // Don't know how to access spec.Config.Replicas
-		ResourceID:         resourceID,
-		ResourceType:       resourceType,
-		Status:             "",    // Need to find the value
-		Stopped:            false, // Need to find the value
-		Topic:              topic,
-		UpdatedAt:          strfmt.DateTime{}, // need to find the value
-		Urn:                r.Urn,
-		KubeCluster:        "", // Don't know how to access r.Spec.Dependencies.Value,
-		FirehoseDeployment: "", // Don't know how to access r.Spec.Configs.Namespace,
+		BlobBatch:    0, // Need to find the value
+		CreatedAt:    strfmt.DateTime(r.CreatedAt.AsTime()),
+		CreatedBy:    "", // Need to find the value
+		Project:      r.Project,
+		ResourceID:   resourceID,
+		ResourceType: resourceType,
+		Status:       "",                // Need to find the value
+		Stopped:      false,             // Need to find the value
+		UpdatedAt:    strfmt.DateTime{}, // need to find the value
+		Urn:          r.Urn,
 	}
+
+	mapDlqSpecAndLabels(&job, r.GetSpec())
 
 	return &job, nil
 }
 
+func mapDlqSpecAndLabels(job *DlqJob, spec *entropyv1beta1.ResourceSpec) error {
+	var modConf entropy.JobConfig
+	if err := utils.ProtoStructToGoVal(spec.GetConfigs(), &modConf); err != nil {
+		return err
+	}
+
+	var kubeCluster string
+	for _, dep := range spec.GetDependencies() {
+		if dep.GetKey() == "kube_cluster" {
+			kubeCluster = dep.GetValue()
+		}
+	}
+
+	job.BatchSize, _ = strconv.ParseInt(modConf.Containers[0].EnvVariables["DLQ_BATCH_SIZE"], 10, 64)
+	job.ErrorTypes = modConf.Containers[0].EnvVariables["DLQ_ERROR_TYPES"]
+	job.NumThreads, _ = strconv.ParseInt(modConf.Containers[0].EnvVariables["DLQ_NUM_THREADS"], 10, 64)
+	job.Date = modConf.Containers[0].EnvVariables["DLQ_INPUT_DATE"]
+	job.Topic = modConf.Containers[0].EnvVariables["DLQ_TOPIC_NAME"]
+	job.KubeCluster = kubeCluster
+	job.FirehoseDeployment = modConf.Namespace
+	job.Replicas = int64(modConf.Replicas)
+
+	return nil
+}
+
 func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
+	EnvVars := map[string]string{
+		"DLQ_BATCH_SIZE":     strconv.FormatInt(job.BatchSize, 10),  // user
+		"DLQ_NUM_THREADS":    strconv.FormatInt(job.NumThreads, 10), // user
+		"DLQ_ERROR_TYPES":    job.ErrorTypes,                        // user
+		"DLQ_INPUT_DATE":     job.Date,                              // user (internally created)
+		"DLQ_TOPIC_NAME":     job.Topic,                             // user
+		"METRIC_STATSD_TAGS": "TBA",
+	}
+	for key, value := range job.EnvVars {
+		EnvVars[key] = value
+	}
 	return utils.GoValToProtoStruct(entropy.JobConfig{
 		Replicas:  1,
 		Namespace: job.FirehoseDeployment, // same with firehose deployment namespace
@@ -172,7 +206,7 @@ func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
 				SecretsVolumes: []entropy.JobSecret{ // confirm with streaming for required secrets
 					{
 						Name:  "firehose-bigquery-sink-credential", // hard coded, try look in entropy firehose?
-						Mount: "/etc/secret/gcp",                   // from firehose configs.DLQ_GCS_CREDENTIAL_PATH
+						Mount: job.DlqGcsCredentialPath,            // from firehose configs.DLQ_GCS_CREDENTIAL_PATH
 					},
 				},
 				Limits: entropy.UsageSpec{
@@ -183,15 +217,7 @@ func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
 					CPU:    "0.5", // user
 					Memory: "2gb", // user
 				},
-				EnvVariables: map[string]string{
-					// all firehose ENV_VARS +
-					"DLQ_BATCH_SIZE":     "100",                // user
-					"DLQ_NUM_THREADS":    "1",                  // user
-					"DLQ_ERROR_TYPES":    "DEFAULT_ERROR",      // user
-					"DLQ_INPUT_DATE":     "2023-04-10",         // user (internally created)
-					"DLQ_TOPIC_NAME":     "gofood-booking-log", // user
-					"METRIC_STATSD_TAGS": "TBA",
-				},
+				EnvVariables: EnvVars,
 			},
 			{
 				Name:  "telegraf",
@@ -231,7 +257,7 @@ func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
 			},
 		},
 		JobLabels: map[string]string{
-			"firehose_deployment": "", // firehose deployment
+			"firehose_deployment": job.FirehoseDeployment, // firehose deployment
 			"topic":               "",
 			"date":                "",
 		},
