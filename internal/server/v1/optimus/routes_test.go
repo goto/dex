@@ -117,6 +117,60 @@ func TestRoutesFindJobSpec(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
+	t.Run("should return 422 if project metadata contains invalid optimus host", func(t *testing.T) {
+		projectRes := &shieldv1beta1.GetProjectResponse{
+			Project: &shieldv1beta1.Project{
+				Slug: "test-project",
+				Metadata: newStruct(t, map[string]interface{}{
+					"optimus_host": 42,
+				}),
+			},
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{
+			Id: projectSlug,
+		}).Return(projectRes, nil)
+
+		defer shieldClient.AssertExpectations(t)
+
+		optimusClient := new(optimus.OptimusClientMock)
+		defer optimusClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := chi.NewRouter()
+		optimus.Routes(shieldClient, optimusClient)(router)
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 404 if project metadata doesn't contain optimus host", func(t *testing.T) {
+		projectRes := &shieldv1beta1.GetProjectResponse{
+			Project: &shieldv1beta1.Project{
+				Slug:     "test-project",
+				Metadata: newStruct(t, map[string]interface{}{}),
+			},
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{
+			Id: projectSlug,
+		}).Return(projectRes, nil)
+
+		defer shieldClient.AssertExpectations(t)
+
+		optimusClient := new(optimus.OptimusClientMock)
+		defer optimusClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := chi.NewRouter()
+		optimus.Routes(shieldClient, optimusClient)(router)
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
 	t.Run("should return 500 for internal error", func(t *testing.T) {
 		clientError := status.Error(codes.Internal, "Internal")
 
@@ -228,6 +282,60 @@ func TestRoutesListJobs(t *testing.T) {
 		expectedJSON, err := json.Marshal(expectedJobSpecRes)
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
+	})
+
+	t.Run("should return 422 if project metadata contains invalid optimus host", func(t *testing.T) {
+		projectRes := &shieldv1beta1.GetProjectResponse{
+			Project: &shieldv1beta1.Project{
+				Slug: "test-project",
+				Metadata: newStruct(t, map[string]interface{}{
+					"optimus_host": 42,
+				}),
+			},
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{
+			Id: projectSlug,
+		}).Return(projectRes, nil)
+
+		defer shieldClient.AssertExpectations(t)
+
+		optimusClient := new(optimus.OptimusClientMock)
+		defer optimusClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := chi.NewRouter()
+		optimus.Routes(shieldClient, optimusClient)(router)
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnprocessableEntity, response.Code)
+	})
+
+	t.Run("should return 404 if project metadata doesn't contain optimus host", func(t *testing.T) {
+		projectRes := &shieldv1beta1.GetProjectResponse{
+			Project: &shieldv1beta1.Project{
+				Slug:     "test-project",
+				Metadata: newStruct(t, map[string]interface{}{}),
+			},
+		}
+
+		shieldClient := new(mocks.ShieldServiceClient)
+		shieldClient.On("GetProject", mock.Anything, &shieldv1beta1.GetProjectRequest{
+			Id: projectSlug,
+		}).Return(projectRes, nil)
+
+		defer shieldClient.AssertExpectations(t)
+
+		optimusClient := new(optimus.OptimusClientMock)
+		defer optimusClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := chi.NewRouter()
+		optimus.Routes(shieldClient, optimusClient)(router)
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
 	})
 
 	t.Run("should return 500 for internal error", func(t *testing.T) {
