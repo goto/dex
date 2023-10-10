@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 )
 
@@ -18,17 +19,22 @@ func NewHandler(service *Service) *handler {
 }
 
 func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
-	teamListResp, err := h.service.TeamList(r.Context())
 
-	if errors.Is(err, ErrUserNotFound) {
-		utils.WriteErrMsg(w, http.StatusUnauthorized, ErrUserNotFound.Error())
+	reqCtx := reqctx.From(r.Context())
+	const errEmailMissedInHeader = "user email not in header"
+
+	if reqCtx.UserEmail == "" {
+		utils.WriteErrMsg(w, http.StatusUnauthorized, errEmailMissedInHeader)
 		return
 	}
-	if errors.Is(err, ErrTeamNotFound) {
-		utils.WriteErrMsg(w, http.StatusNotFound, ErrTeamNotFound.Error())
-		return
-	}
+
+	teamListResp, err := h.service.TeamList(r.Context(), reqCtx.UserEmail)
+
 	if err != nil {
+		if errors.Is(err, ErrEmailNotOnWarden) {
+			utils.WriteErrMsg(w, http.StatusNotFound, ErrEmailNotOnWarden.Error())
+			return
+		}
 		utils.WriteErr(w, err)
 		return
 	}
@@ -40,17 +46,17 @@ func (h *handler) updateGroupMetadata(w http.ResponseWriter, r *http.Request) {
 	groupID := chi.URLParam(r, "group_id")
 
 	var body struct {
-		WardeTeamID string `json:"warden_team_id"`
+		WardenTeamID string `json:"warden_team_id"`
 	}
 	if err := utils.ReadJSON(r, &body); err != nil {
 		utils.WriteErr(w, err)
 		return
-	} else if body.WardeTeamID == "" {
+	} else if body.WardenTeamID == "" {
 		utils.WriteErrMsg(w, http.StatusBadRequest, "missing warden_team_id")
 		return
 	}
 
-	resShield, err := h.service.UpdateGroupMetadata(r.Context(), groupID, body.WardeTeamID)
+	resShield, err := h.service.UpdateGroupMetadata(r.Context(), groupID, body.WardenTeamID)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
