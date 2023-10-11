@@ -160,8 +160,14 @@ func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
 	}
 
 	envVars := modConf.Containers[0].EnvVariables
-	batchSize, _ := strconv.ParseInt(envVars["DLQ_BATCH_SIZE"], 10, 64)   // handler error properly
-	numThreads, _ := strconv.ParseInt(envVars["DLQ_NUM_THREADS"], 10, 64) // handler error properly
+	batchSize, err := strconv.ParseInt(envVars["DLQ_BATCH_SIZE"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	numThreads, err := strconv.ParseInt(envVars["DLQ_NUM_THREADS"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
 	errorTypes := envVars["DLQ_ERROR_TYPES"]
 
 	job := DlqJob{
@@ -185,29 +191,6 @@ func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
 	}
 
 	return &job, nil
-}
-
-func mapDlqSpecAndLabels(job *DlqJob, spec *entropyv1beta1.ResourceSpec) error {
-	var modConf entropy.JobConfig
-	if err := utils.ProtoStructToGoVal(spec.GetConfigs(), &modConf); err != nil {
-		return err
-	}
-
-	var kubeCluster string
-	for _, dep := range spec.GetDependencies() {
-		if dep.GetKey() == "kube_cluster" {
-			kubeCluster = dep.GetValue()
-		}
-	}
-
-	job.BatchSize, _ = strconv.ParseInt(modConf.Containers[0].EnvVariables["DLQ_BATCH_SIZE"], 10, 64)
-	job.NumThreads, _ = strconv.ParseInt(modConf.Containers[0].EnvVariables["DLQ_NUM_THREADS"], 10, 64)
-	job.ErrorTypes = modConf.Containers[0].EnvVariables["DLQ_ERROR_TYPES"]
-	job.Replicas = int64(modConf.Replicas)
-	job.KubeCluster = kubeCluster
-	job.Namespace = modConf.Namespace
-
-	return nil
 }
 
 func buildResourceLabels(job DlqJob) map[string]string {
