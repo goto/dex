@@ -1,6 +1,7 @@
 package optimus
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -18,10 +19,18 @@ func NewHandler(service *Service) *Handler {
 
 func (h *Handler) findJob(w http.ResponseWriter, r *http.Request) {
 	jobName := chi.URLParam(r, "job_name")
-	projectName := chi.URLParam(r, "project_name")
+	projectSlug := chi.URLParam(r, "project_slug")
 
-	jobSpecResp, err := h.service.FindJobSpec(r.Context(), jobName, projectName)
+	jobSpecResp, err := h.service.FindJobSpec(r.Context(), jobName, projectSlug)
+
 	if err != nil {
+		if errors.Is(err, ErrOptimusHostNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, ErrOptimusHostNotFound.Error())
+			return
+		} else if errors.Is(err, ErrOptimusHostInvalid) {
+			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, ErrOptimusHostInvalid.Error())
+			return
+		}
 		utils.WriteErr(w, err)
 		return
 	}
@@ -30,10 +39,17 @@ func (h *Handler) findJob(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	projectName := chi.URLParam(r, "project_name")
+	projectSlug := chi.URLParam(r, "project_slug")
 
-	listResp, err := h.service.ListJobs(r.Context(), projectName)
+	listResp, err := h.service.ListJobs(r.Context(), projectSlug)
 	if err != nil {
+		if errors.Is(err, ErrOptimusHostNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, ErrOptimusHostNotFound.Error())
+			return
+		} else if errors.Is(err, ErrOptimusHostInvalid) {
+			utils.WriteErrMsg(w, http.StatusUnprocessableEntity, ErrOptimusHostInvalid.Error())
+			return
+		}
 		utils.WriteErr(w, err)
 		return
 	}
