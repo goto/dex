@@ -13,7 +13,7 @@ import (
 	"github.com/goto/dex/internal/server/utils"
 )
 
-func enrichDlqJob(job *DlqJob, f models.Firehose, cfg *DlqJobConfig) {
+func enrichDlqJob(job *models.DlqJob, f models.Firehose, cfg *DlqJobConfig) {
 	job.ResourceID = f.Urn
 	job.Namespace = "" // TBA
 	job.KubeCluster = *f.Configs.KubeCluster
@@ -24,7 +24,7 @@ func enrichDlqJob(job *DlqJob, f models.Firehose, cfg *DlqJobConfig) {
 }
 
 // DlqJob param here is expected to have been enriched with firehose config
-func mapToEntropyResource(job DlqJob) (*entropyv1beta1.Resource, error) {
+func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(job)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func mapToEntropyResource(job DlqJob) (*entropyv1beta1.Resource, error) {
 	}, nil
 }
 
-func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
+func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 	envVars := map[string]string{}
 	for key, value := range job.EnvVars {
 		envVars[key] = value
@@ -144,7 +144,7 @@ func makeConfigStruct(job DlqJob) (*structpb.Value, error) {
 	})
 }
 
-func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
+func mapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 	labels := r.Labels
 
 	var modConf entropy.JobConfig
@@ -170,7 +170,7 @@ func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
 	}
 	errorTypes := envVars["DLQ_ERROR_TYPES"]
 
-	job := DlqJob{
+	job := models.DlqJob{
 		Urn:          r.Urn,
 		ResourceID:   labels["resource_id"],
 		ResourceType: labels["resource_type"],
@@ -193,7 +193,7 @@ func mapToDlqJob(r *entropyv1beta1.Resource) (*DlqJob, error) {
 	return &job, nil
 }
 
-func buildResourceLabels(job DlqJob) map[string]string {
+func buildResourceLabels(job models.DlqJob) map[string]string {
 	return map[string]string{
 		"resource_id": job.ResourceID,
 		"type":        job.ResourceType,
@@ -203,7 +203,7 @@ func buildResourceLabels(job DlqJob) map[string]string {
 	}
 }
 
-func buildEntropyResourceName(job DlqJob) string {
+func buildEntropyResourceName(job models.DlqJob) string {
 	return fmt.Sprintf(
 		"%s-%s-%s-%s",
 		job.ResourceID,   // firehose urn
@@ -213,7 +213,7 @@ func buildEntropyResourceName(job DlqJob) string {
 	)
 }
 
-func buildJobName(job DlqJob) string {
+func buildJobName(job models.DlqJob) string {
 	randomKey := "91238192"
 	return fmt.Sprintf(
 		"%s-%s-%s",

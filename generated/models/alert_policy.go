@@ -56,6 +56,8 @@ func (m *AlertPolicy) validateRules(formats strfmt.Registry) error {
 			if err := m.Rules[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("rules" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("rules" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -98,9 +100,16 @@ func (m *AlertPolicy) contextValidateRules(ctx context.Context, formats strfmt.R
 	for i := 0; i < len(m.Rules); i++ {
 
 		if m.Rules[i] != nil {
+
+			if swag.IsZero(m.Rules[i]) { // not required
+				return nil
+			}
+
 			if err := m.Rules[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("rules" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("rules" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

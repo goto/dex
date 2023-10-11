@@ -1278,7 +1278,7 @@ definitions:
       prometheus_host:
         type: string
       dlq_gcs_credential_path:
-        type: strting
+        type: string
   Subscription:
     type: object
     description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"

@@ -45,7 +45,7 @@ func (o *GetAlertSubscriptionReader) ReadResponse(response runtime.ClientRespons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /dex/subscriptions/{id}] getAlertSubscription", response, response.Code())
 	}
 }
 
@@ -55,7 +55,7 @@ func NewGetAlertSubscriptionOK() *GetAlertSubscriptionOK {
 }
 
 /*
-	GetAlertSubscriptionOK describes a response with status code 200, with default header values.
+GetAlertSubscriptionOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -63,9 +63,44 @@ type GetAlertSubscriptionOK struct {
 	Payload *GetAlertSubscriptionOKBody
 }
 
+// IsSuccess returns true when this get alert subscription o k response has a 2xx status code
+func (o *GetAlertSubscriptionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get alert subscription o k response has a 3xx status code
+func (o *GetAlertSubscriptionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert subscription o k response has a 4xx status code
+func (o *GetAlertSubscriptionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alert subscription o k response has a 5xx status code
+func (o *GetAlertSubscriptionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alert subscription o k response a status code equal to that given
+func (o *GetAlertSubscriptionOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get alert subscription o k response
+func (o *GetAlertSubscriptionOK) Code() int {
+	return 200
+}
+
 func (o *GetAlertSubscriptionOK) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions/{id}][%d] getAlertSubscriptionOK  %+v", 200, o.Payload)
 }
+
+func (o *GetAlertSubscriptionOK) String() string {
+	return fmt.Sprintf("[GET /dex/subscriptions/{id}][%d] getAlertSubscriptionOK  %+v", 200, o.Payload)
+}
+
 func (o *GetAlertSubscriptionOK) GetPayload() *GetAlertSubscriptionOKBody {
 	return o.Payload
 }
@@ -88,7 +123,7 @@ func NewGetAlertSubscriptionNotFound() *GetAlertSubscriptionNotFound {
 }
 
 /*
-	GetAlertSubscriptionNotFound describes a response with status code 404, with default header values.
+GetAlertSubscriptionNotFound describes a response with status code 404, with default header values.
 
 Not Found Error
 */
@@ -96,9 +131,44 @@ type GetAlertSubscriptionNotFound struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get alert subscription not found response has a 2xx status code
+func (o *GetAlertSubscriptionNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alert subscription not found response has a 3xx status code
+func (o *GetAlertSubscriptionNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert subscription not found response has a 4xx status code
+func (o *GetAlertSubscriptionNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get alert subscription not found response has a 5xx status code
+func (o *GetAlertSubscriptionNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alert subscription not found response a status code equal to that given
+func (o *GetAlertSubscriptionNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get alert subscription not found response
+func (o *GetAlertSubscriptionNotFound) Code() int {
+	return 404
+}
+
 func (o *GetAlertSubscriptionNotFound) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions/{id}][%d] getAlertSubscriptionNotFound  %+v", 404, o.Payload)
 }
+
+func (o *GetAlertSubscriptionNotFound) String() string {
+	return fmt.Sprintf("[GET /dex/subscriptions/{id}][%d] getAlertSubscriptionNotFound  %+v", 404, o.Payload)
+}
+
 func (o *GetAlertSubscriptionNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -121,7 +191,7 @@ func NewGetAlertSubscriptionInternalServerError() *GetAlertSubscriptionInternalS
 }
 
 /*
-	GetAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
+GetAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -129,9 +199,44 @@ type GetAlertSubscriptionInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get alert subscription internal server error response has a 2xx status code
+func (o *GetAlertSubscriptionInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alert subscription internal server error response has a 3xx status code
+func (o *GetAlertSubscriptionInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert subscription internal server error response has a 4xx status code
+func (o *GetAlertSubscriptionInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alert subscription internal server error response has a 5xx status code
+func (o *GetAlertSubscriptionInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get alert subscription internal server error response a status code equal to that given
+func (o *GetAlertSubscriptionInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get alert subscription internal server error response
+func (o *GetAlertSubscriptionInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetAlertSubscriptionInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions/{id}][%d] getAlertSubscriptionInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetAlertSubscriptionInternalServerError) String() string {
+	return fmt.Sprintf("[GET /dex/subscriptions/{id}][%d] getAlertSubscriptionInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetAlertSubscriptionInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -181,6 +286,8 @@ func (o *GetAlertSubscriptionOKBody) validateSubscription(formats strfmt.Registr
 		if err := o.Subscription.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAlertSubscriptionOK" + "." + "subscription")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAlertSubscriptionOK" + "." + "subscription")
 			}
 			return err
 		}
@@ -206,9 +313,16 @@ func (o *GetAlertSubscriptionOKBody) ContextValidate(ctx context.Context, format
 func (o *GetAlertSubscriptionOKBody) contextValidateSubscription(ctx context.Context, formats strfmt.Registry) error {
 
 	if o.Subscription != nil {
+
+		if swag.IsZero(o.Subscription) { // not required
+			return nil
+		}
+
 		if err := o.Subscription.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAlertSubscriptionOK" + "." + "subscription")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAlertSubscriptionOK" + "." + "subscription")
 			}
 			return err
 		}

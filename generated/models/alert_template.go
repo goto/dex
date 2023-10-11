@@ -102,6 +102,8 @@ func (m *AlertTemplate) validateVariables(formats strfmt.Registry) error {
 		if err := m.Variables.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("variables")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("variables")
 			}
 			return err
 		}
@@ -153,9 +155,16 @@ func (m *AlertTemplate) contextValidateUpdatedAt(ctx context.Context, formats st
 func (m *AlertTemplate) contextValidateVariables(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Variables != nil {
+
+		if swag.IsZero(m.Variables) { // not required
+			return nil
+		}
+
 		if err := m.Variables.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("variables")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("variables")
 			}
 			return err
 		}

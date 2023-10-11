@@ -129,6 +129,8 @@ func (m *Firehose) validateConfigs(formats strfmt.Registry) error {
 		if err := m.Configs.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("configs")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("configs")
 			}
 			return err
 		}
@@ -183,6 +185,8 @@ func (m *Firehose) validateState(formats strfmt.Registry) error {
 		if err := m.State.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("state")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("state")
 			}
 			return err
 		}
@@ -253,9 +257,12 @@ func (m *Firehose) ContextValidate(ctx context.Context, formats strfmt.Registry)
 func (m *Firehose) contextValidateConfigs(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Configs != nil {
+
 		if err := m.Configs.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("configs")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("configs")
 			}
 			return err
 		}
@@ -285,9 +292,16 @@ func (m *Firehose) contextValidateCreatedBy(ctx context.Context, formats strfmt.
 func (m *Firehose) contextValidateState(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.State != nil {
+
+		if swag.IsZero(m.State) { // not required
+			return nil
+		}
+
 		if err := m.State.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("state")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("state")
 			}
 			return err
 		}

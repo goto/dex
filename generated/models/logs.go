@@ -32,6 +32,8 @@ func (m Logs) Validate(formats strfmt.Registry) error {
 			if err := m[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}
@@ -52,9 +54,16 @@ func (m Logs) ContextValidate(ctx context.Context, formats strfmt.Registry) erro
 	for i := 0; i < len(m); i++ {
 
 		if m[i] != nil {
+
+			if swag.IsZero(m[i]) { // not required
+				return nil
+			}
+
 			if err := m[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(strconv.Itoa(i))
 				}
 				return err
 			}

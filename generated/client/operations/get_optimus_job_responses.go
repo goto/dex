@@ -36,7 +36,7 @@ func (o *GetOptimusJobReader) ReadResponse(response runtime.ClientResponse, cons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /dex/optimus/projects/{project}/jobs/{job}] getOptimusJob", response, response.Code())
 	}
 }
 
@@ -46,7 +46,7 @@ func NewGetOptimusJobOK() *GetOptimusJobOK {
 }
 
 /*
-	GetOptimusJobOK describes a response with status code 200, with default header values.
+GetOptimusJobOK describes a response with status code 200, with default header values.
 
 Success
 */
@@ -54,9 +54,44 @@ type GetOptimusJobOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this get optimus job o k response has a 2xx status code
+func (o *GetOptimusJobOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get optimus job o k response has a 3xx status code
+func (o *GetOptimusJobOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get optimus job o k response has a 4xx status code
+func (o *GetOptimusJobOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get optimus job o k response has a 5xx status code
+func (o *GetOptimusJobOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get optimus job o k response a status code equal to that given
+func (o *GetOptimusJobOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get optimus job o k response
+func (o *GetOptimusJobOK) Code() int {
+	return 200
+}
+
 func (o *GetOptimusJobOK) Error() string {
 	return fmt.Sprintf("[GET /dex/optimus/projects/{project}/jobs/{job}][%d] getOptimusJobOK  %+v", 200, o.Payload)
 }
+
+func (o *GetOptimusJobOK) String() string {
+	return fmt.Sprintf("[GET /dex/optimus/projects/{project}/jobs/{job}][%d] getOptimusJobOK  %+v", 200, o.Payload)
+}
+
 func (o *GetOptimusJobOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -77,7 +112,7 @@ func NewGetOptimusJobInternalServerError() *GetOptimusJobInternalServerError {
 }
 
 /*
-	GetOptimusJobInternalServerError describes a response with status code 500, with default header values.
+GetOptimusJobInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -85,9 +120,44 @@ type GetOptimusJobInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get optimus job internal server error response has a 2xx status code
+func (o *GetOptimusJobInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get optimus job internal server error response has a 3xx status code
+func (o *GetOptimusJobInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get optimus job internal server error response has a 4xx status code
+func (o *GetOptimusJobInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get optimus job internal server error response has a 5xx status code
+func (o *GetOptimusJobInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get optimus job internal server error response a status code equal to that given
+func (o *GetOptimusJobInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get optimus job internal server error response
+func (o *GetOptimusJobInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetOptimusJobInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/optimus/projects/{project}/jobs/{job}][%d] getOptimusJobInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetOptimusJobInternalServerError) String() string {
+	return fmt.Sprintf("[GET /dex/optimus/projects/{project}/jobs/{job}][%d] getOptimusJobInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetOptimusJobInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

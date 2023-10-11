@@ -63,7 +63,7 @@ func (o *UpdateAlertSubscriptionReader) ReadResponse(response runtime.ClientResp
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[PUT /dex/subscriptions/{id}] updateAlertSubscription", response, response.Code())
 	}
 }
 
@@ -73,7 +73,7 @@ func NewUpdateAlertSubscriptionOK() *UpdateAlertSubscriptionOK {
 }
 
 /*
-	UpdateAlertSubscriptionOK describes a response with status code 200, with default header values.
+UpdateAlertSubscriptionOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -81,9 +81,44 @@ type UpdateAlertSubscriptionOK struct {
 	Payload *UpdateAlertSubscriptionOKBody
 }
 
+// IsSuccess returns true when this update alert subscription o k response has a 2xx status code
+func (o *UpdateAlertSubscriptionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update alert subscription o k response has a 3xx status code
+func (o *UpdateAlertSubscriptionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update alert subscription o k response has a 4xx status code
+func (o *UpdateAlertSubscriptionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update alert subscription o k response has a 5xx status code
+func (o *UpdateAlertSubscriptionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update alert subscription o k response a status code equal to that given
+func (o *UpdateAlertSubscriptionOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the update alert subscription o k response
+func (o *UpdateAlertSubscriptionOK) Code() int {
+	return 200
+}
+
 func (o *UpdateAlertSubscriptionOK) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionOK  %+v", 200, o.Payload)
 }
+
+func (o *UpdateAlertSubscriptionOK) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionOK  %+v", 200, o.Payload)
+}
+
 func (o *UpdateAlertSubscriptionOK) GetPayload() *UpdateAlertSubscriptionOKBody {
 	return o.Payload
 }
@@ -106,7 +141,7 @@ func NewUpdateAlertSubscriptionBadRequest() *UpdateAlertSubscriptionBadRequest {
 }
 
 /*
-	UpdateAlertSubscriptionBadRequest describes a response with status code 400, with default header values.
+UpdateAlertSubscriptionBadRequest describes a response with status code 400, with default header values.
 
 Validation Error
 */
@@ -114,9 +149,44 @@ type UpdateAlertSubscriptionBadRequest struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this update alert subscription bad request response has a 2xx status code
+func (o *UpdateAlertSubscriptionBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update alert subscription bad request response has a 3xx status code
+func (o *UpdateAlertSubscriptionBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update alert subscription bad request response has a 4xx status code
+func (o *UpdateAlertSubscriptionBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update alert subscription bad request response has a 5xx status code
+func (o *UpdateAlertSubscriptionBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update alert subscription bad request response a status code equal to that given
+func (o *UpdateAlertSubscriptionBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the update alert subscription bad request response
+func (o *UpdateAlertSubscriptionBadRequest) Code() int {
+	return 400
+}
+
 func (o *UpdateAlertSubscriptionBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *UpdateAlertSubscriptionBadRequest) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *UpdateAlertSubscriptionBadRequest) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -139,7 +209,7 @@ func NewUpdateAlertSubscriptionNotFound() *UpdateAlertSubscriptionNotFound {
 }
 
 /*
-	UpdateAlertSubscriptionNotFound describes a response with status code 404, with default header values.
+UpdateAlertSubscriptionNotFound describes a response with status code 404, with default header values.
 
 Not Found Error
 */
@@ -147,9 +217,44 @@ type UpdateAlertSubscriptionNotFound struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this update alert subscription not found response has a 2xx status code
+func (o *UpdateAlertSubscriptionNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update alert subscription not found response has a 3xx status code
+func (o *UpdateAlertSubscriptionNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update alert subscription not found response has a 4xx status code
+func (o *UpdateAlertSubscriptionNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update alert subscription not found response has a 5xx status code
+func (o *UpdateAlertSubscriptionNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update alert subscription not found response a status code equal to that given
+func (o *UpdateAlertSubscriptionNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the update alert subscription not found response
+func (o *UpdateAlertSubscriptionNotFound) Code() int {
+	return 404
+}
+
 func (o *UpdateAlertSubscriptionNotFound) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionNotFound  %+v", 404, o.Payload)
 }
+
+func (o *UpdateAlertSubscriptionNotFound) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionNotFound  %+v", 404, o.Payload)
+}
+
 func (o *UpdateAlertSubscriptionNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -172,7 +277,7 @@ func NewUpdateAlertSubscriptionConflict() *UpdateAlertSubscriptionConflict {
 }
 
 /*
-	UpdateAlertSubscriptionConflict describes a response with status code 409, with default header values.
+UpdateAlertSubscriptionConflict describes a response with status code 409, with default header values.
 
 Duplicate subscription
 */
@@ -180,9 +285,44 @@ type UpdateAlertSubscriptionConflict struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this update alert subscription conflict response has a 2xx status code
+func (o *UpdateAlertSubscriptionConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update alert subscription conflict response has a 3xx status code
+func (o *UpdateAlertSubscriptionConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update alert subscription conflict response has a 4xx status code
+func (o *UpdateAlertSubscriptionConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update alert subscription conflict response has a 5xx status code
+func (o *UpdateAlertSubscriptionConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update alert subscription conflict response a status code equal to that given
+func (o *UpdateAlertSubscriptionConflict) IsCode(code int) bool {
+	return code == 409
+}
+
+// Code gets the status code for the update alert subscription conflict response
+func (o *UpdateAlertSubscriptionConflict) Code() int {
+	return 409
+}
+
 func (o *UpdateAlertSubscriptionConflict) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionConflict  %+v", 409, o.Payload)
 }
+
+func (o *UpdateAlertSubscriptionConflict) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionConflict  %+v", 409, o.Payload)
+}
+
 func (o *UpdateAlertSubscriptionConflict) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -205,7 +345,7 @@ func NewUpdateAlertSubscriptionUnprocessableEntity() *UpdateAlertSubscriptionUnp
 }
 
 /*
-	UpdateAlertSubscriptionUnprocessableEntity describes a response with status code 422, with default header values.
+UpdateAlertSubscriptionUnprocessableEntity describes a response with status code 422, with default header values.
 
 Missing namespace and slack channel in shield
 */
@@ -213,9 +353,44 @@ type UpdateAlertSubscriptionUnprocessableEntity struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this update alert subscription unprocessable entity response has a 2xx status code
+func (o *UpdateAlertSubscriptionUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update alert subscription unprocessable entity response has a 3xx status code
+func (o *UpdateAlertSubscriptionUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update alert subscription unprocessable entity response has a 4xx status code
+func (o *UpdateAlertSubscriptionUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update alert subscription unprocessable entity response has a 5xx status code
+func (o *UpdateAlertSubscriptionUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update alert subscription unprocessable entity response a status code equal to that given
+func (o *UpdateAlertSubscriptionUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
+// Code gets the status code for the update alert subscription unprocessable entity response
+func (o *UpdateAlertSubscriptionUnprocessableEntity) Code() int {
+	return 422
+}
+
 func (o *UpdateAlertSubscriptionUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionUnprocessableEntity  %+v", 422, o.Payload)
 }
+
+func (o *UpdateAlertSubscriptionUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionUnprocessableEntity  %+v", 422, o.Payload)
+}
+
 func (o *UpdateAlertSubscriptionUnprocessableEntity) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -238,7 +413,7 @@ func NewUpdateAlertSubscriptionInternalServerError() *UpdateAlertSubscriptionInt
 }
 
 /*
-	UpdateAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
+UpdateAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -246,9 +421,44 @@ type UpdateAlertSubscriptionInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this update alert subscription internal server error response has a 2xx status code
+func (o *UpdateAlertSubscriptionInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update alert subscription internal server error response has a 3xx status code
+func (o *UpdateAlertSubscriptionInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update alert subscription internal server error response has a 4xx status code
+func (o *UpdateAlertSubscriptionInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update alert subscription internal server error response has a 5xx status code
+func (o *UpdateAlertSubscriptionInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update alert subscription internal server error response a status code equal to that given
+func (o *UpdateAlertSubscriptionInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the update alert subscription internal server error response
+func (o *UpdateAlertSubscriptionInternalServerError) Code() int {
+	return 500
+}
+
 func (o *UpdateAlertSubscriptionInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *UpdateAlertSubscriptionInternalServerError) String() string {
+	return fmt.Sprintf("[PUT /dex/subscriptions/{id}][%d] updateAlertSubscriptionInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *UpdateAlertSubscriptionInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -298,6 +508,8 @@ func (o *UpdateAlertSubscriptionOKBody) validateSubscription(formats strfmt.Regi
 		if err := o.Subscription.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("updateAlertSubscriptionOK" + "." + "subscription")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("updateAlertSubscriptionOK" + "." + "subscription")
 			}
 			return err
 		}
@@ -323,9 +535,16 @@ func (o *UpdateAlertSubscriptionOKBody) ContextValidate(ctx context.Context, for
 func (o *UpdateAlertSubscriptionOKBody) contextValidateSubscription(ctx context.Context, formats strfmt.Registry) error {
 
 	if o.Subscription != nil {
+
+		if swag.IsZero(o.Subscription) { // not required
+			return nil
+		}
+
 		if err := o.Subscription.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("updateAlertSubscriptionOK" + "." + "subscription")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("updateAlertSubscriptionOK" + "." + "subscription")
 			}
 			return err
 		}

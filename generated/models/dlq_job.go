@@ -23,8 +23,8 @@ type DlqJob struct {
 	// batch size
 	BatchSize int64 `json:"batch_size,omitempty"`
 
-	// blob batch
-	BlobBatch int64 `json:"blob_batch,omitempty"`
+	// container image
+	ContainerImage string `json:"container_image,omitempty"`
 
 	// created at
 	// Format: date-time
@@ -37,14 +37,32 @@ type DlqJob struct {
 	// Example: 2012-10-30
 	Date string `json:"date,omitempty"`
 
+	// dlq gcs credential path
+	DlqGcsCredentialPath string `json:"dlq_gcs_credential_path,omitempty"`
+
+	// env vars
+	EnvVars map[string]string `json:"env_vars,omitempty"`
+
 	// List of firehose error types, comma separated
 	ErrorTypes string `json:"error_types,omitempty"`
+
+	// group
+	Group string `json:"group,omitempty"`
+
+	// kube cluster
+	KubeCluster string `json:"kube_cluster,omitempty"`
+
+	// namespace
+	Namespace string `json:"namespace,omitempty"`
 
 	// num threads
 	NumThreads int64 `json:"num_threads,omitempty"`
 
 	// Shield's project slug
 	Project string `json:"project,omitempty"`
+
+	// prometheus host
+	PrometheusHost string `json:"prometheus_host,omitempty"`
 
 	// replicas
 	Replicas int64 `json:"replicas,omitempty"`
@@ -59,9 +77,6 @@ type DlqJob struct {
 	// status
 	// Enum: [pending error running stopped]
 	Status string `json:"status,omitempty"`
-
-	// stopped
-	Stopped bool `json:"stopped,omitempty"`
 
 	// topic
 	Topic string `json:"topic,omitempty"`

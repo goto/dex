@@ -42,7 +42,7 @@ func (o *GetFirehoseHistoryReader) ReadResponse(response runtime.ClientResponse,
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /dex/firehoses/{firehoseUrn}/history] getFirehoseHistory", response, response.Code())
 	}
 }
 
@@ -52,7 +52,7 @@ func NewGetFirehoseHistoryOK() *GetFirehoseHistoryOK {
 }
 
 /*
-	GetFirehoseHistoryOK describes a response with status code 200, with default header values.
+GetFirehoseHistoryOK describes a response with status code 200, with default header values.
 
 History for given firehose URN.
 */
@@ -60,9 +60,44 @@ type GetFirehoseHistoryOK struct {
 	Payload *models.HistoryResponse
 }
 
+// IsSuccess returns true when this get firehose history o k response has a 2xx status code
+func (o *GetFirehoseHistoryOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get firehose history o k response has a 3xx status code
+func (o *GetFirehoseHistoryOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get firehose history o k response has a 4xx status code
+func (o *GetFirehoseHistoryOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get firehose history o k response has a 5xx status code
+func (o *GetFirehoseHistoryOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get firehose history o k response a status code equal to that given
+func (o *GetFirehoseHistoryOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get firehose history o k response
+func (o *GetFirehoseHistoryOK) Code() int {
+	return 200
+}
+
 func (o *GetFirehoseHistoryOK) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryOK  %+v", 200, o.Payload)
 }
+
+func (o *GetFirehoseHistoryOK) String() string {
+	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryOK  %+v", 200, o.Payload)
+}
+
 func (o *GetFirehoseHistoryOK) GetPayload() *models.HistoryResponse {
 	return o.Payload
 }
@@ -85,7 +120,7 @@ func NewGetFirehoseHistoryNotFound() *GetFirehoseHistoryNotFound {
 }
 
 /*
-	GetFirehoseHistoryNotFound describes a response with status code 404, with default header values.
+GetFirehoseHistoryNotFound describes a response with status code 404, with default header values.
 
 Firehose with given URN was not found
 */
@@ -93,9 +128,44 @@ type GetFirehoseHistoryNotFound struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get firehose history not found response has a 2xx status code
+func (o *GetFirehoseHistoryNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get firehose history not found response has a 3xx status code
+func (o *GetFirehoseHistoryNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get firehose history not found response has a 4xx status code
+func (o *GetFirehoseHistoryNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get firehose history not found response has a 5xx status code
+func (o *GetFirehoseHistoryNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get firehose history not found response a status code equal to that given
+func (o *GetFirehoseHistoryNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the get firehose history not found response
+func (o *GetFirehoseHistoryNotFound) Code() int {
+	return 404
+}
+
 func (o *GetFirehoseHistoryNotFound) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryNotFound  %+v", 404, o.Payload)
 }
+
+func (o *GetFirehoseHistoryNotFound) String() string {
+	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryNotFound  %+v", 404, o.Payload)
+}
+
 func (o *GetFirehoseHistoryNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -118,7 +188,7 @@ func NewGetFirehoseHistoryInternalServerError() *GetFirehoseHistoryInternalServe
 }
 
 /*
-	GetFirehoseHistoryInternalServerError describes a response with status code 500, with default header values.
+GetFirehoseHistoryInternalServerError describes a response with status code 500, with default header values.
 
 internal error
 */
@@ -126,9 +196,44 @@ type GetFirehoseHistoryInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
+// IsSuccess returns true when this get firehose history internal server error response has a 2xx status code
+func (o *GetFirehoseHistoryInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get firehose history internal server error response has a 3xx status code
+func (o *GetFirehoseHistoryInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get firehose history internal server error response has a 4xx status code
+func (o *GetFirehoseHistoryInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get firehose history internal server error response has a 5xx status code
+func (o *GetFirehoseHistoryInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get firehose history internal server error response a status code equal to that given
+func (o *GetFirehoseHistoryInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get firehose history internal server error response
+func (o *GetFirehoseHistoryInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetFirehoseHistoryInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetFirehoseHistoryInternalServerError) String() string {
+	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/history][%d] getFirehoseHistoryInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetFirehoseHistoryInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
