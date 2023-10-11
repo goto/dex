@@ -23,6 +23,11 @@ type serverConfig struct {
 	Compass     compassConfig    `mapstructure:"compass"`
 	Optimus     optimusConfig    `mapstructure:"optimus"`
 	StencilAddr string           `mapstructure:"stencil_addr"`
+	Warden      wardenConfig     `mapstructure:"warden"`
+}
+
+type wardenConfig struct {
+	Addr string `mapstructure:"addr"`
 }
 
 type odinConfig struct {

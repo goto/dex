@@ -113,5 +113,6 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
+		cfg.Warden.Addr,
 	)
 }

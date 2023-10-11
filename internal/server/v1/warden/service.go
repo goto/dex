@@ -13,23 +13,21 @@ import (
 
 //go:generate mockery --with-expecter --keeptree --case snake --name Doer
 
-const (
-	baseURL = "https://go-cloud.golabs.io"
-)
-
 type Service struct {
 	shieldClient shieldv1beta1rpc.ShieldServiceClient
 	doer         HTTPClient
+	wardenAddr   string
 }
 
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HTTPClient) *Service {
+func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HTTPClient, wardenAddr string) *Service {
 	return &Service{
 		shieldClient: shieldClient,
 		doer:         doer,
+		wardenAddr:   wardenAddr,
 	}
 }
 
@@ -38,7 +36,7 @@ func (c *Service) TeamList(ctx context.Context, userEmail string) (*TeamData, er
 	userPath := "/users/"
 	teamsEndpoint := "/teams"
 
-	url := baseURL + endpoint + userPath + userEmail + teamsEndpoint
+	url := c.wardenAddr + endpoint + userPath + userEmail + teamsEndpoint
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -112,7 +110,7 @@ func (c *Service) TeamByUUID(ctx context.Context, teamByUUID string) (*Team, err
 	endpoint := "/api/v2"
 	teamPath := "/teams/"
 
-	url := baseURL + endpoint + teamPath + teamByUUID
+	url := c.wardenAddr + endpoint + teamPath + teamByUUID
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
