@@ -1,4 +1,4 @@
-package warden_test
+package iam_test
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/goto/dex/internal/server/reqctx"
-	"github.com/goto/dex/internal/server/v1/warden"
+	"github.com/goto/dex/internal/server/v1/iam"
 	"github.com/goto/dex/internal/server/v1/warden/mocks"
 	shareMocks "github.com/goto/dex/mocks"
 )
@@ -71,7 +71,7 @@ func TestHandler_teamList(t *testing.T) {
 		req.Header.Add("X-Auth-Email", "test@email.com")
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(nil, nil)(router)
+		iam.Routes(nil, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusOK, resp.Code)
@@ -112,7 +112,7 @@ func TestHandler_teamList(t *testing.T) {
 		req.Header.Add("X-Auth-Email", "test@email.com")
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, nil)(router)
+		iam.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusNotFound, resp.Code)
@@ -127,7 +127,7 @@ func TestHandler_teamList(t *testing.T) {
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, nil)(router)
+		iam.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusUnauthorized, resp.Code)
@@ -198,7 +198,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, nil)(router)
+		iam.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusOK, resp.Code)
@@ -235,7 +235,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, nil)(router)
+		iam.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
@@ -250,7 +250,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, nil)(router)
+		iam.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusBadRequest, resp.Code)

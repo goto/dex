@@ -1,4 +1,4 @@
-package warden
+package iam
 
 import (
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"

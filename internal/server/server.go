@@ -21,10 +21,10 @@ import (
 	alertsv1 "github.com/goto/dex/internal/server/v1/alert"
 	dlqv1 "github.com/goto/dex/internal/server/v1/dlq"
 	firehosev1 "github.com/goto/dex/internal/server/v1/firehose"
+	iamv1 "github.com/goto/dex/internal/server/v1/iam"
 	kubernetesv1 "github.com/goto/dex/internal/server/v1/kubernetes"
 	optimusv1 "github.com/goto/dex/internal/server/v1/optimus"
 	projectsv1 "github.com/goto/dex/internal/server/v1/project"
-	wardenV1 "github.com/goto/dex/internal/server/v1/warden"
 	"github.com/goto/dex/warden"
 )
 
@@ -69,7 +69,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
-		r.Route("/warden", wardenV1.Routes(shieldClient, wardenClient))
+		r.Route("/iam", iamv1.Routes(shieldClient, wardenClient))
 	})
 
 	logger.Info("starting server", zap.String("addr", addr))
