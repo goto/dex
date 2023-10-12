@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/goto/dex/entropy"
+	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/firehose"
@@ -61,34 +62,24 @@ func (*Handler) listDlqJobs(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
-type dlqJobReqBody struct {
-	ErrorTypes string `json:"error_types,omitempty"`
-	BatchSize  int64  `json:"batch_size,omitempty"`
-	BlobBatch  int64  `json:"blob_batch,omitempty"`
-	NumThreads int64  `json:"num_threads,omitempty"`
-	Topic      string `json:"topic,omitempty"`
-}
-
 func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
+	// transform request body into DlqJob (validation?)
 	ctx := r.Context()
-	var def dlqJobReqBody
+	var dlqJob models.DlqJob
 
-	if err := utils.ReadJSON(r, &def); err != nil {
+	if err := utils.ReadJSON(r, &dlqJob); err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 
-	dlq_job, err := h.service.mapDlqJob(def, ctx)
+	// call service.CreateDLQJob
+	resp, err := h.service.CreateDLQJob(ctx, &dlqJob)
 	if err != nil {
-		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"error": err,
-		})
+		utils.WriteErr(w, err)
 		return
 	}
-
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_job": dlq_job,
-	})
+	// return
+	utils.WriteJSON(w, http.StatusOK, resp)
 }
 
 func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {

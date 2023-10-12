@@ -20,7 +20,7 @@ const (
 	dlqTelegrafConfigName    = "dlq-processor-telegraf"
 )
 
-func EnrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobConfig) error {
+func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobConfig) error {
 	var kubeCluster string
 	for _, dep := range res.Spec.GetDependencies() {
 		if dep.GetKey() == kubeClusterDependenciesKey {
@@ -88,7 +88,7 @@ func EnrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobC
 }
 
 // DlqJob param here is expected to have been enriched with firehose config
-func MapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
+func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(job)
 	if err != nil {
 		return nil, err
