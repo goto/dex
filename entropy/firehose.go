@@ -2,7 +2,7 @@ package entropy
 
 import "time"
 
-type Config struct {
+type FirehoseConfig struct {
 	// Stopped flag when set forces the firehose to be stopped on next sync.
 	Stopped bool `json:"stopped"`
 
@@ -27,19 +27,14 @@ type Config struct {
 	// ResetOffset represents the value to which kafka consumer offset was set to
 	ResetOffset string `json:"reset_offset,omitempty"`
 
-	Limits        UsageSpec     `json:"limits,omitempty"`
-	Requests      UsageSpec     `json:"requests,omitempty"`
-	Telegraf      *Telegraf     `json:"telegraf,omitempty"`
-	ChartValues   *ChartValues  `json:"chart_values,omitempty"`
-	InitContainer InitContainer `json:"init_container,omitempty"`
+	Limits        UsageSpec             `json:"limits,omitempty"`
+	Requests      UsageSpec             `json:"requests,omitempty"`
+	Telegraf      *FirehoseTelegraf     `json:"telegraf,omitempty"`
+	ChartValues   *FirehoseChartValues  `json:"chart_values,omitempty"`
+	InitContainer FirehoseInitContainer `json:"init_container,omitempty"`
 }
 
-type UsageSpec struct {
-	CPU    string `json:"cpu,omitempty" validate:"required"`
-	Memory string `json:"memory,omitempty" validate:"required"`
-}
-
-type InitContainer struct {
+type FirehoseInitContainer struct {
 	Enabled bool `json:"enabled"`
 
 	Args    []string `json:"args"`
@@ -50,31 +45,31 @@ type InitContainer struct {
 	PullPolicy string `json:"pull_policy"`
 }
 
-type Telegraf struct {
-	Enabled bool           `json:"enabled,omitempty"`
-	Image   map[string]any `json:"image,omitempty"`
-	Config  TelegrafConf   `json:"config,omitempty"`
+type FirehoseTelegraf struct {
+	Enabled bool                 `json:"enabled,omitempty"`
+	Image   map[string]any       `json:"image,omitempty"`
+	Config  FirehoseTelegrafConf `json:"config,omitempty"`
 }
 
-type TelegrafConf struct {
+type FirehoseTelegrafConf struct {
 	Output               map[string]any    `json:"output"`
 	AdditionalGlobalTags map[string]string `json:"additional_global_tags"`
 }
 
-type ChartValues struct {
+type FirehoseChartValues struct {
 	ImageTag        string `json:"image_tag" validate:"required"`
 	ChartVersion    string `json:"chart_version" validate:"required"`
 	ImagePullPolicy string `json:"image_pull_policy" validate:"required"`
 }
 
-type ScaleParams struct {
+type FirehoseScaleParams struct {
 	Replicas int `json:"replicas"`
 }
 
-type StartParams struct {
+type FirehoseStartParams struct {
 	StopTime *time.Time `json:"stop_time"`
 }
 
-type ResetParams struct {
+type FirehoseResetParams struct {
 	To string `json:"to"`
 }

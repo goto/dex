@@ -26,7 +26,7 @@ const (
 )
 
 func (api *firehoseAPI) handleReset(w http.ResponseWriter, r *http.Request) {
-	var reqBody entropy.ResetParams
+	var reqBody entropy.FirehoseResetParams
 	if err := utils.ReadJSON(r, &reqBody); err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -64,7 +64,7 @@ func (api *firehoseAPI) handleScale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := entropy.ScaleParams{
+	params := entropy.FirehoseScaleParams{
 		Replicas: reqBody.Replicas,
 	}
 	updatedFirehose, err := api.executeAction(r.Context(), existingFirehose, actionScale, params)
@@ -84,7 +84,7 @@ func (api *firehoseAPI) handleStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := entropy.StartParams{}
+	params := entropy.FirehoseStartParams{}
 	// for LOG sinkType, updating stop_time
 	if existingFirehose.Configs.EnvVars[configSinkType] == logSinkType {
 		t := time.Now().UTC().Add(logSinkTTL)

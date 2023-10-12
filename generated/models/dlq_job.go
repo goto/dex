@@ -23,8 +23,8 @@ type DlqJob struct {
 	// batch size
 	BatchSize int64 `json:"batch_size,omitempty"`
 
-	// blob batch
-	BlobBatch int64 `json:"blob_batch,omitempty"`
+	// container image
+	ContainerImage string `json:"container_image,omitempty"`
 
 	// created at
 	// Format: date-time
@@ -37,8 +37,23 @@ type DlqJob struct {
 	// Example: 2012-10-30
 	Date string `json:"date,omitempty"`
 
+	// dlq gcs credential path
+	DlqGcsCredentialPath string `json:"dlq_gcs_credential_path,omitempty"`
+
+	// env vars
+	EnvVars map[string]string `json:"env_vars,omitempty"`
+
 	// List of firehose error types, comma separated
 	ErrorTypes string `json:"error_types,omitempty"`
+
+	// group
+	Group string `json:"group,omitempty"`
+
+	// kube cluster
+	KubeCluster string `json:"kube_cluster,omitempty"`
+
+	// namespace
+	Namespace string `json:"namespace,omitempty"`
 
 	// num threads
 	NumThreads int64 `json:"num_threads,omitempty"`
@@ -46,11 +61,18 @@ type DlqJob struct {
 	// Shield's project slug
 	Project string `json:"project,omitempty"`
 
+	// prometheus host
+	PrometheusHost string `json:"prometheus_host,omitempty"`
+
+	// replicas
+	Replicas int64 `json:"replicas,omitempty"`
+
 	// resource id
 	ResourceID string `json:"resource_id,omitempty"`
 
 	// resource type
-	ResourceType *string `json:"resource_type,omitempty"`
+	// Enum: [firehose]
+	ResourceType string `json:"resource_type,omitempty"`
 
 	// status
 	// Enum: [pending error running stopped]
@@ -78,6 +100,10 @@ func (m *DlqJob) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateResourceType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -98,6 +124,45 @@ func (m *DlqJob) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var dlqJobTypeResourceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["firehose"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		dlqJobTypeResourceTypePropEnum = append(dlqJobTypeResourceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// DlqJobResourceTypeFirehose captures enum value "firehose"
+	DlqJobResourceTypeFirehose string = "firehose"
+)
+
+// prop value enum
+func (m *DlqJob) validateResourceTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, dlqJobTypeResourceTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *DlqJob) validateResourceType(formats strfmt.Registry) error {
+	if swag.IsZero(m.ResourceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateResourceTypeEnum("resource_type", "body", m.ResourceType); err != nil {
 		return err
 	}
 

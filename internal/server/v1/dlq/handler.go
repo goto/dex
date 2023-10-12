@@ -29,7 +29,7 @@ func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	conf := &entropy.Config{}
+	conf := &entropy.FirehoseConfig{}
 	err = utils.ProtoStructToGoVal(resp.GetResource().GetSpec().GetConfigs(), conf)
 	if err != nil {
 		utils.WriteErr(w, err)
@@ -85,6 +85,7 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"dlq_job": dlq_job,
 	})

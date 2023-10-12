@@ -1295,6 +1295,8 @@ definitions:
       date:
         type: string
         example: "2012-10-30"
+      replicas:
+        type: integer
       status:
         type: string
         enum:
@@ -1308,15 +1310,14 @@ definitions:
         type: string
       resource_type:
         type: string
-        default: firehose
+        enum:
+          - firehose
       error_types:
         type: string
         description: "List of firehose error types, comma separated"
       batch_size:
         type: integer
       num_threads:
-        type: integer
-      blob_batch:
         type: integer
       created_by:
         type: string
@@ -1328,6 +1329,22 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      env_vars:
+        type: object
+        additionalProperties:
+          type: string
+      group:
+        type: string
+      kube_cluster:
+        type: string
+      namespace:
+        type: string
+      container_image:
+        type: string
+      prometheus_host:
+        type: string
+      dlq_gcs_credential_path:
+        type: string
   Subscription:
     type: object
     description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"
