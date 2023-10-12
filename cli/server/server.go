@@ -19,6 +19,7 @@ import (
 	"github.com/goto/dex/internal/server/gcs"
 	"github.com/goto/dex/pkg/logger"
 	"github.com/goto/dex/pkg/telemetry"
+	"github.com/goto/dex/warden"
 )
 
 func Commands() *cobra.Command {
@@ -104,6 +105,9 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 	if err != nil {
 		return err
 	}
+
+	wardenClient := warden.NewClient(cfg.Warden.Addr)
+
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,
 		shieldv1beta1.NewShieldServiceClient(shieldConn),
 		entropyv1beta1.NewResourceServiceClient(entropyConn),
@@ -113,6 +117,6 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
-		cfg.Warden.Addr,
+		wardenClient,
 	)
 }

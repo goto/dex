@@ -71,7 +71,7 @@ func TestHandler_teamList(t *testing.T) {
 		req.Header.Add("X-Auth-Email", "test@email.com")
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(nil, doer, "")(router)
+		warden.Routes(nil, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusOK, resp.Code)
@@ -112,7 +112,7 @@ func TestHandler_teamList(t *testing.T) {
 		req.Header.Add("X-Auth-Email", "test@email.com")
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, doer, "")(router)
+		warden.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusNotFound, resp.Code)
@@ -120,14 +120,14 @@ func TestHandler_teamList(t *testing.T) {
 
 	t.Run("should return Unauthorized when X-Auth-Email is not present is header", func(t *testing.T) {
 		shieldClient := shareMocks.NewShieldServiceClient(t)
-		doer := mocks.NewDoer(t)
+		// doer := mocks.NewDoer(t)
 
 		resp := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/users/me/warden_teams", nil)
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, doer, "")(router)
+		warden.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusUnauthorized, resp.Code)
@@ -198,7 +198,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, doer, "")(router)
+		warden.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusOK, resp.Code)
@@ -235,7 +235,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, doer, "")(router)
+		warden.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
@@ -243,14 +243,14 @@ func TestHandler_updateGroup(t *testing.T) {
 
 	t.Run("should return error when warden_team_id is empty string", func(t *testing.T) {
 		shieldClient := shareMocks.NewShieldServiceClient(t)
-		doer := mocks.NewDoer(t)
+		// doer := mocks.NewDoer(t)
 
 		resp := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": ""}`))
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
-		warden.Routes(shieldClient, doer, "")(router)
+		warden.Routes(shieldClient, nil)(router)
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusBadRequest, resp.Code)

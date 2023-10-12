@@ -2,64 +2,26 @@ package warden
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
-	"time"
 
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"google.golang.org/protobuf/types/known/structpb"
+
+	"github.com/goto/dex/warden"
 )
 
 //go:generate mockery --with-expecter --keeptree --case snake --name Doer
 
 type Service struct {
 	shieldClient shieldv1beta1rpc.ShieldServiceClient
-	doer         HTTPClient
-	wardenAddr   string
+	wardenClient *warden.Client
 }
 
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
-func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, doer HTTPClient, wardenAddr string) *Service {
+func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, wardenClient *warden.Client) *Service {
 	return &Service{
 		shieldClient: shieldClient,
-		doer:         doer,
-		wardenAddr:   wardenAddr,
+		wardenClient: wardenClient,
 	}
-}
-
-func (c *Service) TeamList(ctx context.Context, userEmail string) (*TeamData, error) {
-	endpoint := "/api/v1"
-	userPath := "/users/"
-	teamsEndpoint := "/teams"
-
-	url := c.wardenAddr + endpoint + userPath + userEmail + teamsEndpoint
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.doer.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var data TeamListResponse
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.Success {
-		return &data.Data, nil
-	}
-
-	return nil, ErrEmailNotOnWarden
 }
 
 func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID string) (map[string]any, error) {
@@ -82,8 +44,8 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 		metaData = make(map[string]any)
 	}
 
-	metaData["team-id"] = wardenTeam.Identifier
-	metaData["product-group-id"] = wardenTeam.ProductGroupID
+	metaData["team-id"] = wardenTeam.Data.Identifier
+	metaData["product-group-id"] = wardenTeam.Data.ProductGroupID
 
 	updatedMetaData, err := structpb.NewStruct(metaData)
 	if err != nil {
@@ -106,60 +68,27 @@ func (c *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID
 	return UpdatedGroupRes.Group.Metadata.AsMap(), nil
 }
 
-func (c *Service) TeamByUUID(ctx context.Context, teamByUUID string) (*Team, error) {
-	endpoint := "/api/v2"
-	teamPath := "/teams/"
-
-	url := c.wardenAddr + endpoint + teamPath + teamByUUID
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+func (svc *Service) TeamList(ctx context.Context, userEmail string) ([]warden.Team, error) {
+	teams, err := svc.wardenClient.ListUserTeams(ctx, warden.TeamListRequest{
+		Email: userEmail,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.doer.Do(req)
+	return teams, nil
+}
+
+func (svc *Service) TeamByUUID(ctx context.Context, teamByUUID string) (*warden.TeamResponse, error) {
+	team, err := svc.wardenClient.WardenTeamByUUID(ctx, warden.TeamByUUIDRequest{
+		TeamUUID: teamByUUID,
+	})
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	var data TeamResponse
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.Success {
-		return &data.Data, nil
-	}
-
-	return nil, ErrEmailNotOnWarden
-}
-
-type TeamResponse struct {
-	Success bool   `json:"success"`
-	Data    Team   `json:"data"`
-	Message string `json:"message"`
-}
-
-type TeamListResponse struct {
-	Success bool     `json:"success"`
-	Data    TeamData `json:"data"`
-}
-
-type TeamData struct {
-	Teams []Team `json:"teams"`
-}
-
-type Team struct {
-	Name                 string    `json:"name"`
-	CreatedAt            time.Time `json:"created_at"`
-	UpdatedAt            time.Time `json:"updated_at"`
-	OwnerID              int       `json:"owner_id"`
-	ParentTeamIdentifier string    `json:"parent_team_identifier"`
-	Identifier           string    `json:"identifier"`
-	ProductGroupName     string    `json:"product_group_name"`
-	ProductGroupID       string    `json:"product_group_id"`
-	Labels               any       `json:"labels"`
-	ShortCode            string    `json:"short_code"`
+	return &warden.TeamResponse{
+		Success: true,
+		Data:    *team,
+	}, nil
 }

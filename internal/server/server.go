@@ -24,7 +24,8 @@ import (
 	kubernetesv1 "github.com/goto/dex/internal/server/v1/kubernetes"
 	optimusv1 "github.com/goto/dex/internal/server/v1/optimus"
 	projectsv1 "github.com/goto/dex/internal/server/v1/project"
-	warden "github.com/goto/dex/internal/server/v1/warden"
+	wardenV1 "github.com/goto/dex/internal/server/v1/warden"
+	"github.com/goto/dex/warden"
 )
 
 // Serve initialises all the HTTP API routes, starts listening for requests at addr, and blocks until
@@ -39,7 +40,7 @@ func Serve(ctx context.Context, addr string,
 	gcsClient gcs.BlobStorageClient,
 	odinAddr string,
 	stencilAddr string,
-	wardenAddr string,
+	wardenClient *warden.Client,
 ) error {
 	alertSvc := alertsv1.NewService(sirenClient)
 
@@ -68,7 +69,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
-		r.Route("/warden", warden.Routes(shieldClient, http.DefaultClient, wardenAddr))
+		r.Route("/warden", wardenV1.Routes(shieldClient, wardenClient))
 	})
 
 	logger.Info("starting server", zap.String("addr", addr))
