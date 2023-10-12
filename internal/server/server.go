@@ -7,7 +7,6 @@ import (
 
 	"buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
-	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	"github.com/go-chi/chi/v5"
@@ -31,16 +30,16 @@ import (
 func Serve(ctx context.Context, addr string,
 	nrApp *newrelic.Application, logger *zap.Logger,
 	shieldClient shieldv1beta1.ShieldServiceClient,
+	optimusClient optimusv1.OptimusClientBuilder,
 	entropyClient entropyv1beta1.ResourceServiceClient,
 	sirenClient sirenv1beta1.SirenServiceClient,
 	compassClient compassv1beta1grpc.CompassServiceClient,
-	optimusClient optimusv1beta1.JobSpecificationServiceClient,
 	gcsClient gcs.BlobStorageClient,
 	odinAddr string,
 	stencilAddr string,
 	dlqConfig *dlqv1.DlqJobConfig,
 ) error {
-	alertSvc := &alertsv1.Service{Siren: sirenClient}
+	alertSvc := alertsv1.NewService(sirenClient)
 
 	router := chi.NewRouter()
 	curRoute := currentRouteGetter(router)
@@ -61,7 +60,8 @@ func Serve(ctx context.Context, addr string,
 	router.Route("/dex", func(r chi.Router) {
 		r.Get("/alertTemplates", alertSvc.HandleListTemplates())
 		r.Route("/subscriptions", alertsv1.SubscriptionRoutes(sirenClient, shieldClient))
-		r.Route("/optimus", optimusv1.Routes(optimusClient))
+		r.Route("/alerts", alertsv1.AlertRoutes(sirenClient, shieldClient))
+		r.Route("/optimus", optimusv1.Routes(shieldClient, optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
 		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient, dlqConfig))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))

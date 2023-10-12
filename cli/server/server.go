@@ -5,7 +5,6 @@ import (
 
 	"buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/compass/v1beta1/compassv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
-	optimusv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/optimus/core/v1beta1/corev1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	sirenv1beta1 "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/siren/v1beta1/sirenv1beta1grpc"
 	"github.com/MakeNowJust/heredoc"
@@ -17,7 +16,8 @@ import (
 
 	"github.com/goto/dex/internal/server"
 	"github.com/goto/dex/internal/server/gcs"
-	dlqv1 "github.com/goto/dex/internal/server/v1/dlq"
+	"github.com/goto/dex/internal/server/v1/dlq"
+	"github.com/goto/dex/internal/server/v1/optimus"
 	"github.com/goto/dex/pkg/logger"
 	"github.com/goto/dex/pkg/telemetry"
 )
@@ -97,16 +97,12 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		return err
 	}
 
-	optimusConn, err := grpc.Dial(cfg.Optimus.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return err
-	}
 	gcsClient, err := gcs.NewClient(cfg.Service.GCSKeyFilePath)
 	if err != nil {
 		return err
 	}
 
-	dlqConfig := &dlqv1.DlqJobConfig{
+	dlqConfig := &dlq.DlqJobConfig{
 		// TODO: map cfg.Dlq\
 		DlqJobImage:    cfg.Dlq.DlqJobImage,
 		PrometheusHost: cfg.Dlq.PrometheusHost,
@@ -114,10 +110,10 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,
 		shieldv1beta1.NewShieldServiceClient(shieldConn),
+		&optimus.ClientBuilder{},
 		entropyv1beta1.NewResourceServiceClient(entropyConn),
 		sirenv1beta1.NewSirenServiceClient(sirenConn),
 		compassv1beta1grpc.NewCompassServiceClient(compassConn),
-		optimusv1beta1.NewJobSpecificationServiceClient(optimusConn),
 		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,

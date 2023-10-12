@@ -23,7 +23,13 @@ const (
 var sirenTemplateVariables = []string{"WARN_THRESHOLD", "CRIT_THRESHOLD"}
 
 type Service struct {
-	Siren sirenv1beta1grpc.SirenServiceClient
+	sirenClient sirenv1beta1grpc.SirenServiceClient
+}
+
+func NewService(siren sirenv1beta1grpc.SirenServiceClient) *Service {
+	return &Service{
+		sirenClient: siren,
+	}
 }
 
 func (svc *Service) HandleListTemplates() http.HandlerFunc {
@@ -60,7 +66,7 @@ func (svc *Service) UpsertAlertPolicy(ctx context.Context, projectSlug string, u
 		disableRuleRequests := mapAlertPolicyToUpdateRulesRequest(*alertPolicy, ns.ID)
 		for _, request := range disableRuleRequests {
 			request.Enabled = false
-			_, err := svc.Siren.UpdateRule(ctx, request)
+			_, err := svc.sirenClient.UpdateRule(ctx, request)
 			if err != nil {
 				return nil, err
 			}
@@ -69,7 +75,7 @@ func (svc *Service) UpsertAlertPolicy(ctx context.Context, projectSlug string, u
 
 	updateRuleRequests := mapAlertPolicyToUpdateRulesRequest(update, ns.ID)
 	for _, request := range updateRuleRequests {
-		_, err := svc.Siren.UpdateRule(ctx, request)
+		_, err := svc.sirenClient.UpdateRule(ctx, request)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +148,7 @@ func (svc *Service) ListAlerts(ctx context.Context, projectSlug, resource string
 		return nil, err
 	}
 
-	alertsResp, err := svc.Siren.ListAlerts(ctx, &sirenv1beta1.ListAlertsRequest{
+	alertsResp, err := svc.sirenClient.ListAlerts(ctx, &sirenv1beta1.ListAlertsRequest{
 		ProviderType: alertProviderName,
 		ProviderId:   ns.Provider,
 		ResourceName: resource,
@@ -155,7 +161,7 @@ func (svc *Service) ListAlerts(ctx context.Context, projectSlug, resource string
 }
 
 func (svc *Service) ListAlertTemplates(ctx context.Context, tag string) ([]Template, error) {
-	templatesResp, err := svc.Siren.ListTemplates(ctx, &sirenv1beta1.ListTemplatesRequest{
+	templatesResp, err := svc.sirenClient.ListTemplates(ctx, &sirenv1beta1.ListTemplatesRequest{
 		Tag: tag,
 	})
 	if err != nil {
@@ -166,7 +172,7 @@ func (svc *Service) ListAlertTemplates(ctx context.Context, tag string) ([]Templ
 }
 
 func (svc *Service) GetAlertTemplate(ctx context.Context, urn string) (*Template, error) {
-	templateResp, err := svc.Siren.GetTemplate(ctx, &sirenv1beta1.GetTemplateRequest{
+	templateResp, err := svc.sirenClient.GetTemplate(ctx, &sirenv1beta1.GetTemplateRequest{
 		Name: urn,
 	})
 	if err != nil {
@@ -189,7 +195,7 @@ func (svc *Service) getAlertPolicyForResource(ctx context.Context, providerNames
 		ProviderNamespace: providerNamespace,
 	}
 
-	rpcResp, err := svc.Siren.ListRules(ctx, rpcReq)
+	rpcResp, err := svc.sirenClient.ListRules(ctx, rpcReq)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +217,7 @@ func (svc *Service) getAlertPolicyForResource(ctx context.Context, providerNames
 }
 
 func (svc *Service) getNamespaceForProject(ctx context.Context, projectSlug string) (*namespace, error) {
-	listNamespacesResponse, err := svc.Siren.ListNamespaces(ctx, &sirenv1beta1.ListNamespacesRequest{})
+	listNamespacesResponse, err := svc.sirenClient.ListNamespaces(ctx, &sirenv1beta1.ListNamespacesRequest{})
 	if err != nil {
 		return nil, err
 	}

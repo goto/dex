@@ -17,11 +17,13 @@ import (
 
 type Handler struct {
 	subscriptionService *SubscriptionService
+	alertService        *Service
 }
 
-func NewHandler(subscriptionService *SubscriptionService) *Handler {
+func NewHandler(subscriptionService *SubscriptionService, alertService *Service) *Handler {
 	return &Handler{
 		subscriptionService: subscriptionService,
+		alertService:        alertService,
 	}
 }
 
@@ -286,4 +288,42 @@ func (h *Handler) setAlertChannels(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"alert_channels": alertChannels,
 	})
+}
+
+func (h *Handler) getAlerts(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	projectSlug := chi.URLParam(r, "project_slug")
+	resourceUrn := chi.URLParam(r, "resource_urn")
+
+	alerts, err := h.alertService.ListAlerts(ctx, projectSlug, resourceUrn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK,
+		utils.ListResponse[Alert]{Items: alerts})
+}
+
+func (h *Handler) getAlertPolicy(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	projectSlug := chi.URLParam(r, "project_slug")
+	resourceUrn := chi.URLParam(r, "resource_urn")
+
+	templates, exists := r.URL.Query()["template"]
+	if !exists || len(templates) == 0 || templates[0] == "" {
+		utils.WriteErrMsg(w, http.StatusBadRequest, "template is required in querystring, possible values \"?template=firehose\"")
+		return
+	}
+	template := templates[0]
+
+	policy, err := h.alertService.GetAlertPolicy(ctx, projectSlug, resourceUrn, template)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	policy.Rules = RemoveSuppliedVariablesFromRules(policy.Rules, SuppliedVariables)
+
+	utils.WriteJSON(w, http.StatusOK, policy)
 }

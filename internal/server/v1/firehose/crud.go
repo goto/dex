@@ -12,6 +12,7 @@ import (
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-openapi/strfmt"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -78,7 +79,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	def.Project = prj.GetSlug()
 
-	err = api.buildEnvVars(r.Context(), &def, reqCtx.UserID, true)
+	err = api.buildEnvVars(r.Context(), &def, reqCtx.UserID, false)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return
@@ -171,7 +172,8 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 		Labels:  labelFilter,
 	}
 
-	rpcResp, err := api.Entropy.ListResources(r.Context(), rpcReq)
+	maxBytes := 20000000 // 2,000,000 bytes
+	rpcResp, err := api.Entropy.ListResources(r.Context(), rpcReq, grpc.MaxCallRecvMsgSize(maxBytes))
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -269,7 +271,7 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		labels[labelDescription] = existingFirehose.Description
 	}
 
-	err = api.buildEnvVars(r.Context(), &existingFirehose, reqCtx.UserID, true)
+	err = api.buildEnvVars(r.Context(), &existingFirehose, reqCtx.UserID, false)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return
@@ -385,7 +387,8 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 	)
 
 	_, hasTopicUpdate := req.Configs.EnvVars[configSourceKafkaTopic]
-	err = api.buildEnvVars(r.Context(), &existing, reqCtx.UserID, hasTopicUpdate)
+	skipStencil := !hasTopicUpdate
+	err = api.buildEnvVars(r.Context(), &existing, reqCtx.UserID, skipStencil)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return
