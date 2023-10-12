@@ -30,7 +30,6 @@ func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, builder Optim
 
 func (svc *Service) FindJobSpec(ctx context.Context, jobName, projectSlug string) (*optimusv1beta1.JobSpecificationResponse, error) {
 	optimusCl, err := svc.getOptimusClient(ctx, projectSlug)
-
 	if err != nil {
 		return nil, fmt.Errorf("error getting optimus host: %w", err)
 	}

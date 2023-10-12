@@ -37,6 +37,7 @@ func Serve(ctx context.Context, addr string,
 	gcsClient gcs.BlobStorageClient,
 	odinAddr string,
 	stencilAddr string,
+	dlqConfig *dlqv1.DlqJobConfig,
 ) error {
 	alertSvc := alertsv1.NewService(sirenClient)
 
@@ -62,7 +63,7 @@ func Serve(ctx context.Context, addr string,
 		r.Route("/alerts", alertsv1.AlertRoutes(sirenClient, shieldClient))
 		r.Route("/optimus", optimusv1.Routes(shieldClient, optimusClient))
 		r.Route("/projects", projectsv1.Routes(shieldClient))
-		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient))
+		r.Route("/dlq", dlqv1.Routes(entropyClient, gcsClient, dlqConfig))
 		r.Route("/firehoses", firehosev1.Routes(entropyClient, shieldClient, alertSvc, compassClient, odinAddr, stencilAddr))
 		r.Route("/kubernetes", kubernetesv1.Routes(entropyClient))
 	})

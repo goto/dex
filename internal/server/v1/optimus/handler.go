@@ -22,7 +22,6 @@ func (h *Handler) findJob(w http.ResponseWriter, r *http.Request) {
 	projectSlug := chi.URLParam(r, "project_slug")
 
 	jobSpecResp, err := h.service.FindJobSpec(r.Context(), jobName, projectSlug)
-
 	if err != nil {
 		if errors.Is(err, ErrOptimusHostNotFound) {
 			utils.WriteErrMsg(w, http.StatusNotFound, ErrOptimusHostNotFound.Error())

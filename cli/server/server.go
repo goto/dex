@@ -16,6 +16,7 @@ import (
 
 	"github.com/goto/dex/internal/server"
 	"github.com/goto/dex/internal/server/gcs"
+	"github.com/goto/dex/internal/server/v1/dlq"
 	"github.com/goto/dex/internal/server/v1/optimus"
 	"github.com/goto/dex/pkg/logger"
 	"github.com/goto/dex/pkg/telemetry"
@@ -100,6 +101,13 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 	if err != nil {
 		return err
 	}
+
+	dlqConfig := &dlq.DlqJobConfig{
+		// TODO: map cfg.Dlq\
+		DlqJobImage:    cfg.Dlq.DlqJobImage,
+		PrometheusHost: cfg.Dlq.PrometheusHost,
+	}
+
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,
 		shieldv1beta1.NewShieldServiceClient(shieldConn),
 		&optimus.ClientBuilder{},
@@ -109,5 +117,6 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
+		dlqConfig,
 	)
 }
