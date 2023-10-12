@@ -42,7 +42,7 @@ func (o *GetFirehoseAlertPolicyReader) ReadResponse(response runtime.ClientRespo
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[GET /dex/firehoses/{firehoseUrn}/alertPolicy] getFirehoseAlertPolicy", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -52,7 +52,7 @@ func NewGetFirehoseAlertPolicyOK() *GetFirehoseAlertPolicyOK {
 }
 
 /*
-GetFirehoseAlertPolicyOK describes a response with status code 200, with default header values.
+	GetFirehoseAlertPolicyOK describes a response with status code 200, with default header values.
 
 Found alert policy for given firehose URN.
 */
@@ -60,44 +60,9 @@ type GetFirehoseAlertPolicyOK struct {
 	Payload *models.AlertPolicy
 }
 
-// IsSuccess returns true when this get firehose alert policy o k response has a 2xx status code
-func (o *GetFirehoseAlertPolicyOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get firehose alert policy o k response has a 3xx status code
-func (o *GetFirehoseAlertPolicyOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get firehose alert policy o k response has a 4xx status code
-func (o *GetFirehoseAlertPolicyOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get firehose alert policy o k response has a 5xx status code
-func (o *GetFirehoseAlertPolicyOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get firehose alert policy o k response a status code equal to that given
-func (o *GetFirehoseAlertPolicyOK) IsCode(code int) bool {
-	return code == 200
-}
-
-// Code gets the status code for the get firehose alert policy o k response
-func (o *GetFirehoseAlertPolicyOK) Code() int {
-	return 200
-}
-
 func (o *GetFirehoseAlertPolicyOK) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/alertPolicy][%d] getFirehoseAlertPolicyOK  %+v", 200, o.Payload)
 }
-
-func (o *GetFirehoseAlertPolicyOK) String() string {
-	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/alertPolicy][%d] getFirehoseAlertPolicyOK  %+v", 200, o.Payload)
-}
-
 func (o *GetFirehoseAlertPolicyOK) GetPayload() *models.AlertPolicy {
 	return o.Payload
 }
@@ -120,7 +85,7 @@ func NewGetFirehoseAlertPolicyNotFound() *GetFirehoseAlertPolicyNotFound {
 }
 
 /*
-GetFirehoseAlertPolicyNotFound describes a response with status code 404, with default header values.
+	GetFirehoseAlertPolicyNotFound describes a response with status code 404, with default header values.
 
 Firehose with given URN was not found
 */
@@ -128,44 +93,9 @@ type GetFirehoseAlertPolicyNotFound struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this get firehose alert policy not found response has a 2xx status code
-func (o *GetFirehoseAlertPolicyNotFound) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this get firehose alert policy not found response has a 3xx status code
-func (o *GetFirehoseAlertPolicyNotFound) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get firehose alert policy not found response has a 4xx status code
-func (o *GetFirehoseAlertPolicyNotFound) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this get firehose alert policy not found response has a 5xx status code
-func (o *GetFirehoseAlertPolicyNotFound) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get firehose alert policy not found response a status code equal to that given
-func (o *GetFirehoseAlertPolicyNotFound) IsCode(code int) bool {
-	return code == 404
-}
-
-// Code gets the status code for the get firehose alert policy not found response
-func (o *GetFirehoseAlertPolicyNotFound) Code() int {
-	return 404
-}
-
 func (o *GetFirehoseAlertPolicyNotFound) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/alertPolicy][%d] getFirehoseAlertPolicyNotFound  %+v", 404, o.Payload)
 }
-
-func (o *GetFirehoseAlertPolicyNotFound) String() string {
-	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/alertPolicy][%d] getFirehoseAlertPolicyNotFound  %+v", 404, o.Payload)
-}
-
 func (o *GetFirehoseAlertPolicyNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -188,7 +118,7 @@ func NewGetFirehoseAlertPolicyInternalServerError() *GetFirehoseAlertPolicyInter
 }
 
 /*
-GetFirehoseAlertPolicyInternalServerError describes a response with status code 500, with default header values.
+	GetFirehoseAlertPolicyInternalServerError describes a response with status code 500, with default header values.
 
 internal error
 */
@@ -196,44 +126,9 @@ type GetFirehoseAlertPolicyInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this get firehose alert policy internal server error response has a 2xx status code
-func (o *GetFirehoseAlertPolicyInternalServerError) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this get firehose alert policy internal server error response has a 3xx status code
-func (o *GetFirehoseAlertPolicyInternalServerError) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get firehose alert policy internal server error response has a 4xx status code
-func (o *GetFirehoseAlertPolicyInternalServerError) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get firehose alert policy internal server error response has a 5xx status code
-func (o *GetFirehoseAlertPolicyInternalServerError) IsServerError() bool {
-	return true
-}
-
-// IsCode returns true when this get firehose alert policy internal server error response a status code equal to that given
-func (o *GetFirehoseAlertPolicyInternalServerError) IsCode(code int) bool {
-	return code == 500
-}
-
-// Code gets the status code for the get firehose alert policy internal server error response
-func (o *GetFirehoseAlertPolicyInternalServerError) Code() int {
-	return 500
-}
-
 func (o *GetFirehoseAlertPolicyInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/alertPolicy][%d] getFirehoseAlertPolicyInternalServerError  %+v", 500, o.Payload)
 }
-
-func (o *GetFirehoseAlertPolicyInternalServerError) String() string {
-	return fmt.Sprintf("[GET /dex/firehoses/{firehoseUrn}/alertPolicy][%d] getFirehoseAlertPolicyInternalServerError  %+v", 500, o.Payload)
-}
-
 func (o *GetFirehoseAlertPolicyInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

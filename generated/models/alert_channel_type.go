@@ -20,12 +20,8 @@ import (
 type AlertChannelType string
 
 func NewAlertChannelType(value AlertChannelType) *AlertChannelType {
-	return &value
-}
-
-// Pointer returns a pointer to a freshly-allocated AlertChannelType.
-func (m AlertChannelType) Pointer() *AlertChannelType {
-	return &m
+	v := value
+	return &v
 }
 
 const (

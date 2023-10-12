@@ -46,7 +46,7 @@ func (o *GetGroupAlertChannelsReader) ReadResponse(response runtime.ClientRespon
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[GET /dex/subscriptions/groups/{id}/alert_channels] getGroupAlertChannels", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -56,7 +56,7 @@ func NewGetGroupAlertChannelsOK() *GetGroupAlertChannelsOK {
 }
 
 /*
-GetGroupAlertChannelsOK describes a response with status code 200, with default header values.
+	GetGroupAlertChannelsOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -64,44 +64,9 @@ type GetGroupAlertChannelsOK struct {
 	Payload *GetGroupAlertChannelsOKBody
 }
 
-// IsSuccess returns true when this get group alert channels o k response has a 2xx status code
-func (o *GetGroupAlertChannelsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get group alert channels o k response has a 3xx status code
-func (o *GetGroupAlertChannelsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get group alert channels o k response has a 4xx status code
-func (o *GetGroupAlertChannelsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get group alert channels o k response has a 5xx status code
-func (o *GetGroupAlertChannelsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get group alert channels o k response a status code equal to that given
-func (o *GetGroupAlertChannelsOK) IsCode(code int) bool {
-	return code == 200
-}
-
-// Code gets the status code for the get group alert channels o k response
-func (o *GetGroupAlertChannelsOK) Code() int {
-	return 200
-}
-
 func (o *GetGroupAlertChannelsOK) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions/groups/{id}/alert_channels][%d] getGroupAlertChannelsOK  %+v", 200, o.Payload)
 }
-
-func (o *GetGroupAlertChannelsOK) String() string {
-	return fmt.Sprintf("[GET /dex/subscriptions/groups/{id}/alert_channels][%d] getGroupAlertChannelsOK  %+v", 200, o.Payload)
-}
-
 func (o *GetGroupAlertChannelsOK) GetPayload() *GetGroupAlertChannelsOKBody {
 	return o.Payload
 }
@@ -124,7 +89,7 @@ func NewGetGroupAlertChannelsNotFound() *GetGroupAlertChannelsNotFound {
 }
 
 /*
-GetGroupAlertChannelsNotFound describes a response with status code 404, with default header values.
+	GetGroupAlertChannelsNotFound describes a response with status code 404, with default header values.
 
 Group Not Found Error
 */
@@ -132,44 +97,9 @@ type GetGroupAlertChannelsNotFound struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this get group alert channels not found response has a 2xx status code
-func (o *GetGroupAlertChannelsNotFound) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this get group alert channels not found response has a 3xx status code
-func (o *GetGroupAlertChannelsNotFound) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get group alert channels not found response has a 4xx status code
-func (o *GetGroupAlertChannelsNotFound) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this get group alert channels not found response has a 5xx status code
-func (o *GetGroupAlertChannelsNotFound) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get group alert channels not found response a status code equal to that given
-func (o *GetGroupAlertChannelsNotFound) IsCode(code int) bool {
-	return code == 404
-}
-
-// Code gets the status code for the get group alert channels not found response
-func (o *GetGroupAlertChannelsNotFound) Code() int {
-	return 404
-}
-
 func (o *GetGroupAlertChannelsNotFound) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions/groups/{id}/alert_channels][%d] getGroupAlertChannelsNotFound  %+v", 404, o.Payload)
 }
-
-func (o *GetGroupAlertChannelsNotFound) String() string {
-	return fmt.Sprintf("[GET /dex/subscriptions/groups/{id}/alert_channels][%d] getGroupAlertChannelsNotFound  %+v", 404, o.Payload)
-}
-
 func (o *GetGroupAlertChannelsNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -192,7 +122,7 @@ func NewGetGroupAlertChannelsInternalServerError() *GetGroupAlertChannelsInterna
 }
 
 /*
-GetGroupAlertChannelsInternalServerError describes a response with status code 500, with default header values.
+	GetGroupAlertChannelsInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -200,44 +130,9 @@ type GetGroupAlertChannelsInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this get group alert channels internal server error response has a 2xx status code
-func (o *GetGroupAlertChannelsInternalServerError) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this get group alert channels internal server error response has a 3xx status code
-func (o *GetGroupAlertChannelsInternalServerError) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get group alert channels internal server error response has a 4xx status code
-func (o *GetGroupAlertChannelsInternalServerError) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get group alert channels internal server error response has a 5xx status code
-func (o *GetGroupAlertChannelsInternalServerError) IsServerError() bool {
-	return true
-}
-
-// IsCode returns true when this get group alert channels internal server error response a status code equal to that given
-func (o *GetGroupAlertChannelsInternalServerError) IsCode(code int) bool {
-	return code == 500
-}
-
-// Code gets the status code for the get group alert channels internal server error response
-func (o *GetGroupAlertChannelsInternalServerError) Code() int {
-	return 500
-}
-
 func (o *GetGroupAlertChannelsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /dex/subscriptions/groups/{id}/alert_channels][%d] getGroupAlertChannelsInternalServerError  %+v", 500, o.Payload)
 }
-
-func (o *GetGroupAlertChannelsInternalServerError) String() string {
-	return fmt.Sprintf("[GET /dex/subscriptions/groups/{id}/alert_channels][%d] getGroupAlertChannelsInternalServerError  %+v", 500, o.Payload)
-}
-
 func (o *GetGroupAlertChannelsInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -292,8 +187,6 @@ func (o *GetGroupAlertChannelsOKBody) validateAlertChannels(formats strfmt.Regis
 			if err := o.AlertChannels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -323,16 +216,9 @@ func (o *GetGroupAlertChannelsOKBody) contextValidateAlertChannels(ctx context.C
 	for i := 0; i < len(o.AlertChannels); i++ {
 
 		if o.AlertChannels[i] != nil {
-
-			if swag.IsZero(o.AlertChannels[i]) { // not required
-				return nil
-			}
-
 			if err := o.AlertChannels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getGroupAlertChannelsOK" + "." + "alert_channels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

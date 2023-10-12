@@ -53,7 +53,7 @@ func (o *ResetOffsetReader) ReadResponse(response runtime.ClientResponse, consum
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[PUT /dex/firehoses/{firehoseUrn}/reset] resetOffset", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -63,7 +63,7 @@ func NewResetOffsetOK() *ResetOffsetOK {
 }
 
 /*
-ResetOffsetOK describes a response with status code 200, with default header values.
+	ResetOffsetOK describes a response with status code 200, with default header values.
 
 Found firehose with given URN
 */
@@ -71,44 +71,9 @@ type ResetOffsetOK struct {
 	Payload *models.Firehose
 }
 
-// IsSuccess returns true when this reset offset o k response has a 2xx status code
-func (o *ResetOffsetOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this reset offset o k response has a 3xx status code
-func (o *ResetOffsetOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this reset offset o k response has a 4xx status code
-func (o *ResetOffsetOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this reset offset o k response has a 5xx status code
-func (o *ResetOffsetOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this reset offset o k response a status code equal to that given
-func (o *ResetOffsetOK) IsCode(code int) bool {
-	return code == 200
-}
-
-// Code gets the status code for the reset offset o k response
-func (o *ResetOffsetOK) Code() int {
-	return 200
-}
-
 func (o *ResetOffsetOK) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetOK  %+v", 200, o.Payload)
 }
-
-func (o *ResetOffsetOK) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetOK  %+v", 200, o.Payload)
-}
-
 func (o *ResetOffsetOK) GetPayload() *models.Firehose {
 	return o.Payload
 }
@@ -131,7 +96,7 @@ func NewResetOffsetBadRequest() *ResetOffsetBadRequest {
 }
 
 /*
-ResetOffsetBadRequest describes a response with status code 400, with default header values.
+	ResetOffsetBadRequest describes a response with status code 400, with default header values.
 
 Update request is not valid.
 */
@@ -139,44 +104,9 @@ type ResetOffsetBadRequest struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this reset offset bad request response has a 2xx status code
-func (o *ResetOffsetBadRequest) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this reset offset bad request response has a 3xx status code
-func (o *ResetOffsetBadRequest) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this reset offset bad request response has a 4xx status code
-func (o *ResetOffsetBadRequest) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this reset offset bad request response has a 5xx status code
-func (o *ResetOffsetBadRequest) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this reset offset bad request response a status code equal to that given
-func (o *ResetOffsetBadRequest) IsCode(code int) bool {
-	return code == 400
-}
-
-// Code gets the status code for the reset offset bad request response
-func (o *ResetOffsetBadRequest) Code() int {
-	return 400
-}
-
 func (o *ResetOffsetBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetBadRequest  %+v", 400, o.Payload)
 }
-
-func (o *ResetOffsetBadRequest) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetBadRequest  %+v", 400, o.Payload)
-}
-
 func (o *ResetOffsetBadRequest) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -199,7 +129,7 @@ func NewResetOffsetNotFound() *ResetOffsetNotFound {
 }
 
 /*
-ResetOffsetNotFound describes a response with status code 404, with default header values.
+	ResetOffsetNotFound describes a response with status code 404, with default header values.
 
 Firehose with given URN was not found
 */
@@ -207,44 +137,9 @@ type ResetOffsetNotFound struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this reset offset not found response has a 2xx status code
-func (o *ResetOffsetNotFound) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this reset offset not found response has a 3xx status code
-func (o *ResetOffsetNotFound) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this reset offset not found response has a 4xx status code
-func (o *ResetOffsetNotFound) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this reset offset not found response has a 5xx status code
-func (o *ResetOffsetNotFound) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this reset offset not found response a status code equal to that given
-func (o *ResetOffsetNotFound) IsCode(code int) bool {
-	return code == 404
-}
-
-// Code gets the status code for the reset offset not found response
-func (o *ResetOffsetNotFound) Code() int {
-	return 404
-}
-
 func (o *ResetOffsetNotFound) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetNotFound  %+v", 404, o.Payload)
 }
-
-func (o *ResetOffsetNotFound) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetNotFound  %+v", 404, o.Payload)
-}
-
 func (o *ResetOffsetNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -267,7 +162,7 @@ func NewResetOffsetInternalServerError() *ResetOffsetInternalServerError {
 }
 
 /*
-ResetOffsetInternalServerError describes a response with status code 500, with default header values.
+	ResetOffsetInternalServerError describes a response with status code 500, with default header values.
 
 internal error
 */
@@ -275,44 +170,9 @@ type ResetOffsetInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this reset offset internal server error response has a 2xx status code
-func (o *ResetOffsetInternalServerError) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this reset offset internal server error response has a 3xx status code
-func (o *ResetOffsetInternalServerError) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this reset offset internal server error response has a 4xx status code
-func (o *ResetOffsetInternalServerError) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this reset offset internal server error response has a 5xx status code
-func (o *ResetOffsetInternalServerError) IsServerError() bool {
-	return true
-}
-
-// IsCode returns true when this reset offset internal server error response a status code equal to that given
-func (o *ResetOffsetInternalServerError) IsCode(code int) bool {
-	return code == 500
-}
-
-// Code gets the status code for the reset offset internal server error response
-func (o *ResetOffsetInternalServerError) Code() int {
-	return 500
-}
-
 func (o *ResetOffsetInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetInternalServerError  %+v", 500, o.Payload)
 }
-
-func (o *ResetOffsetInternalServerError) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}/reset][%d] resetOffsetInternalServerError  %+v", 500, o.Payload)
-}
-
 func (o *ResetOffsetInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

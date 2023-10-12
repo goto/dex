@@ -1,7 +1,6 @@
 package dlq
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -14,10 +13,17 @@ import (
 	"github.com/goto/dex/internal/server/utils"
 )
 
-func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobConfig) error {
+const (
+	kubeClusterDependenciesKey = "kube_cluster"
+	//nolint
+	dlqCredentialsSecretName = "firehose-bigquery-sink-credential"
+	dlqTelegrafConfigName    = "dlq-processor-telegraf"
+)
+
+func EnrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobConfig) error {
 	var kubeCluster string
 	for _, dep := range res.Spec.GetDependencies() {
-		if dep.GetKey() == "kube_cluster" {
+		if dep.GetKey() == kubeClusterDependenciesKey {
 			kubeCluster = dep.GetValue()
 		}
 	}
@@ -29,11 +35,11 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobC
 	outputMap := res.GetState().GetOutput().GetStructValue().AsMap()
 	namespaceAny, exists := outputMap["namespace"]
 	if !exists {
-		return errors.New("could not find firehose namespace from resource output")
+		return ErrFirehoseNamespaceNotFound
 	}
 	namespace, ok := namespaceAny.(string)
 	if !ok {
-		return errors.New("firehose namespace format is invalid")
+		return ErrFirehoseNamespaceInvalid
 	}
 
 	envs := modConf.EnvVariables
@@ -82,7 +88,7 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobC
 }
 
 // DlqJob param here is expected to have been enriched with firehose config
-func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
+func MapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(job)
 	if err != nil {
 		return nil, err
@@ -109,13 +115,9 @@ func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 }
 
 func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
-
-	dlqCredentialSecretName := "firehose-bigquery-sink-credential"
-	dlqTelegrafConfigName := "dlq-processor-telegraf"
 	return utils.GoValToProtoStruct(entropy.JobConfig{
 		Replicas:  int32(job.Replicas),
 		Namespace: job.Namespace,
-		Name:      buildEntropyResourceName(job),
 		Containers: []entropy.JobContainer{
 			{
 				Name:            "dlq-job",
@@ -123,7 +125,7 @@ func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 				ImagePullPolicy: "Always",
 				SecretsVolumes: []entropy.JobSecret{
 					{
-						Name:  dlqCredentialSecretName,
+						Name:  dlqCredentialsSecretName,
 						Mount: job.DlqGcsCredentialPath,
 					},
 				},
@@ -181,7 +183,7 @@ func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 		},
 		Volumes: []entropy.JobVolume{
 			{
-				Name: dlqCredentialSecretName,
+				Name: dlqCredentialsSecretName,
 				Kind: "secret",
 			},
 			{
@@ -192,7 +194,7 @@ func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 	})
 }
 
-func mapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
+func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 	labels := r.Labels
 
 	var modConf entropy.JobConfig
@@ -258,15 +260,5 @@ func buildEntropyResourceName(job models.DlqJob) string {
 		job.ResourceType, // firehose / dagger
 		job.Topic,        //
 		job.Date,         //
-	)
-}
-
-func buildJobName(job models.DlqJob) string {
-	randomKey := "91238192"
-	return fmt.Sprintf(
-		"%s-%s-%s",
-		job.Date,
-		job.Topic,
-		randomKey,
 	)
 }

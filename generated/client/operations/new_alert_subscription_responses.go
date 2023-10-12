@@ -57,7 +57,7 @@ func (o *NewAlertSubscriptionReader) ReadResponse(response runtime.ClientRespons
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[POST /dex/subscriptions] newAlertSubscription", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -67,7 +67,7 @@ func NewNewAlertSubscriptionCreated() *NewAlertSubscriptionCreated {
 }
 
 /*
-NewAlertSubscriptionCreated describes a response with status code 201, with default header values.
+	NewAlertSubscriptionCreated describes a response with status code 201, with default header values.
 
 Successful Operation.
 */
@@ -75,44 +75,9 @@ type NewAlertSubscriptionCreated struct {
 	Payload *NewAlertSubscriptionCreatedBody
 }
 
-// IsSuccess returns true when this new alert subscription created response has a 2xx status code
-func (o *NewAlertSubscriptionCreated) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this new alert subscription created response has a 3xx status code
-func (o *NewAlertSubscriptionCreated) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this new alert subscription created response has a 4xx status code
-func (o *NewAlertSubscriptionCreated) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this new alert subscription created response has a 5xx status code
-func (o *NewAlertSubscriptionCreated) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this new alert subscription created response a status code equal to that given
-func (o *NewAlertSubscriptionCreated) IsCode(code int) bool {
-	return code == 201
-}
-
-// Code gets the status code for the new alert subscription created response
-func (o *NewAlertSubscriptionCreated) Code() int {
-	return 201
-}
-
 func (o *NewAlertSubscriptionCreated) Error() string {
 	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionCreated  %+v", 201, o.Payload)
 }
-
-func (o *NewAlertSubscriptionCreated) String() string {
-	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionCreated  %+v", 201, o.Payload)
-}
-
 func (o *NewAlertSubscriptionCreated) GetPayload() *NewAlertSubscriptionCreatedBody {
 	return o.Payload
 }
@@ -135,7 +100,7 @@ func NewNewAlertSubscriptionBadRequest() *NewAlertSubscriptionBadRequest {
 }
 
 /*
-NewAlertSubscriptionBadRequest describes a response with status code 400, with default header values.
+	NewAlertSubscriptionBadRequest describes a response with status code 400, with default header values.
 
 Validation Error
 */
@@ -143,44 +108,9 @@ type NewAlertSubscriptionBadRequest struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this new alert subscription bad request response has a 2xx status code
-func (o *NewAlertSubscriptionBadRequest) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this new alert subscription bad request response has a 3xx status code
-func (o *NewAlertSubscriptionBadRequest) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this new alert subscription bad request response has a 4xx status code
-func (o *NewAlertSubscriptionBadRequest) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this new alert subscription bad request response has a 5xx status code
-func (o *NewAlertSubscriptionBadRequest) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this new alert subscription bad request response a status code equal to that given
-func (o *NewAlertSubscriptionBadRequest) IsCode(code int) bool {
-	return code == 400
-}
-
-// Code gets the status code for the new alert subscription bad request response
-func (o *NewAlertSubscriptionBadRequest) Code() int {
-	return 400
-}
-
 func (o *NewAlertSubscriptionBadRequest) Error() string {
 	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionBadRequest  %+v", 400, o.Payload)
 }
-
-func (o *NewAlertSubscriptionBadRequest) String() string {
-	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionBadRequest  %+v", 400, o.Payload)
-}
-
 func (o *NewAlertSubscriptionBadRequest) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -203,7 +133,7 @@ func NewNewAlertSubscriptionConflict() *NewAlertSubscriptionConflict {
 }
 
 /*
-NewAlertSubscriptionConflict describes a response with status code 409, with default header values.
+	NewAlertSubscriptionConflict describes a response with status code 409, with default header values.
 
 Duplicate subscription
 */
@@ -211,44 +141,9 @@ type NewAlertSubscriptionConflict struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this new alert subscription conflict response has a 2xx status code
-func (o *NewAlertSubscriptionConflict) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this new alert subscription conflict response has a 3xx status code
-func (o *NewAlertSubscriptionConflict) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this new alert subscription conflict response has a 4xx status code
-func (o *NewAlertSubscriptionConflict) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this new alert subscription conflict response has a 5xx status code
-func (o *NewAlertSubscriptionConflict) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this new alert subscription conflict response a status code equal to that given
-func (o *NewAlertSubscriptionConflict) IsCode(code int) bool {
-	return code == 409
-}
-
-// Code gets the status code for the new alert subscription conflict response
-func (o *NewAlertSubscriptionConflict) Code() int {
-	return 409
-}
-
 func (o *NewAlertSubscriptionConflict) Error() string {
 	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionConflict  %+v", 409, o.Payload)
 }
-
-func (o *NewAlertSubscriptionConflict) String() string {
-	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionConflict  %+v", 409, o.Payload)
-}
-
 func (o *NewAlertSubscriptionConflict) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -271,7 +166,7 @@ func NewNewAlertSubscriptionUnprocessableEntity() *NewAlertSubscriptionUnprocess
 }
 
 /*
-NewAlertSubscriptionUnprocessableEntity describes a response with status code 422, with default header values.
+	NewAlertSubscriptionUnprocessableEntity describes a response with status code 422, with default header values.
 
 Missing namespace and slack channel in shield
 */
@@ -279,44 +174,9 @@ type NewAlertSubscriptionUnprocessableEntity struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this new alert subscription unprocessable entity response has a 2xx status code
-func (o *NewAlertSubscriptionUnprocessableEntity) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this new alert subscription unprocessable entity response has a 3xx status code
-func (o *NewAlertSubscriptionUnprocessableEntity) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this new alert subscription unprocessable entity response has a 4xx status code
-func (o *NewAlertSubscriptionUnprocessableEntity) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this new alert subscription unprocessable entity response has a 5xx status code
-func (o *NewAlertSubscriptionUnprocessableEntity) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this new alert subscription unprocessable entity response a status code equal to that given
-func (o *NewAlertSubscriptionUnprocessableEntity) IsCode(code int) bool {
-	return code == 422
-}
-
-// Code gets the status code for the new alert subscription unprocessable entity response
-func (o *NewAlertSubscriptionUnprocessableEntity) Code() int {
-	return 422
-}
-
 func (o *NewAlertSubscriptionUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionUnprocessableEntity  %+v", 422, o.Payload)
 }
-
-func (o *NewAlertSubscriptionUnprocessableEntity) String() string {
-	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionUnprocessableEntity  %+v", 422, o.Payload)
-}
-
 func (o *NewAlertSubscriptionUnprocessableEntity) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -339,7 +199,7 @@ func NewNewAlertSubscriptionInternalServerError() *NewAlertSubscriptionInternalS
 }
 
 /*
-NewAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
+	NewAlertSubscriptionInternalServerError describes a response with status code 500, with default header values.
 
 Internal Error
 */
@@ -347,44 +207,9 @@ type NewAlertSubscriptionInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this new alert subscription internal server error response has a 2xx status code
-func (o *NewAlertSubscriptionInternalServerError) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this new alert subscription internal server error response has a 3xx status code
-func (o *NewAlertSubscriptionInternalServerError) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this new alert subscription internal server error response has a 4xx status code
-func (o *NewAlertSubscriptionInternalServerError) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this new alert subscription internal server error response has a 5xx status code
-func (o *NewAlertSubscriptionInternalServerError) IsServerError() bool {
-	return true
-}
-
-// IsCode returns true when this new alert subscription internal server error response a status code equal to that given
-func (o *NewAlertSubscriptionInternalServerError) IsCode(code int) bool {
-	return code == 500
-}
-
-// Code gets the status code for the new alert subscription internal server error response
-func (o *NewAlertSubscriptionInternalServerError) Code() int {
-	return 500
-}
-
 func (o *NewAlertSubscriptionInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionInternalServerError  %+v", 500, o.Payload)
 }
-
-func (o *NewAlertSubscriptionInternalServerError) String() string {
-	return fmt.Sprintf("[POST /dex/subscriptions][%d] newAlertSubscriptionInternalServerError  %+v", 500, o.Payload)
-}
-
 func (o *NewAlertSubscriptionInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -434,8 +259,6 @@ func (o *NewAlertSubscriptionCreatedBody) validateSubscription(formats strfmt.Re
 		if err := o.Subscription.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("newAlertSubscriptionCreated" + "." + "subscription")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("newAlertSubscriptionCreated" + "." + "subscription")
 			}
 			return err
 		}
@@ -461,16 +284,9 @@ func (o *NewAlertSubscriptionCreatedBody) ContextValidate(ctx context.Context, f
 func (o *NewAlertSubscriptionCreatedBody) contextValidateSubscription(ctx context.Context, formats strfmt.Registry) error {
 
 	if o.Subscription != nil {
-
-		if swag.IsZero(o.Subscription) { // not required
-			return nil
-		}
-
 		if err := o.Subscription.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("newAlertSubscriptionCreated" + "." + "subscription")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("newAlertSubscriptionCreated" + "." + "subscription")
 			}
 			return err
 		}

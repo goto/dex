@@ -60,8 +60,6 @@ func (m *FirehoseUpdateRequest) validateConfigs(formats strfmt.Registry) error {
 		if err := m.Configs.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("configs")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("configs")
 			}
 			return err
 		}
@@ -100,16 +98,9 @@ func (m *FirehoseUpdateRequest) ContextValidate(ctx context.Context, formats str
 func (m *FirehoseUpdateRequest) contextValidateConfigs(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Configs != nil {
-
-		if swag.IsZero(m.Configs) { // not required
-			return nil
-		}
-
 		if err := m.Configs.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("configs")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("configs")
 			}
 			return err
 		}

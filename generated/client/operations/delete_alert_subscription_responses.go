@@ -36,7 +36,7 @@ func (o *DeleteAlertSubscriptionReader) ReadResponse(response runtime.ClientResp
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[DELETE /dex/subscriptions/{id}] deleteAlertSubscription", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -46,7 +46,7 @@ func NewDeleteAlertSubscriptionOK() *DeleteAlertSubscriptionOK {
 }
 
 /*
-DeleteAlertSubscriptionOK describes a response with status code 200, with default header values.
+	DeleteAlertSubscriptionOK describes a response with status code 200, with default header values.
 
 Successful Operation.
 */
@@ -54,44 +54,9 @@ type DeleteAlertSubscriptionOK struct {
 	Payload *models.Response
 }
 
-// IsSuccess returns true when this delete alert subscription o k response has a 2xx status code
-func (o *DeleteAlertSubscriptionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this delete alert subscription o k response has a 3xx status code
-func (o *DeleteAlertSubscriptionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this delete alert subscription o k response has a 4xx status code
-func (o *DeleteAlertSubscriptionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this delete alert subscription o k response has a 5xx status code
-func (o *DeleteAlertSubscriptionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this delete alert subscription o k response a status code equal to that given
-func (o *DeleteAlertSubscriptionOK) IsCode(code int) bool {
-	return code == 200
-}
-
-// Code gets the status code for the delete alert subscription o k response
-func (o *DeleteAlertSubscriptionOK) Code() int {
-	return 200
-}
-
 func (o *DeleteAlertSubscriptionOK) Error() string {
 	return fmt.Sprintf("[DELETE /dex/subscriptions/{id}][%d] deleteAlertSubscriptionOK  %+v", 200, o.Payload)
 }
-
-func (o *DeleteAlertSubscriptionOK) String() string {
-	return fmt.Sprintf("[DELETE /dex/subscriptions/{id}][%d] deleteAlertSubscriptionOK  %+v", 200, o.Payload)
-}
-
 func (o *DeleteAlertSubscriptionOK) GetPayload() *models.Response {
 	return o.Payload
 }
@@ -114,7 +79,7 @@ func NewDeleteAlertSubscriptionNotFound() *DeleteAlertSubscriptionNotFound {
 }
 
 /*
-DeleteAlertSubscriptionNotFound describes a response with status code 404, with default header values.
+	DeleteAlertSubscriptionNotFound describes a response with status code 404, with default header values.
 
 Not Found Error
 */
@@ -122,44 +87,9 @@ type DeleteAlertSubscriptionNotFound struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this delete alert subscription not found response has a 2xx status code
-func (o *DeleteAlertSubscriptionNotFound) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this delete alert subscription not found response has a 3xx status code
-func (o *DeleteAlertSubscriptionNotFound) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this delete alert subscription not found response has a 4xx status code
-func (o *DeleteAlertSubscriptionNotFound) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this delete alert subscription not found response has a 5xx status code
-func (o *DeleteAlertSubscriptionNotFound) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this delete alert subscription not found response a status code equal to that given
-func (o *DeleteAlertSubscriptionNotFound) IsCode(code int) bool {
-	return code == 404
-}
-
-// Code gets the status code for the delete alert subscription not found response
-func (o *DeleteAlertSubscriptionNotFound) Code() int {
-	return 404
-}
-
 func (o *DeleteAlertSubscriptionNotFound) Error() string {
 	return fmt.Sprintf("[DELETE /dex/subscriptions/{id}][%d] deleteAlertSubscriptionNotFound  %+v", 404, o.Payload)
 }
-
-func (o *DeleteAlertSubscriptionNotFound) String() string {
-	return fmt.Sprintf("[DELETE /dex/subscriptions/{id}][%d] deleteAlertSubscriptionNotFound  %+v", 404, o.Payload)
-}
-
 func (o *DeleteAlertSubscriptionNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

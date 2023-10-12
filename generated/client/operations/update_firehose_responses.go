@@ -48,7 +48,7 @@ func (o *UpdateFirehoseReader) ReadResponse(response runtime.ClientResponse, con
 		}
 		return nil, result
 	default:
-		return nil, runtime.NewAPIError("[PUT /dex/firehoses/{firehoseUrn}] updateFirehose", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -58,7 +58,7 @@ func NewUpdateFirehoseOK() *UpdateFirehoseOK {
 }
 
 /*
-UpdateFirehoseOK describes a response with status code 200, with default header values.
+	UpdateFirehoseOK describes a response with status code 200, with default header values.
 
 Found firehose with given URN
 */
@@ -66,44 +66,9 @@ type UpdateFirehoseOK struct {
 	Payload *models.Firehose
 }
 
-// IsSuccess returns true when this update firehose o k response has a 2xx status code
-func (o *UpdateFirehoseOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this update firehose o k response has a 3xx status code
-func (o *UpdateFirehoseOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update firehose o k response has a 4xx status code
-func (o *UpdateFirehoseOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update firehose o k response has a 5xx status code
-func (o *UpdateFirehoseOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update firehose o k response a status code equal to that given
-func (o *UpdateFirehoseOK) IsCode(code int) bool {
-	return code == 200
-}
-
-// Code gets the status code for the update firehose o k response
-func (o *UpdateFirehoseOK) Code() int {
-	return 200
-}
-
 func (o *UpdateFirehoseOK) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseOK  %+v", 200, o.Payload)
 }
-
-func (o *UpdateFirehoseOK) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseOK  %+v", 200, o.Payload)
-}
-
 func (o *UpdateFirehoseOK) GetPayload() *models.Firehose {
 	return o.Payload
 }
@@ -126,7 +91,7 @@ func NewUpdateFirehoseBadRequest() *UpdateFirehoseBadRequest {
 }
 
 /*
-UpdateFirehoseBadRequest describes a response with status code 400, with default header values.
+	UpdateFirehoseBadRequest describes a response with status code 400, with default header values.
 
 Update request is not valid.
 */
@@ -134,44 +99,9 @@ type UpdateFirehoseBadRequest struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this update firehose bad request response has a 2xx status code
-func (o *UpdateFirehoseBadRequest) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this update firehose bad request response has a 3xx status code
-func (o *UpdateFirehoseBadRequest) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update firehose bad request response has a 4xx status code
-func (o *UpdateFirehoseBadRequest) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this update firehose bad request response has a 5xx status code
-func (o *UpdateFirehoseBadRequest) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update firehose bad request response a status code equal to that given
-func (o *UpdateFirehoseBadRequest) IsCode(code int) bool {
-	return code == 400
-}
-
-// Code gets the status code for the update firehose bad request response
-func (o *UpdateFirehoseBadRequest) Code() int {
-	return 400
-}
-
 func (o *UpdateFirehoseBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseBadRequest  %+v", 400, o.Payload)
 }
-
-func (o *UpdateFirehoseBadRequest) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseBadRequest  %+v", 400, o.Payload)
-}
-
 func (o *UpdateFirehoseBadRequest) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -194,7 +124,7 @@ func NewUpdateFirehoseNotFound() *UpdateFirehoseNotFound {
 }
 
 /*
-UpdateFirehoseNotFound describes a response with status code 404, with default header values.
+	UpdateFirehoseNotFound describes a response with status code 404, with default header values.
 
 Firehose with given URN was not found
 */
@@ -202,44 +132,9 @@ type UpdateFirehoseNotFound struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this update firehose not found response has a 2xx status code
-func (o *UpdateFirehoseNotFound) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this update firehose not found response has a 3xx status code
-func (o *UpdateFirehoseNotFound) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update firehose not found response has a 4xx status code
-func (o *UpdateFirehoseNotFound) IsClientError() bool {
-	return true
-}
-
-// IsServerError returns true when this update firehose not found response has a 5xx status code
-func (o *UpdateFirehoseNotFound) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update firehose not found response a status code equal to that given
-func (o *UpdateFirehoseNotFound) IsCode(code int) bool {
-	return code == 404
-}
-
-// Code gets the status code for the update firehose not found response
-func (o *UpdateFirehoseNotFound) Code() int {
-	return 404
-}
-
 func (o *UpdateFirehoseNotFound) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseNotFound  %+v", 404, o.Payload)
 }
-
-func (o *UpdateFirehoseNotFound) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseNotFound  %+v", 404, o.Payload)
-}
-
 func (o *UpdateFirehoseNotFound) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }
@@ -262,7 +157,7 @@ func NewUpdateFirehoseInternalServerError() *UpdateFirehoseInternalServerError {
 }
 
 /*
-UpdateFirehoseInternalServerError describes a response with status code 500, with default header values.
+	UpdateFirehoseInternalServerError describes a response with status code 500, with default header values.
 
 internal error
 */
@@ -270,44 +165,9 @@ type UpdateFirehoseInternalServerError struct {
 	Payload *models.ErrorResponse
 }
 
-// IsSuccess returns true when this update firehose internal server error response has a 2xx status code
-func (o *UpdateFirehoseInternalServerError) IsSuccess() bool {
-	return false
-}
-
-// IsRedirect returns true when this update firehose internal server error response has a 3xx status code
-func (o *UpdateFirehoseInternalServerError) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update firehose internal server error response has a 4xx status code
-func (o *UpdateFirehoseInternalServerError) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update firehose internal server error response has a 5xx status code
-func (o *UpdateFirehoseInternalServerError) IsServerError() bool {
-	return true
-}
-
-// IsCode returns true when this update firehose internal server error response a status code equal to that given
-func (o *UpdateFirehoseInternalServerError) IsCode(code int) bool {
-	return code == 500
-}
-
-// Code gets the status code for the update firehose internal server error response
-func (o *UpdateFirehoseInternalServerError) Code() int {
-	return 500
-}
-
 func (o *UpdateFirehoseInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseInternalServerError  %+v", 500, o.Payload)
 }
-
-func (o *UpdateFirehoseInternalServerError) String() string {
-	return fmt.Sprintf("[PUT /dex/firehoses/{firehoseUrn}][%d] updateFirehoseInternalServerError  %+v", 500, o.Payload)
-}
-
 func (o *UpdateFirehoseInternalServerError) GetPayload() *models.ErrorResponse {
 	return o.Payload
 }

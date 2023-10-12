@@ -101,8 +101,6 @@ func (m *Subscription) validateReceivers(formats strfmt.Registry) error {
 			if err := m.Receivers[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("receivers" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("receivers" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -144,16 +142,9 @@ func (m *Subscription) contextValidateReceivers(ctx context.Context, formats str
 	for i := 0; i < len(m.Receivers); i++ {
 
 		if m.Receivers[i] != nil {
-
-			if swag.IsZero(m.Receivers[i]) { // not required
-				return nil
-			}
-
 			if err := m.Receivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("receivers" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("receivers" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

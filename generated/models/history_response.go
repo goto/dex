@@ -51,8 +51,6 @@ func (m *HistoryResponse) validateHistory(formats strfmt.Registry) error {
 			if err := m.History[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("history" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("history" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -82,16 +80,9 @@ func (m *HistoryResponse) contextValidateHistory(ctx context.Context, formats st
 	for i := 0; i < len(m.History); i++ {
 
 		if m.History[i] != nil {
-
-			if swag.IsZero(m.History[i]) { // not required
-				return nil
-			}
-
 			if err := m.History[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("history" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("history" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

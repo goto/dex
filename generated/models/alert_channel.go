@@ -71,8 +71,6 @@ func (m *AlertChannel) validateChannelCriticality(formats strfmt.Registry) error
 		if err := m.ChannelCriticality.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("channel_criticality")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("channel_criticality")
 			}
 			return err
 		}
@@ -90,8 +88,6 @@ func (m *AlertChannel) validateChannelType(formats strfmt.Registry) error {
 		if err := m.ChannelType.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("channel_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("channel_type")
 			}
 			return err
 		}
@@ -129,16 +125,9 @@ func (m *AlertChannel) ContextValidate(ctx context.Context, formats strfmt.Regis
 func (m *AlertChannel) contextValidateChannelCriticality(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ChannelCriticality != nil {
-
-		if swag.IsZero(m.ChannelCriticality) { // not required
-			return nil
-		}
-
 		if err := m.ChannelCriticality.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("channel_criticality")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("channel_criticality")
 			}
 			return err
 		}
@@ -150,16 +139,9 @@ func (m *AlertChannel) contextValidateChannelCriticality(ctx context.Context, fo
 func (m *AlertChannel) contextValidateChannelType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ChannelType != nil {
-
-		if swag.IsZero(m.ChannelType) { // not required
-			return nil
-		}
-
 		if err := m.ChannelType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("channel_type")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("channel_type")
 			}
 			return err
 		}
