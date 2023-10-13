@@ -1,7 +1,6 @@
 package iam
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,15 +28,13 @@ func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
 
 	teamListResp, err := h.service.TeamList(r.Context(), reqCtx.UserEmail)
 	if err != nil {
-		if errors.Is(err, ErrEmailNotOnWarden) {
-			utils.WriteErrMsg(w, http.StatusNotFound, ErrEmailNotOnWarden.Error())
-			return
-		}
 		utils.WriteErr(w, err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, teamListResp)
+	utils.WriteJSON(w, http.StatusOK, map[string]any{
+		"teams": teamListResp,
+	})
 }
 
 func (h *handler) updateGroupMetadata(w http.ResponseWriter, r *http.Request) {

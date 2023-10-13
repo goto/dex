@@ -3,11 +3,9 @@ package iam
 import (
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	chiv5 "github.com/go-chi/chi/v5"
-
-	"github.com/goto/dex/warden"
 )
 
-func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, wardenClient *warden.Client) func(r chiv5.Router) {
+func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, wardenClient WardenClient) func(r chiv5.Router) {
 	service := NewService(shieldClient, wardenClient)
 	handler := NewHandler(service)
 	return func(r chiv5.Router) {

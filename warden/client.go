@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/goto/dex/pkg/errors"
 )
 
 type Client struct {
@@ -39,10 +41,14 @@ func (c *Client) ListUserTeams(ctx context.Context, req TeamListRequest) ([]Team
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch teams: %v", resp.Status)
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, errors.ErrNotFound.WithMsgf("user with email %s not found", req.Email)
+		}
+
+		return nil, errors.ErrInternal.WithMsgf("failed to fetch teams: %v", resp.Status)
 	}
 
-	var data TeamListResponse
+	var data teamListResponse
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
 		return nil, err
@@ -51,7 +57,7 @@ func (c *Client) ListUserTeams(ctx context.Context, req TeamListRequest) ([]Team
 	return data.Data.Teams, nil
 }
 
-func (c *Client) WardenTeamByUUID(ctx context.Context, req TeamByUUIDRequest) (*Team, error) {
+func (c *Client) TeamByUUID(ctx context.Context, req TeamByUUIDRequest) (*Team, error) {
 	const (
 		endpoint = "/api/v2"
 		teamPath = "/teams/"
@@ -70,10 +76,14 @@ func (c *Client) WardenTeamByUUID(ctx context.Context, req TeamByUUIDRequest) (*
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch team: %v", resp.Status)
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, errors.ErrNotFound.WithMsgf("team with uuid %s not found", req.TeamUUID)
+		}
+
+		return nil, errors.ErrInternal.WithMsgf("failed to fetch teams: %v", resp.Status)
 	}
 
-	var data TeamResponse
+	var data teamResponse
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
 		return nil, err

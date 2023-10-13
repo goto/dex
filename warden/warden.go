@@ -17,17 +17,17 @@ type Team struct {
 	ShortCode            string    `json:"short_code"`
 }
 
-type TeamResponse struct {
+type teamResponse struct {
 	Success bool `json:"success"`
 	Data    Team `json:"data"`
 }
 
-type TeamListResponse struct {
+type teamListResponse struct {
 	Success bool      `json:"success"`
-	Data    TeamsData `json:"data"`
+	Data    teamsData `json:"data"`
 }
 
-type TeamsData struct {
+type teamsData struct {
 	Teams []Team `json:"teams"`
 }
 
