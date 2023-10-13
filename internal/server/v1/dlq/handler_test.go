@@ -40,10 +40,10 @@ func (*testHTTPWriter) WriteHeader(int) {
 func TestListTopicDates(t *testing.T) {
 	eService := &mocks.ResourceServiceClient{}
 	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
-	config := &entropy.Config{
+	config := &entropy.FirehoseConfig{
 		Stopped:      false,
 		StopTime:     nil,
 		Replicas:     0,
@@ -58,7 +58,7 @@ func TestListTopicDates(t *testing.T) {
 		Requests:      entropy.UsageSpec{},
 		Telegraf:      nil,
 		ChartValues:   nil,
-		InitContainer: entropy.InitContainer{},
+		InitContainer: entropy.FirehoseInitContainer{},
 	}
 	configProto, _ := utils.GoValToProtoStruct(config)
 	eService.On(
@@ -115,10 +115,10 @@ func TestListTopicDates(t *testing.T) {
 func TestErrorFromGCSClient(t *testing.T) {
 	eService := &mocks.ResourceServiceClient{}
 	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
-	config := &entropy.Config{
+	config := &entropy.FirehoseConfig{
 		Stopped:      false,
 		StopTime:     nil,
 		Replicas:     0,
@@ -133,7 +133,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 		Requests:      entropy.UsageSpec{},
 		Telegraf:      nil,
 		ChartValues:   nil,
-		InitContainer: entropy.InitContainer{},
+		InitContainer: entropy.FirehoseInitContainer{},
 	}
 	configProto, _ := utils.GoValToProtoStruct(config)
 	eService.On(
@@ -173,7 +173,7 @@ func TestErrorFromGCSClient(t *testing.T) {
 func TestErrorFromFirehoseResource(t *testing.T) {
 	eService := &mocks.ResourceServiceClient{}
 	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient))
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
 	httpWriter := &testHTTPWriter{}
 	httpRequest := &http.Request{}
 	eService.On(

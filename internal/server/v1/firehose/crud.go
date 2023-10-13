@@ -12,6 +12,7 @@ import (
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-openapi/strfmt"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -69,6 +70,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		labelTeam:        groupSlug,
 		labelStream:      *def.Configs.StreamName,
 		labelDescription: def.Description,
+		labelSinkType:    def.Configs.EnvVars["SINK_TYPE"],
 	})
 
 	prj, err := project.GetProject(ctx, def.Project, api.Shield)
@@ -171,7 +173,8 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 		Labels:  labelFilter,
 	}
 
-	rpcResp, err := api.Entropy.ListResources(r.Context(), rpcReq)
+	maxBytes := 20000000 // 2,000,000 bytes
+	rpcResp, err := api.Entropy.ListResources(r.Context(), rpcReq, grpc.MaxCallRecvMsgSize(maxBytes))
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -357,6 +360,7 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 
 	if req.Configs.StreamName != "" {
 		existing.Configs.StreamName = &req.Configs.StreamName
+		labels[labelStream] = req.Configs.StreamName
 	}
 
 	if req.Configs.Replicas > 0 {
@@ -377,6 +381,10 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 			dt := strfmt.DateTime(t)
 			existing.Configs.StopTime = &dt
 		}
+	}
+
+	if existing.Configs.EnvVars["SINK_TYPE"] != req.Configs.EnvVars["SINK_TYPE"] {
+		labels[labelSinkType] = req.Configs.EnvVars["SINK_TYPE"]
 	}
 
 	existing.Configs.EnvVars = cloneAndMergeMaps(

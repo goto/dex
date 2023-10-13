@@ -26,6 +26,7 @@ const (
 	labelTeam        = "team"
 	labelStream      = "stream_name"
 	labelDescription = "description"
+	labelSinkType    = "sink_type"
 )
 
 var nonAlphaNumPattern = regexp.MustCompile("[^a-zA-Z0-9]+")
@@ -65,11 +66,11 @@ func makeConfigStruct(cfg *models.FirehoseConfig) (*structpb.Value, error) {
 		stopTime = &t
 	}
 
-	return utils.GoValToProtoStruct(entropy.Config{
+	return utils.GoValToProtoStruct(entropy.FirehoseConfig{
 		Stopped:  cfg.Stopped,
 		StopTime: stopTime,
 		Replicas: int(cfg.Replicas),
-		ChartValues: &entropy.ChartValues{
+		ChartValues: &entropy.FirehoseChartValues{
 			ImageTag: cfg.Image,
 		},
 		DeploymentID: cfg.DeploymentID,
@@ -120,7 +121,7 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 	firehose.Labels = labels
 	firehose.Description = labels[labelDescription]
 
-	var modConf entropy.Config
+	var modConf entropy.FirehoseConfig
 	if err := utils.ProtoStructToGoVal(spec.GetConfigs(), &modConf); err != nil {
 		return firehose, err
 	}

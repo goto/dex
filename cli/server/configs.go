@@ -23,6 +23,7 @@ type serverConfig struct {
 	Compass     compassConfig    `mapstructure:"compass"`
 	Optimus     optimusConfig    `mapstructure:"optimus"`
 	StencilAddr string           `mapstructure:"stencil_addr"`
+	Dlq         dlqConfig        `mapstructure:"dlq"`
 	Warden      wardenConfig     `mapstructure:"warden"`
 }
 
@@ -52,6 +53,11 @@ type compassConfig struct {
 
 type optimusConfig struct {
 	Addr string `mapstructure:"addr"`
+}
+
+type dlqConfig struct {
+	DlqJobImage    string `mapstructure:"dlq_job_image"`
+	PrometheusHost string `mapstructure:"prometheus_host"`
 }
 
 type serveConfig struct {
