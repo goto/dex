@@ -70,6 +70,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		labelTeam:        groupSlug,
 		labelStream:      *def.Configs.StreamName,
 		labelDescription: def.Description,
+		labelSinkType:    def.Configs.EnvVars["SINK_TYPE"],
 	})
 
 	prj, err := project.GetProject(ctx, def.Project, api.Shield)
@@ -359,6 +360,7 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 
 	if req.Configs.StreamName != "" {
 		existing.Configs.StreamName = &req.Configs.StreamName
+		labels[labelStream] = req.Configs.StreamName
 	}
 
 	if req.Configs.Replicas > 0 {
@@ -379,6 +381,10 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 			dt := strfmt.DateTime(t)
 			existing.Configs.StopTime = &dt
 		}
+	}
+
+	if existing.Configs.EnvVars["SINK_TYPE"] != req.Configs.EnvVars["SINK_TYPE"] {
+		labels[labelSinkType] = req.Configs.EnvVars["SINK_TYPE"]
 	}
 
 	existing.Configs.EnvVars = cloneAndMergeMaps(

@@ -26,6 +26,7 @@ const (
 	labelTeam        = "team"
 	labelStream      = "stream_name"
 	labelDescription = "description"
+	labelSinkType    = "sink_type"
 )
 
 var nonAlphaNumPattern = regexp.MustCompile("[^a-zA-Z0-9]+")
