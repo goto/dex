@@ -121,17 +121,6 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 	firehose.Labels = labels
 	firehose.Description = labels[labelDescription]
 
-	var modConf entropy.FirehoseConfig
-	if err := utils.ProtoStructToGoVal(spec.GetConfigs(), &modConf); err != nil {
-		return firehose, err
-	}
-
-	var stopTime *strfmt.DateTime
-	if modConf.StopTime != nil {
-		dt := strfmt.DateTime(*modConf.StopTime)
-		stopTime = &dt
-	}
-
 	var kubeCluster string
 	for _, dep := range spec.GetDependencies() {
 		if dep.GetKey() == kubeClusterDependencyKey {
@@ -140,20 +129,10 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 	}
 
 	streamName := labels[labelStream]
-	if streamName == "" {
-		streamName = modConf.EnvVariables[configStreamName]
-	}
 
 	firehose.Configs = &models.FirehoseConfig{
-		Image:        modConf.ChartValues.ImageTag,
-		EnvVars:      modConf.EnvVariables,
-		Stopped:      modConf.Stopped,
-		StopTime:     stopTime,
-		ResetOffset:  modConf.ResetOffset,
-		Replicas:     float64(modConf.Replicas),
-		StreamName:   &streamName,
-		DeploymentID: modConf.DeploymentID,
-		KubeCluster:  &kubeCluster,
+		StreamName:  &streamName,
+		KubeCluster: &kubeCluster,
 	}
 
 	return firehose, nil
