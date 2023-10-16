@@ -10,6 +10,7 @@ import (
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
 	"github.com/go-openapi/strfmt"
 	"github.com/mitchellh/mapstructure"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/goto/dex/entropy"
@@ -130,9 +131,38 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 
 	streamName := labels[labelStream]
 
-	firehose.Configs = &models.FirehoseConfig{
-		StreamName:  &streamName,
-		KubeCluster: &kubeCluster,
+	if proto.Equal(spec.GetConfigs(), &structpb.Value{Kind: &structpb.Value_NullValue{NullValue: structpb.NullValue_NULL_VALUE}}) {
+		// Handle the "null_value:NULL_VALUE" case
+		firehose.Configs = &models.FirehoseConfig{
+			StreamName:  &streamName,
+			KubeCluster: &kubeCluster,
+		}
+	} else {
+		var modConf entropy.FirehoseConfig
+		if err := utils.ProtoStructToGoVal(spec.GetConfigs(), &modConf); err != nil {
+			return firehose, err
+		}
+
+		stopTime := strfmt.DateTime{}
+		if modConf.StopTime != nil {
+			stopTime = strfmt.DateTime(*modConf.StopTime)
+		}
+
+		if streamName == "" {
+			streamName = modConf.EnvVariables[configStreamName]
+		}
+
+		firehose.Configs = &models.FirehoseConfig{
+			Image:        modConf.ChartValues.ImageTag,
+			EnvVars:      modConf.EnvVariables,
+			Stopped:      modConf.Stopped,
+			StopTime:     &stopTime,
+			ResetOffset:  modConf.ResetOffset,
+			Replicas:     float64(modConf.Replicas),
+			StreamName:   &streamName,
+			DeploymentID: modConf.DeploymentID,
+			KubeCluster:  &kubeCluster,
+		}
 	}
 
 	return firehose, nil
