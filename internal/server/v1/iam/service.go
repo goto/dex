@@ -63,7 +63,9 @@ func (svc *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeam
 	}
 
 	metaData["team-id"] = team.Identifier
+	metaData["team-name"] = team.Name
 	metaData["product-group-id"] = team.ProductGroupID
+	metaData["product-group-name"] = team.ProductGroupName
 
 	updatedMetaData, err := structpb.NewStruct(metaData)
 	if err != nil {

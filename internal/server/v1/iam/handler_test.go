@@ -128,7 +128,9 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		dexGroupMetadataResponse := `{
 			"privacy": "public",
 			"product-group-id": "2079834a-05c4-420d-bfc8-44b934adea9f",
-			"team-id": "b5aea046-dab3-4dac-b1ea-e1eef423226b"
+			"team-id": "b5aea046-dab3-4dac-b1ea-e1eef423226b",
+			"team-name": "data_fabric",
+			"product-group-name": "data_engineering"
 		}`
 		groupID := "e38527ee-a8cd-40f9-98a7-1f0bbd20909f"
 		metaData, _ := structpb.NewStruct(map[string]any{
@@ -136,9 +138,11 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		})
 
 		updatedMetaData, _ := structpb.NewStruct(map[string]any{
-			"privacy":          "public",
-			"team-id":          "b5aea046-dab3-4dac-b1ea-e1eef423226b",
-			"product-group-id": "2079834a-05c4-420d-bfc8-44b934adea9f",
+			"privacy":            "public",
+			"team-id":            "b5aea046-dab3-4dac-b1ea-e1eef423226b",
+			"team-name":          "data_fabric",
+			"product-group-id":   "2079834a-05c4-420d-bfc8-44b934adea9f",
+			"product-group-name": "data_engineering",
 		})
 
 		wardenClient := mocks.NewWardenClient(t)
@@ -265,7 +269,7 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		assert.JSONEq(t, dexGroupMetadataResponse, resp.Body.String())
 	})
 
-	t.Run("ShielUpdateGroupFailure", func(t *testing.T) {
+	t.Run("ShieldUpdateGroupFailure", func(t *testing.T) {
 		// response returned by shield client
 		dexGroupMetadataResponse := `{"code":"internal_error", "message":"Some unexpected error occurred", "op":"", "status":500}`
 		groupID := "e38527ee-a8cd-40f9-98a7-1f0bbd20909f"
@@ -274,9 +278,11 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		})
 
 		updatedMetaData, _ := structpb.NewStruct(map[string]any{
-			"privacy":          "public",
-			"team-id":          "b5aea046-dab3-4dac-b1ea-e1eef423226b",
-			"product-group-id": "2079834a-05c4-420d-bfc8-44b934adea9f",
+			"privacy":            "public",
+			"team-id":            "b5aea046-dab3-4dac-b1ea-e1eef423226b",
+			"team-name":          "data_fabric",
+			"product-group-id":   "2079834a-05c4-420d-bfc8-44b934adea9f",
+			"product-group-name": "data_engineering",
 		})
 
 		wardenClient := mocks.NewWardenClient(t)
