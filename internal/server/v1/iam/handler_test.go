@@ -23,14 +23,14 @@ import (
 	"github.com/goto/dex/warden"
 )
 
-func TestHandler_teamList(t *testing.T) {
+func TestHandlerTeamList(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		dexTeamListResonses := `{             
 			 "teams": [
 					{
 					"name": "data_fabric",
-					"created_at": "2023-10-13T14:42:58+05:30",
-					"updated_at": "2023-10-13T14:42:58+05:30",
+					"created_at": "2023-10-13T09:12:58Z",
+					"updated_at": "2023-10-13T09:12:58Z",
 					"owner_id": 433,
 					"parent_team_identifier": "2079834a-05c4-420d-bfc8-44b934adea9f",
 					"identifier": "b5aea046-dab3-4dac-b1ea-e1eef423226b",
@@ -41,7 +41,7 @@ func TestHandler_teamList(t *testing.T) {
 					}
 			]}`
 		wardenClient := mocks.NewWardenClient(t)
-		frozenTime := time.Unix(1697188378, 0)
+		frozenTime := time.Unix(1697188378, 0).UTC()
 		wardenClient.EXPECT().ListUserTeams(mock.Anything, warden.TeamListRequest{
 			Email: "test@domain.com",
 		}).Return([]warden.Team{
@@ -123,7 +123,7 @@ func TestHandler_teamList(t *testing.T) {
 	})
 }
 
-func TestHandler_updateGroup(t *testing.T) {
+func TestHandlerUpdateGroup(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		dexGroupMetadataResponse := `{
 			"privacy": "public",
@@ -142,7 +142,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		})
 
 		wardenClient := mocks.NewWardenClient(t)
-		frozenTime := time.Unix(1697188378, 0)
+		frozenTime := time.Unix(1697188378, 0).UTC()
 		wardenClient.EXPECT().TeamByUUID(mock.Anything, warden.TeamByUUIDRequest{
 			TeamUUID: "123",
 		}).Return(&warden.Team{
@@ -232,7 +232,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		groupID := "e38527ee-a8cd-40f9-98a7-1f0bbd20909f"
 
 		wardenClient := mocks.NewWardenClient(t)
-		frozenTime := time.Unix(1697188378, 0)
+		frozenTime := time.Unix(1697188378, 0).UTC()
 		wardenClient.EXPECT().TeamByUUID(mock.Anything, warden.TeamByUUIDRequest{
 			TeamUUID: "123",
 		}).Return(&warden.Team{
@@ -280,7 +280,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		})
 
 		wardenClient := mocks.NewWardenClient(t)
-		frozenTime := time.Unix(1697188378, 0)
+		frozenTime := time.Unix(1697188378, 0).UTC()
 		wardenClient.EXPECT().TeamByUUID(mock.Anything, warden.TeamByUUIDRequest{
 			TeamUUID: "123",
 		}).Return(&warden.Team{
