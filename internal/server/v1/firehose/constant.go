@@ -21,7 +21,6 @@ const (
 	configSourceKafkaBrokers       = "SOURCE_KAFKA_BROKERS"
 	configSourceKafkaConsumerGroup = "SOURCE_KAFKA_CONSUMER_GROUP_ID"
 	configSinkType                 = "SINK_TYPE"
-	configStreamName               = "STREAM_NAME"
 	configStencilURL               = "SCHEMA_REGISTRY_STENCIL_URLS"
 )
 
