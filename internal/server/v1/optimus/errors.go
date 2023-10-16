@@ -1,8 +1,8 @@
 package optimus
 
-import "errors"
+import "github.com/goto/dex/pkg/errors"
 
 var (
-	ErrOptimusHostNotFound = errors.New("could not find optimus host in shield project metadata")
-	ErrOptimusHostInvalid  = errors.New("optimus host is not valid")
+	ErrOptimusHostNotFound = errors.New("No Optimus jobs found in this project")
+	ErrOptimusHostInvalid  = errors.New("Optimus host is not valid")
 )
