@@ -131,8 +131,8 @@ func mapEntropySpecAndLabels(firehose models.Firehose, spec *entropyv1beta1.Reso
 
 	streamName := labels[labelStream]
 
-	if proto.Equal(spec.GetConfigs(), &structpb.Value{Kind: &structpb.Value_NullValue{NullValue: structpb.NullValue_NULL_VALUE}}) {
-		// Handle the "null_value:NULL_VALUE" case
+	if proto.Equal(spec.GetConfigs(), structpb.NewNullValue()) {
+		// Handle the "null_value" case
 		firehose.Configs = &models.FirehoseConfig{
 			StreamName:  &streamName,
 			KubeCluster: &kubeCluster,
