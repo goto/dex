@@ -24,7 +24,7 @@ import (
 )
 
 func TestHandler_teamList(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		dexTeamListResonses := `{             
 			 "teams": [
 					{
@@ -72,7 +72,7 @@ func TestHandler_teamList(t *testing.T) {
 		assert.JSONEq(t, dexTeamListResonses, resp.Body.String())
 	})
 
-	t.Run("emailNotFound", func(t *testing.T) {
+	t.Run("EmailNotFound", func(t *testing.T) {
 		wardenClient := mocks.NewWardenClient(t)
 		wardenClient.EXPECT().ListUserTeams(mock.Anything, warden.TeamListRequest{
 			Email: "test@domain.com",
@@ -91,7 +91,7 @@ func TestHandler_teamList(t *testing.T) {
 		assert.JSONEq(t, `{"code":"not_found", "message":"Requested entity not found", "op":"", "status":404}`, resp.Body.String())
 	})
 
-	t.Run("wardenClientFailure", func(t *testing.T) {
+	t.Run("WardenClientFailure", func(t *testing.T) {
 		wardenClient := mocks.NewWardenClient(t)
 		wardenClient.EXPECT().ListUserTeams(mock.Anything, warden.TeamListRequest{
 			Email: "test@domain.com",
@@ -110,7 +110,7 @@ func TestHandler_teamList(t *testing.T) {
 		assert.JSONEq(t, `{"code":"internal_error", "message":"Some unexpected error occurred", "op":"", "status":500}`, resp.Body.String())
 	})
 
-	t.Run("missingEmail", func(t *testing.T) {
+	t.Run("MissingEmail", func(t *testing.T) {
 		resp := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/users/me/warden_teams", nil)
 		require.NoError(t, err)
@@ -124,7 +124,7 @@ func TestHandler_teamList(t *testing.T) {
 }
 
 func TestHandler_updateGroup(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		dexGroupMetadataResponse := `{
 			"privacy": "public",
 			"product-group-id": "2079834a-05c4-420d-bfc8-44b934adea9f",
@@ -187,7 +187,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		assert.JSONEq(t, dexGroupMetadataResponse, resp.Body.String())
 	})
 
-	t.Run("missingWardenTeamID", func(t *testing.T) {
+	t.Run("MissingWardenTeamID", func(t *testing.T) {
 		// response return by handler
 		dexGroupMetadataResponse := `{"code":"", "message":"missing warden_team_id", "op":"", "status":400}`
 
@@ -203,7 +203,7 @@ func TestHandler_updateGroup(t *testing.T) {
 		assert.JSONEq(t, dexGroupMetadataResponse, resp.Body.String())
 	})
 
-	t.Run("wardenIdNotFound", func(t *testing.T) {
+	t.Run("WardenIdNotFound", func(t *testing.T) {
 		// response returned by warden client
 		dexGroupMetadataResponse := `{"code":"not_found", "message":"Requested entity not found", "op":"", "status":404}`
 
