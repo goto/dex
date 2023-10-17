@@ -180,7 +180,7 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		}}, nil)
 
 		resp := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPut, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata/warden", bytes.NewBufferString(`{"warden_team_id": "123"}`))
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
@@ -196,7 +196,7 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		dexGroupMetadataResponse := `{"code":"", "message":"missing warden_team_id", "op":"", "status":400}`
 
 		resp := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{}`))
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPut, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata/warden", bytes.NewBufferString(`{}`))
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
@@ -219,7 +219,7 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		shieldClient := shareMocks.NewShieldServiceClient(t)
 
 		resp := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPut, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata/warden", bytes.NewBufferString(`{"warden_team_id": "123"}`))
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
@@ -258,7 +258,7 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		}).Return(nil, errors.ErrInternal)
 
 		resp := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPut, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata/warden", bytes.NewBufferString(`{"warden_team_id": "123"}`))
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
@@ -318,7 +318,7 @@ func TestHandlerUpdateGroup(t *testing.T) {
 		}).Return(nil, errors.ErrInternal)
 
 		resp := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPatch, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata", bytes.NewBufferString(`{"warden_team_id": "123"}`))
+		req, err := http.NewRequestWithContext(context.TODO(), http.MethodPut, "/groups/e38527ee-a8cd-40f9-98a7-1f0bbd20909f/metadata/warden", bytes.NewBufferString(`{"warden_team_id": "123"}`))
 		require.NoError(t, err)
 		router := chi.NewRouter()
 		router.Use(reqctx.WithRequestCtx())
