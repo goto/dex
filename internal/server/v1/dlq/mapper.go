@@ -44,6 +44,7 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobCo
 	status := res.GetState().GetStatus().String()
 
 	envs := modConf.EnvVariables
+	job.Name = buildEntropyResourceName(res.Name, "firehose", job.Topic, job.Date)
 	job.Namespace = namespace
 	job.Status = status
 	job.CreatedAt = strfmt.DateTime(res.CreatedAt.AsTime())
@@ -101,7 +102,7 @@ func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 	return &entropyv1beta1.Resource{
 		Urn:       job.Urn,
 		Kind:      entropy.ResourceKindJob,
-		Name:      buildEntropyResourceName(job),
+		Name:      job.Name,
 		Project:   job.Project,
 		Labels:    buildResourceLabels(job),
 		CreatedBy: job.CreatedBy,
@@ -226,6 +227,7 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 
 	job := models.DlqJob{
 		Urn:          r.Urn,
+		Name:         r.Name,
 		ResourceID:   labels["resource_id"],
 		ResourceType: labels["resource_type"],
 		Date:         labels["date"],
@@ -258,12 +260,12 @@ func buildResourceLabels(job models.DlqJob) map[string]string {
 	}
 }
 
-func buildEntropyResourceName(job models.DlqJob) string {
+func buildEntropyResourceName(resourceTitle, resourceType, topic, date string) string {
 	return fmt.Sprintf(
 		"%s-%s-%s-%s",
-		job.ResourceID,   // firehose urn
-		job.ResourceType, // firehose / dagger
-		job.Topic,        //
-		job.Date,         //
+		resourceTitle, // firehose title
+		resourceType,  // firehose / dagger
+		topic,         //
+		date,          //
 	)
 }

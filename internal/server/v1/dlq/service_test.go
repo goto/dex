@@ -7,15 +7,16 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/structpb"
+
 	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/dlq"
 	"github.com/goto/dex/mocks"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/structpb"
 )
 
 func TestServiceCreateDLQJob(t *testing.T) {
