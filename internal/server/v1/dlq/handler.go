@@ -10,6 +10,7 @@ import (
 	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
+	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/firehose"
 )
@@ -65,6 +66,7 @@ func (*Handler) listDlqJobs(w http.ResponseWriter, _ *http.Request) {
 func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 	// transform request body into DlqJob (validation?)
 	ctx := r.Context()
+	reqCtx := reqctx.From(ctx)
 	var dlqJob models.DlqJob
 
 	if err := utils.ReadJSON(r, &dlqJob); err != nil {
@@ -73,13 +75,15 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call service.CreateDLQJob
-	resp, err := h.service.CreateDLQJob(ctx, &dlqJob)
+	err := h.service.CreateDLQJob(ctx, reqCtx.UserEmail, &dlqJob)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
 	}
 	// return
-	utils.WriteJSON(w, http.StatusOK, resp)
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"dlq_list": dlqJob.Urn,
+	})
 }
 
 func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {

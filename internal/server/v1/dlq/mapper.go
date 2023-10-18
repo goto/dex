@@ -20,7 +20,7 @@ const (
 	dlqTelegrafConfigName    = "dlq-processor-telegraf"
 )
 
-func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobConfig) error {
+func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobConfig) error {
 	var kubeCluster string
 	for _, dep := range res.Spec.GetDependencies() {
 		if dep.GetKey() == kubeClusterDependenciesKey {
@@ -41,10 +41,14 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobC
 	if !ok {
 		return ErrFirehoseNamespaceInvalid
 	}
+	status := res.GetState().GetStatus().String()
 
 	envs := modConf.EnvVariables
-	job.ResourceID = res.GetUrn()
 	job.Namespace = namespace
+	job.Status = status
+	job.CreatedAt = strfmt.DateTime(res.CreatedAt.AsTime())
+	job.UpdatedAt = strfmt.DateTime(res.UpdatedAt.AsTime())
+
 	job.KubeCluster = kubeCluster
 	job.ContainerImage = cfg.DlqJobImage
 	job.PrometheusHost = cfg.PrometheusHost

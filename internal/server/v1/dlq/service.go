@@ -9,7 +9,6 @@ import (
 
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
-	"github.com/goto/dex/internal/server/reqctx"
 )
 
 type DlqJobConfig struct {
@@ -20,11 +19,10 @@ type DlqJobConfig struct {
 type Service struct {
 	client    entropyv1beta1rpc.ResourceServiceClient
 	gcsClient gcs.BlobStorageClient
-	cfg       *DlqJobConfig
-	Entropy   entropyv1beta1rpc.ResourceServiceClient
+	cfg       DlqJobConfig
 }
 
-func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.BlobStorageClient, cfg *DlqJobConfig) *Service {
+func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.BlobStorageClient, cfg DlqJobConfig) *Service {
 	return &Service{
 		client:    client,
 		gcsClient: gcsClient,
@@ -33,32 +31,32 @@ func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.Bl
 }
 
 // TODO: replace *DlqJob with a generated models.DlqJob
-func (s *Service) CreateDLQJob(ctx context.Context, dlqJob *models.DlqJob) (*entropyv1beta1.Resource, error) {
+func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *models.DlqJob) error {
 	// validate dlqJob for creation
 	// fetch firehose details
-	def, err := s.Entropy.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID})
+	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID})
 	if err != nil {
-		return nil, ErrFirehoseNotFound
+		return ErrFirehoseNotFound
 	}
 	// enrich DlqJob with firehose details
 	if err := enrichDlqJob(dlqJob, def.GetResource(), s.cfg); err != nil {
-		return nil, ErrFirehoseNotFound
+		return ErrFirehoseNotFound
 	}
 
 	// map DlqJob to entropy resource -> return entropy.Resource (kind = job)
 	res, err := mapToEntropyResource(*dlqJob)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// entropy create resource
-	reqCtx := reqctx.From(ctx)
-	entropyCtx := metadata.AppendToOutgoingContext(ctx, "user-id", reqCtx.UserEmail)
+	entropyCtx := metadata.AppendToOutgoingContext(ctx, "user-id", userEmail)
 	rpcReq := &entropyv1beta1.CreateResourceRequest{Resource: res}
-	rpcResp, err := s.Entropy.CreateResource(entropyCtx, rpcReq)
+	rpcResp, err := s.client.CreateResource(entropyCtx, rpcReq)
+	dlqJob.Urn = rpcResp.Resource.Urn
 	if err != nil {
 		outErr := ErrInternal
-		return nil, outErr
+		return outErr
 	}
 
-	return rpcResp.Resource, nil
+	return nil
 }

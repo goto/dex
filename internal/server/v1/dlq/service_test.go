@@ -1,226 +1,27 @@
 package dlq_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
-	"github.com/go-chi/chi/v5"
 	"github.com/go-openapi/strfmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/structpb"
-
 	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
-	"github.com/goto/dex/internal/server/gcs"
-	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/dlq"
-	"github.com/goto/dex/internal/server/v1/firehose"
 	"github.com/goto/dex/mocks"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
-const (
-	emailHeaderKey = "X-Auth-Email"
-)
-
-type testHTTPWriter struct {
-	messages []string
-}
-
-func (*testHTTPWriter) Header() http.Header {
-	return http.Header{}
-}
-
-func (m *testHTTPWriter) Write(bytes []byte) (int, error) {
-	m.messages = append(m.messages, string(bytes[:]))
-	return 0, nil
-}
-
-func (*testHTTPWriter) WriteHeader(int) {
-}
-
-func TestListTopicDates(t *testing.T) {
-	eService := &mocks.ResourceServiceClient{}
-	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient, dlq.DlqJobConfig{}))
-	httpWriter := &testHTTPWriter{}
-	httpRequest := &http.Request{}
-	config := &entropy.FirehoseConfig{
-		Stopped:      false,
-		StopTime:     nil,
-		Replicas:     0,
-		Namespace:    "",
-		DeploymentID: "",
-		EnvVariables: map[string]string{
-			firehose.ConfigDLQBucket:          "test-bucket",
-			firehose.ConfigDLQDirectoryPrefix: "test-prefix",
-		},
-		ResetOffset:   "",
-		Limits:        entropy.UsageSpec{},
-		Requests:      entropy.UsageSpec{},
-		Telegraf:      nil,
-		ChartValues:   nil,
-		InitContainer: entropy.FirehoseInitContainer{},
-	}
-	configProto, _ := utils.GoValToProtoStruct(config)
-	eService.On(
-		"GetResource",
-		context.Background(),
-		&entropyv1beta1.GetResourceRequest{Urn: ""}).Return(
-		&entropyv1beta1.GetResourceResponse{
-			Resource: &entropyv1beta1.Resource{
-				Urn:       "",
-				Kind:      "",
-				Name:      "",
-				Project:   "",
-				Labels:    nil,
-				CreatedAt: nil,
-				UpdatedAt: nil,
-				Spec: &entropyv1beta1.ResourceSpec{
-					Configs:      configProto,
-					Dependencies: nil,
-				},
-				State:     nil,
-				CreatedBy: "",
-				UpdatedBy: "",
-			},
-		}, nil)
-	topicDates := []models.DlqMetadata{
-		{
-			Topic:       "topic-1",
-			Date:        "2023-08-26",
-			SizeInBytes: 1234,
-		},
-		{
-			Topic:       "test-topic2",
-			Date:        "2023-12-10",
-			SizeInBytes: 4321,
-		},
-		{
-			Topic:       "topic-2",
-			Date:        "2023-09-20",
-			SizeInBytes: 99,
-		},
-	}
-	gClient.On("ListDlqMetadata", gcs.BucketInfo{
-		BucketName: "test-bucket",
-		Prefix:     "test-prefix",
-		Delim:      "",
-	}).Return(topicDates, nil)
-	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string][]models.DlqMetadata)
-	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
-	require.NoError(t, err)
-	assert.Equal(t, topicDates, expectedMap["dlq_list"])
-}
-
-func TestErrorFromGCSClient(t *testing.T) {
-	eService := &mocks.ResourceServiceClient{}
-	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient, dlq.DlqJobConfig{}))
-	httpWriter := &testHTTPWriter{}
-	httpRequest := &http.Request{}
-	config := &entropy.FirehoseConfig{
-		Stopped:      false,
-		StopTime:     nil,
-		Replicas:     0,
-		Namespace:    "",
-		DeploymentID: "",
-		EnvVariables: map[string]string{
-			firehose.ConfigDLQBucket:          "test-bucket",
-			firehose.ConfigDLQDirectoryPrefix: "test-prefix",
-		},
-		ResetOffset:   "",
-		Limits:        entropy.UsageSpec{},
-		Requests:      entropy.UsageSpec{},
-		Telegraf:      nil,
-		ChartValues:   nil,
-		InitContainer: entropy.FirehoseInitContainer{},
-	}
-	configProto, _ := utils.GoValToProtoStruct(config)
-	eService.On(
-		"GetResource",
-		context.Background(),
-		&entropyv1beta1.GetResourceRequest{Urn: ""}).Return(
-		&entropyv1beta1.GetResourceResponse{
-			Resource: &entropyv1beta1.Resource{
-				Urn:       "",
-				Kind:      "",
-				Name:      "",
-				Project:   "",
-				Labels:    nil,
-				CreatedAt: nil,
-				UpdatedAt: nil,
-				Spec: &entropyv1beta1.ResourceSpec{
-					Configs:      configProto,
-					Dependencies: nil,
-				},
-				State:     nil,
-				CreatedBy: "",
-				UpdatedBy: "",
-			},
-		}, nil)
-	gClient.On("ListDlqMetadata", gcs.BucketInfo{
-		BucketName: "test-bucket",
-		Prefix:     "test-prefix",
-		Delim:      "",
-	}).Return(nil, fmt.Errorf("test-error"))
-	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
-	require.NoError(t, err)
-	assert.Equal(t, "test-error", expectedMap["cause"])
-}
-
-func TestErrorFromFirehoseResource(t *testing.T) {
-	eService := &mocks.ResourceServiceClient{}
-	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient, dlq.DlqJobConfig{}))
-	httpWriter := &testHTTPWriter{}
-	httpRequest := &http.Request{}
-	eService.On(
-		"GetResource",
-		context.Background(),
-		mock.Anything).Return(nil, fmt.Errorf("test-error"))
-	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
-	require.NoError(t, err)
-	assert.Equal(t, "test-error", expectedMap["cause"])
-}
-
-func TestCreateDlqJob(t *testing.T) {
-	var (
-		method        = http.MethodPost
-		path          = fmt.Sprintf("/jobs")
-		resource_id   = "test-resource-id"
-		resource_type = "test-resource-type"
-		error_types   = "DESERILIAZATION_ERROR"
-		date          = "21-10-2022"
-		batch_size    = 0
-		num_threads   = 0
-		topic         = "test-topic"
-		jsonPayload   = fmt.Sprintf(`{
-			"resource_id": "%s",
-			"resource_type": "%s",
-			"error_types": "%s",
-			"batch_size": %d,
-			"num_threads": %d,
-			"topic": "%s",
-			"date": "%s"
-		}`, resource_id, resource_type, error_types, batch_size, num_threads, topic, date)
-	)
-
-	t.Run("Should return resource urn", func(t *testing.T) {
-		// initt input
+func TestServiceCreateDLQJob(t *testing.T) {
+	t.Run("should create a entropy resource with job kind", func(t *testing.T) {
+		// inputs
+		ctx := context.TODO()
 		namespace := "test-namespace"
 		kubeCluster := "test-kube-cluster"
 		userEmail := "test@example.com"
@@ -263,6 +64,17 @@ func TestCreateDlqJob(t *testing.T) {
 			"SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE": "true",
 		}
 
+		dlqJob := models.DlqJob{
+			BatchSize:  int64(5),
+			Date:       "2012-10-30",
+			ErrorTypes: "DESERILIAZATION_ERROR",
+			// Group: "",
+			NumThreads:   2,
+			ResourceID:   "test-resource-id",
+			ResourceType: "firehose",
+			Topic:        "test-create-topic",
+		}
+
 		outputStruct, err := structpb.NewStruct(map[string]interface{}{
 			"namespace": namespace,
 		})
@@ -296,11 +108,11 @@ func TestCreateDlqJob(t *testing.T) {
 		}
 
 		expectedEnvVars := map[string]string{
-			"DLQ_BATCH_SIZE":                          fmt.Sprintf("%d", batch_size),
-			"DLQ_NUM_THREADS":                         fmt.Sprintf("%d", num_threads),
-			"DLQ_ERROR_TYPES":                         error_types,
-			"DLQ_INPUT_DATE":                          date,
-			"DLQ_TOPIC_NAME":                          topic,
+			"DLQ_BATCH_SIZE":                          fmt.Sprintf("%d", dlqJob.BatchSize),
+			"DLQ_NUM_THREADS":                         fmt.Sprintf("%d", dlqJob.NumThreads),
+			"DLQ_ERROR_TYPES":                         dlqJob.ErrorTypes,
+			"DLQ_INPUT_DATE":                          dlqJob.Date,
+			"DLQ_TOPIC_NAME":                          dlqJob.Topic,
 			"METRIC_STATSD_TAGS":                      "a=b", // TBA
 			"SINK_TYPE":                               envVars["SINK_TYPE"],
 			"DLQ_PREFIX_DIR":                          "test-firehose",
@@ -368,11 +180,11 @@ func TestCreateDlqJob(t *testing.T) {
 						"APP_NAME":        "", // TBA
 						"PROMETHEUS_HOST": config.PrometheusHost,
 						"DEPLOYMENT_NAME": "deployment-name",
-						"TEAM":            "",
-						"TOPIC":           topic,
+						"TEAM":            dlqJob.Group,
+						"TOPIC":           dlqJob.Topic,
 						"environment":     "production", // TBA
 						"organization":    "de",         // TBA
-						"projectID":       "",
+						"projectID":       dlqJob.Project,
 					},
 					Command: []string{
 						"/bin/bash",
@@ -392,9 +204,9 @@ func TestCreateDlqJob(t *testing.T) {
 				},
 			},
 			JobLabels: map[string]string{
-				"firehose": resource_id,
-				"topic":    topic,
-				"date":     date,
+				"firehose": dlqJob.ResourceID,
+				"topic":    dlqJob.Topic,
+				"date":     dlqJob.Date,
 			},
 			Volumes: []entropy.JobVolume{
 				{
@@ -408,23 +220,23 @@ func TestCreateDlqJob(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
-
+		entropyCtx := metadata.AppendToOutgoingContext(ctx, "user-id", userEmail)
 		newJobResourcePayload := &entropyv1beta1.Resource{
-			Urn:  "",
+			Urn:  dlqJob.Urn,
 			Kind: entropy.ResourceKindJob,
 			Name: fmt.Sprintf(
 				"%s-%s-%s-%s",
-				resource_id,   // firehose urn
-				resource_type, // firehose / dagger
-				topic,         //
-				date,          //
+				dlqJob.ResourceID,   // firehose urn
+				dlqJob.ResourceType, // firehose / dagger
+				dlqJob.Topic,        //
+				dlqJob.Date,         //
 			),
 			Project: firehoseResource.Project,
 			Labels: map[string]string{
-				"resource_id": resource_id,
-				"type":        resource_type,
-				"date":        date,
-				"topic":       topic,
+				"resource_id": dlqJob.ResourceID,
+				"type":        dlqJob.ResourceType,
+				"date":        dlqJob.Date,
+				"topic":       dlqJob.Topic,
 				"job_type":    "dlq",
 			},
 			CreatedBy: jobResource.CreatedBy,
@@ -443,27 +255,30 @@ func TestCreateDlqJob(t *testing.T) {
 		// set conditions
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
-			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{},
+			"GetResource", ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID},
 		).Return(&entropyv1beta1.GetResourceResponse{
 			Resource: firehoseResource,
 		}, nil)
-		entropyClient.On("CreateResource", mock.Anything, &entropyv1beta1.CreateResourceRequest{
+		entropyClient.On("CreateResource", entropyCtx, &entropyv1beta1.CreateResourceRequest{
 			Resource: newJobResourcePayload,
 		}).Return(&entropyv1beta1.CreateResourceResponse{
 			Resource: jobResource,
 		}, nil)
 		defer entropyClient.AssertExpectations(t)
+		service := dlq.NewService(entropyClient, nil, config)
+
+		err = service.CreateDLQJob(ctx, userEmail, &dlqJob)
 
 		// assertions
-		_ = models.DlqJob{
+		expectedDlqJob := models.DlqJob{
 			// from input
-			BatchSize:    int64(batch_size),
-			ResourceID:   resource_id,
-			ResourceType: resource_type,
-			Topic:        topic,
-			NumThreads:   int64(num_threads),
-			Date:         date,
-			ErrorTypes:   error_types,
+			BatchSize:    dlqJob.BatchSize,
+			ResourceID:   dlqJob.ResourceID,
+			ResourceType: dlqJob.ResourceType,
+			Topic:        dlqJob.Topic,
+			NumThreads:   dlqJob.NumThreads,
+			Date:         dlqJob.Date,
+			ErrorTypes:   dlqJob.ErrorTypes,
 
 			// firehose resource
 			ContainerImage:       config.DlqJobImage,
@@ -486,29 +301,8 @@ func TestCreateDlqJob(t *testing.T) {
 			UpdatedAt: strfmt.DateTime(jobResource.UpdatedAt.AsTime()),
 			UpdatedBy: jobResource.UpdatedBy,
 		}
+
 		assert.NoError(t, err)
-		requestBody := bytes.NewReader([]byte(jsonPayload))
-
-		response := httptest.NewRecorder()
-		request := httptest.NewRequest(method, path, requestBody)
-		request.Header.Set(emailHeaderKey, userEmail)
-		router := getRouter()
-		dlq.Routes(entropyClient, nil, config)(router)
-		router.ServeHTTP(response, request)
-
-		assert.Equal(t, http.StatusOK, response.Code)
-		resultJSON := response.Body.Bytes()
-		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"dlq_list": "test-urn",
-		})
-		require.NoError(t, err)
-		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
+		assert.Equal(t, expectedDlqJob, dlqJob)
 	})
-}
-
-func getRouter() *chi.Mux {
-	router := chi.NewRouter()
-	router.Use(reqctx.WithRequestCtx())
-
-	return router
 }

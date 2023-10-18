@@ -10,7 +10,7 @@ import (
 func Routes(
 	entropyClient entropyv1beta1rpc.ResourceServiceClient,
 	gcsClient gcs.BlobStorageClient,
-	cfg *DlqJobConfig,
+	cfg DlqJobConfig,
 ) func(r chi.Router) {
 	service := NewService(entropyClient, gcsClient, cfg)
 	handler := NewHandler(service)
@@ -19,6 +19,6 @@ func Routes(
 		r.Get("/firehose/{firehose_urn}", handler.ListFirehoseDLQ)
 		r.Get("/jobs", handler.listDlqJobs)
 		r.Get("/jobs/{job_urn}", handler.getDlqJob)
-		r.Post("/firehose/{firehose_urn}/dlq_jobs", handler.createDlqJob)
+		r.Post("/jobs", handler.createDlqJob)
 	}
 }
