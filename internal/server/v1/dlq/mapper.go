@@ -226,24 +226,28 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 	errorTypes := envVars["DLQ_ERROR_TYPES"]
 
 	job := models.DlqJob{
-		Urn:          r.Urn,
-		Name:         r.Name,
-		ResourceID:   labels["resource_id"],
-		ResourceType: labels["resource_type"],
-		Date:         labels["date"],
-		Topic:        labels["topic"],
-		Namespace:    modConf.Namespace,
-		ErrorTypes:   errorTypes,
-		BatchSize:    batchSize,
-		NumThreads:   numThreads,
-		Replicas:     int64(modConf.Replicas),
-		KubeCluster:  kubeCluster,
-		Project:      r.Project,
-		CreatedBy:    r.CreatedBy,
-		UpdatedBy:    r.UpdatedBy,
-		Status:       string(r.GetState().Status),
-		CreatedAt:    strfmt.DateTime(r.CreatedAt.AsTime()),
-		UpdatedAt:    strfmt.DateTime(r.UpdatedAt.AsTime()),
+		Urn:                  r.Urn,
+		Name:                 r.Name,
+		ResourceID:           labels["resource_id"],
+		ResourceType:         labels["resource_type"],
+		Date:                 labels["date"],
+		Topic:                labels["topic"],
+		PrometheusHost:       labels["prometheus_host"],
+		Namespace:            modConf.Namespace,
+		ContainerImage:       modConf.Containers[0].Image,
+		ErrorTypes:           errorTypes,
+		BatchSize:            batchSize,
+		NumThreads:           numThreads,
+		Replicas:             int64(modConf.Replicas),
+		KubeCluster:          kubeCluster,
+		Project:              r.Project,
+		CreatedBy:            r.CreatedBy,
+		UpdatedBy:            r.UpdatedBy,
+		Status:               string(r.GetState().Status),
+		CreatedAt:            strfmt.DateTime(r.CreatedAt.AsTime()),
+		UpdatedAt:            strfmt.DateTime(r.UpdatedAt.AsTime()),
+		EnvVars:              envVars,
+		DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
 	}
 
 	return &job, nil
@@ -251,12 +255,13 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 
 func buildResourceLabels(job models.DlqJob) map[string]string {
 	return map[string]string{
-		"resource_id":   job.ResourceID,
-		"resource_type": job.ResourceType,
-		"date":          job.Date,
-		"topic":         job.Topic,
-		"job_type":      "dlq",
-		"group":         job.Group,
+		"resource_id":     job.ResourceID,
+		"resource_type":   job.ResourceType,
+		"date":            job.Date,
+		"topic":           job.Topic,
+		"job_type":        "dlq",
+		"group":           job.Group,
+		"prometheus_host": job.PrometheusHost,
 	}
 }
 
