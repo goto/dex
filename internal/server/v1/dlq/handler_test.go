@@ -11,7 +11,6 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -203,7 +202,7 @@ func TestCreateDlqJob(t *testing.T) {
 		path          = fmt.Sprintf("/jobs")
 		resource_id   = "test-resource-id"
 		resource_type = "test-resource-type"
-		error_types   = "DESERILIAZATION_ERROR"
+		error_types   = "DESERIALIZATION_ERROR"
 		date          = "21-10-2022"
 		batch_size    = 0
 		num_threads   = 0
@@ -331,7 +330,7 @@ func TestCreateDlqJob(t *testing.T) {
 		}
 
 		jobConfig, err := utils.GoValToProtoStruct(entropy.JobConfig{
-			Replicas:  0,
+			Replicas:  1,
 			Namespace: namespace,
 			Containers: []entropy.JobContainer{
 				{
@@ -443,7 +442,7 @@ func TestCreateDlqJob(t *testing.T) {
 		// set conditions
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
-			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{},
+			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{Urn: resource_id},
 		).Return(&entropyv1beta1.GetResourceResponse{
 			Resource: firehoseResource,
 		}, nil)
@@ -454,38 +453,6 @@ func TestCreateDlqJob(t *testing.T) {
 		}, nil)
 		defer entropyClient.AssertExpectations(t)
 
-		// assertions
-		_ = models.DlqJob{
-			// from input
-			BatchSize:    int64(batch_size),
-			ResourceID:   resource_id,
-			ResourceType: resource_type,
-			Topic:        topic,
-			NumThreads:   int64(num_threads),
-			Date:         date,
-			ErrorTypes:   error_types,
-
-			// firehose resource
-			ContainerImage:       config.DlqJobImage,
-			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
-			EnvVars:              expectedEnvVars,
-			Group:                "", //
-			KubeCluster:          kubeCluster,
-			Namespace:            namespace,
-			Project:              firehoseResource.Project,
-			PrometheusHost:       config.PrometheusHost,
-
-			// hardcoded
-			Replicas: 0,
-
-			// job resource
-			Urn:       jobResource.Urn,
-			Status:    jobResource.GetState().GetStatus().String(),
-			CreatedAt: strfmt.DateTime(jobResource.CreatedAt.AsTime()),
-			CreatedBy: jobResource.CreatedBy,
-			UpdatedAt: strfmt.DateTime(jobResource.UpdatedAt.AsTime()),
-			UpdatedBy: jobResource.UpdatedBy,
-		}
 		assert.NoError(t, err)
 		requestBody := bytes.NewReader([]byte(jsonPayload))
 

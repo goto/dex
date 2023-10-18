@@ -1287,6 +1287,8 @@ definitions:
   DlqJob:
     type: object
     properties:
+      name:
+        type: string
       urn:
         type: string
       project:

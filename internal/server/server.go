@@ -37,7 +37,7 @@ func Serve(ctx context.Context, addr string,
 	gcsClient gcs.BlobStorageClient,
 	odinAddr string,
 	stencilAddr string,
-	dlqConfig *dlqv1.DlqJobConfig,
+	dlqConfig dlqv1.DlqJobConfig,
 ) error {
 	alertSvc := alertsv1.NewService(sirenClient)
 

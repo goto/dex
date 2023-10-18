@@ -120,7 +120,7 @@ func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 
 func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 	return utils.GoValToProtoStruct(entropy.JobConfig{
-		Replicas:  int32(job.Replicas),
+		Replicas:  1,
 		Namespace: job.Namespace,
 		Containers: []entropy.JobContainer{
 			{
@@ -249,11 +249,12 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 
 func buildResourceLabels(job models.DlqJob) map[string]string {
 	return map[string]string{
-		"resource_id": job.ResourceID,
-		"type":        job.ResourceType,
-		"date":        job.Date,
-		"topic":       job.Topic,
-		"job_type":    "dlq",
+		"resource_id":   job.ResourceID,
+		"resource_type": job.ResourceType,
+		"date":          job.Date,
+		"topic":         job.Topic,
+		"job_type":      "dlq",
+		"group":         job.Group,
 	}
 }
 

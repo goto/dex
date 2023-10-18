@@ -60,3 +60,16 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *mo
 
 	return nil
 }
+
+func (s *Service) getDlqJob(ctx context.Context, firehoseUrn string) (*models.DlqJob, error) {
+	dlqJob := &models.DlqJob{}
+
+	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: firehoseUrn})
+	if err != nil {
+		return nil, ErrFirehoseNotFound
+	}
+
+	dlqJob, err = MapToDlqJob(def.GetResource())
+
+	return dlqJob, nil
+}
