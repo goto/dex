@@ -71,12 +71,16 @@ func (*Handler) createDlqJob(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {
-	// sample to get job urn from route params
-	_ = h.jobURN(r)
+	ctx := r.Context()
+	jobURN := h.jobURN(r)
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_job": nil,
-	})
+	dlqJob, err := h.service.getDlqJob(ctx, jobURN)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, dlqJob)
 }
 
 func (*Handler) firehoseURN(r *http.Request) string {

@@ -52,6 +52,9 @@ type DlqJob struct {
 	// kube cluster
 	KubeCluster string `json:"kube_cluster,omitempty"`
 
+	// name
+	Name string `json:"name,omitempty"`
+	
 	// namespace
 	Namespace string `json:"namespace,omitempty"`
 
