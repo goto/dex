@@ -11,6 +11,7 @@ import (
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -508,11 +509,50 @@ func TestCreateDlqJob(t *testing.T) {
 		router := getRouter()
 		dlq.Routes(entropyClient, nil, config)(router)
 		router.ServeHTTP(response, request)
+		// assertions
+		expectedDlqJob := models.DlqJob{
+			// from input
+			BatchSize:    int64(batchSize),
+			ResourceID:   resourceId,
+			ResourceType: resourceType,
+			Topic:        topic,
+			Name: fmt.Sprintf(
+				"%s-%s-%s-%s",
+				firehoseResource.Name, // firehose title
+				"firehose",            // firehose / dagger
+				topic,                 //
+				date,                  //
+			),
 
+			NumThreads: int64(numThreads),
+			Date:       date,
+			ErrorTypes: errorTypes,
+
+			// firehose resource
+			ContainerImage:       config.DlqJobImage,
+			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
+			EnvVars:              expectedEnvVars,
+			Group:                "", //
+			KubeCluster:          kubeCluster,
+			Namespace:            namespace,
+			Project:              firehoseResource.Project,
+			PrometheusHost:       config.PrometheusHost,
+
+			// hardcoded
+			Replicas: 0,
+
+			// job resource
+			Urn:       jobResource.Urn,
+			Status:    jobResource.GetState().GetStatus().String(),
+			CreatedAt: strfmt.DateTime(jobResource.CreatedAt.AsTime()),
+			CreatedBy: jobResource.CreatedBy,
+			UpdatedAt: strfmt.DateTime(jobResource.UpdatedAt.AsTime()),
+			UpdatedBy: jobResource.UpdatedBy,
+		}
 		assert.Equal(t, http.StatusOK, response.Code)
 		resultJSON := response.Body.Bytes()
 		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"dlq_urn": "test-urn",
+			"dlq_job": expectedDlqJob,
 		})
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))

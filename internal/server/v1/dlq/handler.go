@@ -96,7 +96,7 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 	}
 	// return
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_list": dlqJob.Urn,
+		"dlq_job": dlqJob,
 	})
 }
 
