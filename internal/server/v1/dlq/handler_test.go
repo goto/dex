@@ -512,7 +512,7 @@ func TestCreateDlqJob(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		resultJSON := response.Body.Bytes()
 		expectedJSON, err := json.Marshal(map[string]interface{}{
-			"dlq_list": "test-urn",
+			"dlq_urn": "test-urn",
 		})
 		require.NoError(t, err)
 		assert.JSONEq(t, string(expectedJSON), string(resultJSON))

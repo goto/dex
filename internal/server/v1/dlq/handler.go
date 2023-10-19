@@ -58,10 +58,19 @@ func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (*Handler) listDlqJobs(w http.ResponseWriter, _ *http.Request) {
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_jobs": []interface{}{},
-	})
+func (h *Handler) listDlqJobs(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	firehoseUrn := chi.URLParam(r, "firehoseURN")
+	// fetch py resource (kind = job)
+	// mapToDlqJob(entropyResource) -> DqlJob
+	dlqJob, err := h.service.listDlqJob(ctx, firehoseUrn)
+	if err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, dlqJob)
 }
 
 func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
@@ -93,18 +102,11 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {
 	// sample to get job urn from route params
-	ctx := r.Context()
+	_ = h.jobURN(r)
 
-	firehoseUrn := chi.URLParam(r, "firehoseURN")
-	// fetch entropy resource (kind = job)
-	// mapToDlqJob(entropyResource) -> DqlJob
-	dlqJob, err := h.service.getDlqJob(ctx, firehoseUrn)
-	if err != nil {
-		utils.WriteErr(w, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, dlqJob)
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"dlq_job": nil,
+	})
 }
 
 func (*Handler) firehoseURN(r *http.Request) string {

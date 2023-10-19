@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
 )
@@ -67,15 +68,28 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *mo
 	return nil
 }
 
-func (s *Service) getDlqJob(ctx context.Context, firehoseUrn string) (*models.DlqJob, error) {
-	dlqJob := &models.DlqJob{}
+func (s *Service) listDlqJob(ctx context.Context, firehoseUrn string) ([]*models.DlqJob, error) {
+	dlqJob := []*models.DlqJob{}
 
-	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: firehoseUrn})
-	if err != nil {
-		return nil, ErrFirehoseNotFound
+	rpcReq := &entropyv1beta1.ListResourcesRequest{
+		Kind: entropy.ResourceKindJob,
 	}
 
-	dlqJob, err = MapToDlqJob(def.GetResource())
+	rpcResp, err := s.client.ListResources(ctx, rpcReq)
+	if err != nil {
+		st := status.Convert(err)
+		if st.Code() == codes.NotFound {
+			return nil, ErrFirehoseNotFound
+		}
+		return nil, err
+	}
+	for _, res := range rpcResp.GetResources() {
+		def, err := MapToDlqJob(res)
+		if err != nil {
+			return nil, err
+		}
+		dlqJob = append(dlqJob, def)
+	}
 
 	return dlqJob, nil
 }
