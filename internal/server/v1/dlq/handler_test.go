@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/goto/dex/entropy"
@@ -198,25 +200,67 @@ func TestErrorFromFirehoseResource(t *testing.T) {
 
 func TestCreateDlqJob(t *testing.T) {
 	var (
-		method        = http.MethodPost
-		path          = fmt.Sprintf("/jobs")
-		resource_id   = "test-resource-id"
-		resource_type = "test-resource-type"
-		error_types   = "DESERIALIZATION_ERROR"
-		date          = "21-10-2022"
-		batch_size    = 0
-		num_threads   = 0
-		topic         = "test-topic"
-		jsonPayload   = fmt.Sprintf(`{
+		method       = http.MethodPost
+		path         = fmt.Sprintf("/jobs")
+		resourceId   = "test-resource-id"
+		resourceType = "test-resource-type"
+		errorTypes   = "DESERIALIZATION_ERROR"
+		date         = "21-10-2022"
+		batchSize    = 0
+		numThreads   = 0
+		topic        = "test-topic"
+		group        = ""
+		jsonPayload  = fmt.Sprintf(`{
 			"resource_id": "%s",
 			"resource_type": "%s",
 			"error_types": "%s",
 			"batch_size": %d,
 			"num_threads": %d,
 			"topic": "%s",
-			"date": "%s"
-		}`, resource_id, resource_type, error_types, batch_size, num_threads, topic, date)
+			"date": "%s",
+			"group": "%s"
+		}`, resourceId, resourceType, errorTypes, batchSize, numThreads, topic, date, group)
 	)
+
+	t.Run("Should return error firehose not Found", func(t *testing.T) {
+		// initt input
+		expectedErr := status.Error(codes.NotFound, "Not found")
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{Urn: resourceId},
+		).Return(nil, expectedErr)
+		defer entropyClient.AssertExpectations(t)
+
+		requestBody := bytes.NewReader([]byte(jsonPayload))
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, requestBody)
+		router := getRouter()
+		dlq.Routes(entropyClient, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return error in firehose mapping", func(t *testing.T) {
+		// initt input
+		expectedErr := status.Error(codes.Internal, "Not found")
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{Urn: resourceId},
+		).Return(nil, expectedErr)
+		defer entropyClient.AssertExpectations(t)
+
+		requestBody := bytes.NewReader([]byte(jsonPayload))
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, requestBody)
+		router := getRouter()
+		dlq.Routes(entropyClient, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 
 	t.Run("Should return resource urn", func(t *testing.T) {
 		// initt input
@@ -295,9 +339,9 @@ func TestCreateDlqJob(t *testing.T) {
 		}
 
 		expectedEnvVars := map[string]string{
-			"DLQ_BATCH_SIZE":                          fmt.Sprintf("%d", batch_size),
-			"DLQ_NUM_THREADS":                         fmt.Sprintf("%d", num_threads),
-			"DLQ_ERROR_TYPES":                         error_types,
+			"DLQ_BATCH_SIZE":                          fmt.Sprintf("%d", batchSize),
+			"DLQ_NUM_THREADS":                         fmt.Sprintf("%d", numThreads),
+			"DLQ_ERROR_TYPES":                         errorTypes,
 			"DLQ_INPUT_DATE":                          date,
 			"DLQ_TOPIC_NAME":                          topic,
 			"METRIC_STATSD_TAGS":                      "a=b", // TBA
@@ -391,7 +435,7 @@ func TestCreateDlqJob(t *testing.T) {
 				},
 			},
 			JobLabels: map[string]string{
-				"firehose": resource_id,
+				"firehose": resourceId,
 				"topic":    topic,
 				"date":     date,
 			},
@@ -413,18 +457,20 @@ func TestCreateDlqJob(t *testing.T) {
 			Kind: entropy.ResourceKindJob,
 			Name: fmt.Sprintf(
 				"%s-%s-%s-%s",
-				resource_id,   // firehose urn
-				resource_type, // firehose / dagger
-				topic,         //
-				date,          //
+				firehoseResource.Name, // firehose urn
+				"firehose",            // firehose / dagger
+				topic,                 //
+				date,                  //
 			),
 			Project: firehoseResource.Project,
 			Labels: map[string]string{
-				"resource_id": resource_id,
-				"type":        resource_type,
-				"date":        date,
-				"topic":       topic,
-				"job_type":    "dlq",
+				"resource_id":     resourceId,
+				"resource_type":   resourceType,
+				"date":            date,
+				"topic":           topic,
+				"job_type":        "dlq",
+				"group":           group,
+				"prometheus_host": config.PrometheusHost,
 			},
 			CreatedBy: jobResource.CreatedBy,
 			UpdatedBy: jobResource.UpdatedBy,
@@ -442,7 +488,7 @@ func TestCreateDlqJob(t *testing.T) {
 		// set conditions
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
-			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{Urn: resource_id},
+			"GetResource", mock.Anything, &entropyv1beta1.GetResourceRequest{Urn: resourceId},
 		).Return(&entropyv1beta1.GetResourceResponse{
 			Resource: firehoseResource,
 		}, nil)

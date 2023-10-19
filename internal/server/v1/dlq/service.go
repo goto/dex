@@ -5,7 +5,9 @@ import (
 
 	entropyv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
@@ -36,11 +38,15 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *mo
 	// fetch firehose details
 	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID})
 	if err != nil {
-		return ErrFirehoseNotFound
+		st := status.Convert(err)
+		if st.Code() == codes.NotFound {
+			return ErrFirehoseNotFound
+		}
+		return err
 	}
 	// enrich DlqJob with firehose details
 	if err := enrichDlqJob(dlqJob, def.GetResource(), s.cfg); err != nil {
-		return ErrFirehoseNotFound
+		return err
 	}
 
 	// map DlqJob to entropy resource -> return entropy.Resource (kind = job)

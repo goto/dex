@@ -1,6 +1,7 @@
 package dlq
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -77,6 +78,10 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 	// call service.CreateDLQJob
 	err := h.service.CreateDLQJob(ctx, reqCtx.UserEmail, &dlqJob)
 	if err != nil {
+		if errors.Is(err, ErrFirehoseNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+			return
+		}
 		utils.WriteErr(w, err)
 		return
 	}
@@ -91,7 +96,7 @@ func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	firehoseUrn := chi.URLParam(r, "firehoseURN")
-	// fetch entorpy resource (kind = job)
+	// fetch entropy resource (kind = job)
 	// mapToDlqJob(entropyResource) -> DqlJob
 	dlqJob, err := h.service.getDlqJob(ctx, firehoseUrn)
 	if err != nil {

@@ -9,7 +9,9 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/goto/dex/entropy"
@@ -20,6 +22,48 @@ import (
 )
 
 func TestServiceCreateDLQJob(t *testing.T) {
+	t.Run("should return ErrFirehoseNotFound if resource cannot be found in entropy", func(t *testing.T) {
+		// inputs
+		ctx := context.TODO()
+		dlqJob := models.DlqJob{
+			ResourceID:   "test-resource-id",
+			ResourceType: "firehose",
+		}
+		expectedErr := status.Error(codes.NotFound, "Not found")
+
+		// set conditions
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"GetResource", ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID},
+		).Return(nil, expectedErr)
+		defer entropyClient.AssertExpectations(t)
+		service := dlq.NewService(entropyClient, nil, dlq.DlqJobConfig{})
+
+		err := service.CreateDLQJob(ctx, "", &dlqJob)
+		assert.ErrorIs(t, err, dlq.ErrFirehoseNotFound)
+	})
+
+	t.Run("should return error when there is an error getting firehose in entropy", func(t *testing.T) {
+		// inputs
+		ctx := context.TODO()
+		dlqJob := models.DlqJob{
+			ResourceID:   "test-resource-id",
+			ResourceType: "firehose",
+		}
+		expectedErr := status.Error(codes.Internal, "Any Error")
+
+		// set conditions
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"GetResource", ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID},
+		).Return(nil, expectedErr)
+		defer entropyClient.AssertExpectations(t)
+		service := dlq.NewService(entropyClient, nil, dlq.DlqJobConfig{})
+
+		err := service.CreateDLQJob(ctx, "", &dlqJob)
+		assert.ErrorIs(t, err, expectedErr)
+	})
+
 	t.Run("should create a entropy resource with job kind", func(t *testing.T) {
 		// inputs
 		ctx := context.TODO()
@@ -66,10 +110,10 @@ func TestServiceCreateDLQJob(t *testing.T) {
 		}
 
 		dlqJob := models.DlqJob{
-			BatchSize:  int64(5),
-			Date:       "2012-10-30",
-			ErrorTypes: "DESERILIAZATION_ERROR",
-			// Group: "",
+			BatchSize:    int64(5),
+			Date:         "2012-10-30",
+			ErrorTypes:   "DESERILIAZATION_ERROR",
+			Group:        "",
 			NumThreads:   2,
 			ResourceID:   "test-resource-id",
 			ResourceType: "firehose",
@@ -144,7 +188,7 @@ func TestServiceCreateDLQJob(t *testing.T) {
 		}
 
 		jobConfig, err := utils.GoValToProtoStruct(entropy.JobConfig{
-			Replicas:  0,
+			Replicas:  1,
 			Namespace: namespace,
 			Containers: []entropy.JobContainer{
 				{
@@ -227,18 +271,20 @@ func TestServiceCreateDLQJob(t *testing.T) {
 			Kind: entropy.ResourceKindJob,
 			Name: fmt.Sprintf(
 				"%s-%s-%s-%s",
-				dlqJob.ResourceID,   // firehose urn
+				jobResource.Name,    // firehose urn
 				dlqJob.ResourceType, // firehose / dagger
 				dlqJob.Topic,        //
 				dlqJob.Date,         //
 			),
 			Project: firehoseResource.Project,
 			Labels: map[string]string{
-				"resource_id": dlqJob.ResourceID,
-				"type":        dlqJob.ResourceType,
-				"date":        dlqJob.Date,
-				"topic":       dlqJob.Topic,
-				"job_type":    "dlq",
+				"resource_id":     dlqJob.ResourceID,
+				"resource_type":   dlqJob.ResourceType,
+				"date":            dlqJob.Date,
+				"topic":           dlqJob.Topic,
+				"job_type":        "dlq",
+				"group":           dlqJob.Group,
+				"prometheus_host": config.PrometheusHost,
 			},
 			CreatedBy: jobResource.CreatedBy,
 			UpdatedBy: jobResource.UpdatedBy,
@@ -277,9 +323,17 @@ func TestServiceCreateDLQJob(t *testing.T) {
 			ResourceID:   dlqJob.ResourceID,
 			ResourceType: dlqJob.ResourceType,
 			Topic:        dlqJob.Topic,
-			NumThreads:   dlqJob.NumThreads,
-			Date:         dlqJob.Date,
-			ErrorTypes:   dlqJob.ErrorTypes,
+			Name: fmt.Sprintf(
+				"%s-%s-%s-%s",
+				firehoseResource.Name, // firehose title
+				"firehose",            // firehose / dagger
+				dlqJob.Topic,          //
+				dlqJob.Date,           //
+			),
+
+			NumThreads: dlqJob.NumThreads,
+			Date:       dlqJob.Date,
+			ErrorTypes: dlqJob.ErrorTypes,
 
 			// firehose resource
 			ContainerImage:       config.DlqJobImage,
