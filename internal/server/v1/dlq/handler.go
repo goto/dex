@@ -1,6 +1,7 @@
 package dlq
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -74,8 +75,12 @@ func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	jobURN := h.jobURN(r)
 
-	dlqJob, err := h.service.getDlqJob(ctx, jobURN)
+	dlqJob, err := h.service.GetDlqJob(ctx, jobURN)
 	if err != nil {
+		if errors.Is(err, ErrJobNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, ErrJobNotFound.Error())
+			return
+		}
 		utils.WriteErr(w, err)
 		return
 	}
