@@ -9,8 +9,8 @@ func Routes(shieldClient shieldv1beta1rpc.ShieldServiceClient, wardenClient Ward
 	service := NewService(shieldClient, wardenClient)
 	handler := NewHandler(service)
 	return func(r chiv5.Router) {
-		r.Get("/users/me/warden_teams", handler.teamList)
+		r.Get("/users/me/warden_teams", handler.listUserWardenTeams)
 
-		r.Put("/groups/{group_id}/metadata/warden", handler.updateGroupMetadata)
+		r.Put("/groups/{group_id}/metadata/warden", handler.linkGroupToWarden)
 	}
 }

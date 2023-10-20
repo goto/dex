@@ -17,7 +17,7 @@ func NewHandler(service *Service) *handler {
 	return &handler{service: service}
 }
 
-func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
+func (h *handler) listUserWardenTeams(w http.ResponseWriter, r *http.Request) {
 	reqCtx := reqctx.From(r.Context())
 	const errEmailMissedInHeader = "user email not in header"
 
@@ -26,7 +26,7 @@ func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	teamListResp, err := h.service.TeamList(r.Context(), reqCtx.UserEmail)
+	teamListResp, err := h.service.UserWardenTeamList(r.Context(), reqCtx.UserEmail)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return
@@ -37,7 +37,7 @@ func (h *handler) teamList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *handler) updateGroupMetadata(w http.ResponseWriter, r *http.Request) {
+func (h *handler) linkGroupToWarden(w http.ResponseWriter, r *http.Request) {
 	groupID := chi.URLParam(r, "group_id")
 
 	var body struct {
@@ -51,7 +51,7 @@ func (h *handler) updateGroupMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resShield, err := h.service.UpdateGroupMetadata(r.Context(), groupID, body.WardenTeamID)
+	resShield, err := h.service.LinkGroupToWarden(r.Context(), groupID, body.WardenTeamID)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return

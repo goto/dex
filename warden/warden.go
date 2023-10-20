@@ -17,6 +17,14 @@ type Team struct {
 	ShortCode            string    `json:"short_code"`
 }
 
+type TeamListRequest struct {
+	Email string
+}
+
+type TeamByUUIDRequest struct {
+	TeamUUID string
+}
+
 type teamResponse struct {
 	Success bool `json:"success"`
 	Data    Team `json:"data"`
@@ -29,12 +37,4 @@ type teamListResponse struct {
 
 type teamsData struct {
 	Teams []Team `json:"teams"`
-}
-
-type TeamListRequest struct {
-	Email string
-}
-
-type TeamByUUIDRequest struct {
-	TeamUUID string
 }

@@ -2,6 +2,7 @@ package iam
 
 import (
 	"context"
+	"fmt"
 
 	shieldv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/shield/v1beta1/shieldv1beta1grpc"
 	shieldv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/shield/v1beta1"
@@ -29,7 +30,7 @@ func NewService(shieldClient shieldv1beta1rpc.ShieldServiceClient, wardenClient 
 	}
 }
 
-func (svc *Service) TeamList(ctx context.Context, userEmail string) ([]warden.Team, error) {
+func (svc *Service) UserWardenTeamList(ctx context.Context, userEmail string) ([]warden.Team, error) {
 	teams, err := svc.wardenClient.ListUserTeams(ctx, warden.TeamListRequest{
 		Email: userEmail,
 	})
@@ -40,7 +41,7 @@ func (svc *Service) TeamList(ctx context.Context, userEmail string) ([]warden.Te
 	return teams, nil
 }
 
-func (svc *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeamID string) (map[string]any, error) {
+func (svc *Service) LinkGroupToWarden(ctx context.Context, groupID, wardenTeamID string) (map[string]any, error) {
 	team, err := svc.wardenClient.TeamByUUID(ctx, warden.TeamByUUIDRequest{
 		TeamUUID: wardenTeamID,
 	})
@@ -52,7 +53,7 @@ func (svc *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeam
 		Id: groupID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting shield group: %w", err)
 	}
 
 	group := getGroupRes.Group
@@ -69,10 +70,10 @@ func (svc *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeam
 
 	updatedMetaData, err := structpb.NewStruct(metaData)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating metadata struct: %w", err)
 	}
 
-	UpdatedGroupRes, err := svc.shieldClient.UpdateGroup(ctx, &shieldv1beta1.UpdateGroupRequest{
+	updatedGroupRes, err := svc.shieldClient.UpdateGroup(ctx, &shieldv1beta1.UpdateGroupRequest{
 		Id: groupID,
 		Body: &shieldv1beta1.GroupRequestBody{
 			Metadata: updatedMetaData,
@@ -82,8 +83,8 @@ func (svc *Service) UpdateGroupMetadata(ctx context.Context, groupID, wardenTeam
 		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error updating group: %w", err)
 	}
 
-	return UpdatedGroupRes.Group.Metadata.AsMap(), nil
+	return updatedGroupRes.Group.Metadata.AsMap(), nil
 }

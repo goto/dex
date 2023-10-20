@@ -22,13 +22,7 @@ func NewClient(baseURL string) *Client {
 }
 
 func (c *Client) ListUserTeams(ctx context.Context, req TeamListRequest) ([]Team, error) {
-	const (
-		endpoint      = "/api/v1"
-		userPath      = "/users/"
-		teamsEndpoint = "/teams"
-	)
-	url := fmt.Sprintf("%s%s%s%s%s", c.BaseURL, endpoint, userPath, req.Email, teamsEndpoint)
-	fmt.Println("URL: ", url)
+	url := fmt.Sprintf("%s/api/v1/users/%s/teams", c.BaseURL, req.Email)
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -51,19 +45,13 @@ func (c *Client) ListUserTeams(ctx context.Context, req TeamListRequest) ([]Team
 	var data teamListResponse
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error decoding warden teamListResponse: %w", err)
 	}
-
 	return data.Data.Teams, nil
 }
 
 func (c *Client) TeamByUUID(ctx context.Context, req TeamByUUIDRequest) (*Team, error) {
-	const (
-		endpoint = "/api/v2"
-		teamPath = "/teams/"
-	)
-
-	url := fmt.Sprintf("%s%s%s%s", c.BaseURL, endpoint, teamPath, req.TeamUUID)
+	url := fmt.Sprintf("%s/api/v2/teams/%s", c.BaseURL, req.TeamUUID)
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
