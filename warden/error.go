@@ -1,8 +1,8 @@
 package warden
 
-import "github.com/goto/dex/pkg/errors"
+import "errors"
 
 var (
-	ErrOptimusHostNotFound = errors.New("No Optimus jobs found in this project")
-	ErrOptimusHostInvalid  = errors.New("Optimus host is not valid")
+	ErrUserEmailNotFound = errors.New("user email not found")
+	ErrTeamUUIDNotFound  = errors.New("team with uuid not found")
 )

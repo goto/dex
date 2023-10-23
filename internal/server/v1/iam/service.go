@@ -35,7 +35,7 @@ func (svc *Service) UserWardenTeamList(ctx context.Context, userEmail string) ([
 		Email: userEmail,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error listing user teams: %w", err)
 	}
 
 	return teams, nil
@@ -46,7 +46,7 @@ func (svc *Service) LinkGroupToWarden(ctx context.Context, groupID, wardenTeamID
 		TeamUUID: wardenTeamID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting warden team: %w", err)
 	}
 
 	getGroupRes, err := svc.shieldClient.GetGroup(ctx, &shieldv1beta1.GetGroupRequest{

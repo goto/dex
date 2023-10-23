@@ -3,10 +3,10 @@ package warden
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
-
-	"github.com/goto/dex/pkg/errors"
 )
 
 type Client struct {
@@ -25,21 +25,26 @@ func (c *Client) ListUserTeams(ctx context.Context, req TeamListRequest) ([]Team
 	url := fmt.Sprintf("%s/api/v1/users/%s/teams", c.BaseURL, req.Email)
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 
 	resp, err := c.Client.Do(httpReq)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error sending request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
-			return nil, errors.ErrNotFound.WithMsgf("user with email %s not found", req.Email)
+			return nil, ErrUserEmailNotFound
 		}
 
-		return nil, errors.ErrInternal.WithMsgf("failed to fetch teams: %v", resp.Status)
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("error reading response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		return nil, errors.New(fmt.Errorf("got non-200 http status code=(%d) body=%s", resp.StatusCode, bodyString).Error())
 	}
 
 	var data teamListResponse
@@ -54,27 +59,32 @@ func (c *Client) TeamByUUID(ctx context.Context, req TeamByUUIDRequest) (*Team, 
 	url := fmt.Sprintf("%s/api/v2/teams/%s", c.BaseURL, req.TeamUUID)
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 
 	resp, err := c.Client.Do(httpReq)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error sending request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
-			return nil, errors.ErrNotFound.WithMsgf("team with uuid %s not found", req.TeamUUID)
+			return nil, ErrTeamUUIDNotFound
 		}
 
-		return nil, errors.ErrInternal.WithMsgf("failed to fetch teams: %v", resp.Status)
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("error reading response body: %w", err)
+		}
+		bodyString := string(bodyBytes)
+		return nil, errors.New(fmt.Errorf("got non-200 http status code=(%d) body=%s", resp.StatusCode, bodyString).Error())
 	}
 
 	var data teamResponse
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error decoding teamResponse: %w", err)
 	}
 
 	return &data.Data, nil
