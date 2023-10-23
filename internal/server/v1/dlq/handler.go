@@ -61,10 +61,10 @@ func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) listDlqJobs(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	firehoseUrn := chi.URLParam(r, "firehoseURN")
+	// firehoseUrn := chi.URLParam(r, "firehoseURN")
 	// fetch py resource (kind = job)
 	// mapToDlqJob(entropyResource) -> DqlJob
-	dlqJob, err := h.service.listDlqJob(ctx, firehoseUrn)
+	dlqJob, err := h.service.ListDlqJob(ctx)
 	if err != nil {
 		utils.WriteErr(w, err)
 		return

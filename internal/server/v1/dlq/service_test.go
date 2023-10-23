@@ -21,6 +21,342 @@ import (
 	"github.com/goto/dex/mocks"
 )
 
+func TestServiceListDLQJob(t *testing.T) {
+	var (
+		project      = "test-project-1"
+		namespace    = "test-namespace"
+		resourceID   = "test-resource-id"
+		resourceType = "test-resource-type"
+		errorTypes   = "DESERIALIZATION_ERROR"
+		kubeCluster  = "test-kube-cluster"
+		date         = "2022-10-21"
+		batchSize    = 1
+		numThreads   = 1
+		topic        = "test-topic"
+		group        = ""
+		config       = dlq.DlqJobConfig{
+			PrometheusHost: "http://sample-prom-host",
+			DlqJobImage:    "test-image",
+		}
+		envVars = map[string]string{
+			"SINK_TYPE":                               "bigquery",
+			"DLQ_ERROR_TYPES":                         "DEFAULT_ERROR",
+			"DLQ_BATCH_SIZE":                          "34",
+			"DLQ_NUM_THREADS":                         "10",
+			"DLQ_PREFIX_DIR":                          "test-firehose",
+			"DLQ_FINISHED_STATUS_FILE":                "/shared/job-finished",
+			"DLQ_GCS_BUCKET_NAME":                     "g-pilotdata-gl-dlq",
+			"DLQ_GCS_CREDENTIAL_PATH":                 "/etc/secret/gcp/token",
+			"DLQ_GCS_GOOGLE_CLOUD_PROJECT_ID":         "pilotdata-integration",
+			"DLQ_INPUT_DATE":                          "2023-04-10",
+			"JAVA_TOOL_OPTIONS":                       "-javaagent:jolokia-jvm-agent.jar=port=8778,host=localhost",
+			"_JAVA_OPTIONS":                           "-Xmx1800m -Xms1800m",
+			"DLQ_TOPIC_NAME":                          "gofood-booking-log",
+			"INPUT_SCHEMA_PROTO_CLASS":                "gojek.esb.booking.GoFoodBookingLogMessage",
+			"METRIC_STATSD_TAGS":                      "a=b",
+			"SCHEMA_REGISTRY_STENCIL_ENABLE":          "true",
+			"SCHEMA_REGISTRY_STENCIL_URLS":            "http://p-godata-systems-stencil-v1beta1-ingress.golabs.io/v1beta1/namespaces/gojek/schemas/esb-log-entities",
+			"SINK_BIGQUERY_ADD_METADATA_ENABLED":      "true",
+			"SINK_BIGQUERY_CLIENT_CONNECT_TIMEOUT_MS": "-1",
+			"SINK_BIGQUERY_CLIENT_READ_TIMEOUT_MS":    "-1",
+			"SINK_BIGQUERY_CREDENTIAL_PATH":           "/etc/secret/gcp/token",
+			"SINK_BIGQUERY_DATASET_LABELS":            "shangchi=legend,lord=voldemort",
+			"SINK_BIGQUERY_DATASET_LOCATION":          "US",
+			"SINK_BIGQUERY_DATASET_NAME":              "bq_test",
+			"SINK_BIGQUERY_GOOGLE_CLOUD_PROJECT_ID":   "pilotdata-integration",
+			"SINK_BIGQUERY_ROW_INSERT_ID_ENABLE":      "false",
+			"SINK_BIGQUERY_STORAGE_API_ENABLE":        "true",
+			"SINK_BIGQUERY_TABLE_LABELS":              "hello=world,john=doe",
+			"SINK_BIGQUERY_TABLE_NAME":                "bq_dlq_test1",
+			"SINK_BIGQUERY_TABLE_PARTITION_EXPIRY_MS": "2629800000",
+			"SINK_BIGQUERY_TABLE_PARTITION_KEY":       "event_timestamp",
+			"SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE": "true",
+		}
+		expectedEnvVars = map[string]string{
+			"DLQ_BATCH_SIZE":                          fmt.Sprintf("%d", batchSize),
+			"DLQ_NUM_THREADS":                         fmt.Sprintf("%d", numThreads),
+			"DLQ_ERROR_TYPES":                         errorTypes,
+			"DLQ_INPUT_DATE":                          date,
+			"DLQ_TOPIC_NAME":                          topic,
+			"METRIC_STATSD_TAGS":                      "a=b", // TBA
+			"SINK_TYPE":                               envVars["SINK_TYPE"],
+			"DLQ_PREFIX_DIR":                          "test-firehose",
+			"DLQ_FINISHED_STATUS_FILE":                "/shared/job-finished",
+			"DLQ_GCS_BUCKET_NAME":                     envVars["DLQ_GCS_BUCKET_NAME"],
+			"DLQ_GCS_CREDENTIAL_PATH":                 envVars["DLQ_GCS_CREDENTIAL_PATH"],
+			"DLQ_GCS_GOOGLE_CLOUD_PROJECT_ID":         envVars["DLQ_GCS_GOOGLE_CLOUD_PROJECT_ID"],
+			"JAVA_TOOL_OPTIONS":                       envVars["JAVA_TOOL_OPTIONS"],
+			"_JAVA_OPTIONS":                           envVars["_JAVA_OPTIONS"],
+			"INPUT_SCHEMA_PROTO_CLASS":                envVars["INPUT_SCHEMA_PROTO_CLASS"],
+			"SCHEMA_REGISTRY_STENCIL_ENABLE":          envVars["SCHEMA_REGISTRY_STENCIL_ENABLE"],
+			"SCHEMA_REGISTRY_STENCIL_URLS":            envVars["SCHEMA_REGISTRY_STENCIL_URLS"],
+			"SINK_BIGQUERY_ADD_METADATA_ENABLED":      envVars["SINK_BIGQUERY_ADD_METADATA_ENABLED"],
+			"SINK_BIGQUERY_CLIENT_CONNECT_TIMEOUT_MS": envVars["SINK_BIGQUERY_CLIENT_CONNECT_TIMEOUT_MS"],
+			"SINK_BIGQUERY_CLIENT_READ_TIMEOUT_MS":    envVars["SINK_BIGQUERY_CLIENT_READ_TIMEOUT_MS"],
+			"SINK_BIGQUERY_CREDENTIAL_PATH":           envVars["SINK_BIGQUERY_CREDENTIAL_PATH"],
+			"SINK_BIGQUERY_DATASET_LABELS":            envVars["SINK_BIGQUERY_DATASET_LABELS"],
+			"SINK_BIGQUERY_DATASET_LOCATION":          envVars["SINK_BIGQUERY_DATASET_LOCATION"],
+			"SINK_BIGQUERY_DATASET_NAME":              envVars["SINK_BIGQUERY_DATASET_NAME"],
+			"SINK_BIGQUERY_GOOGLE_CLOUD_PROJECT_ID":   envVars["SINK_BIGQUERY_GOOGLE_CLOUD_PROJECT_ID"],
+			"SINK_BIGQUERY_ROW_INSERT_ID_ENABLE":      envVars["SINK_BIGQUERY_ROW_INSERT_ID_ENABLE"],
+			"SINK_BIGQUERY_STORAGE_API_ENABLE":        envVars["SINK_BIGQUERY_STORAGE_API_ENABLE"],
+			"SINK_BIGQUERY_TABLE_LABELS":              envVars["SINK_BIGQUERY_TABLE_LABELS"],
+			"SINK_BIGQUERY_TABLE_NAME":                envVars["SINK_BIGQUERY_TABLE_NAME"],
+			"SINK_BIGQUERY_TABLE_PARTITION_EXPIRY_MS": envVars["SINK_BIGQUERY_TABLE_PARTITION_EXPIRY_MS"],
+			"SINK_BIGQUERY_TABLE_PARTITION_KEY":       envVars["SINK_BIGQUERY_TABLE_PARTITION_KEY"],
+			"SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE": envVars["SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE"],
+		}
+	)
+
+	jobConfig, _ := utils.GoValToProtoStruct(entropy.JobConfig{
+		Replicas:  1,
+		Namespace: namespace,
+		Containers: []entropy.JobContainer{
+			{
+				Name:            "dlq-job",
+				Image:           config.DlqJobImage,
+				ImagePullPolicy: "Always",
+				SecretsVolumes: []entropy.JobSecret{
+					{
+						Name:  "firehose-bigquery-sink-credential",
+						Mount: envVars["DLQ_GCS_CREDENTIAL_PATH"],
+					},
+				},
+				Limits: entropy.UsageSpec{
+					CPU:    "0.5", // user
+					Memory: "2gb", // user
+				},
+				Requests: entropy.UsageSpec{
+					CPU:    "0.5", // user
+					Memory: "2gb", // user
+				},
+				EnvVariables: expectedEnvVars,
+			},
+			{
+				Name:  "telegraf",
+				Image: "telegraf:1.18.0-alpine",
+				ConfigMapsVolumes: []entropy.JobConfigMap{
+					{
+						Name:  "dlq-processor-telegraf",
+						Mount: "/etc/telegraf",
+					},
+				},
+				EnvVariables: map[string]string{
+					// To be updated by streaming
+					"APP_NAME":        "", // TBA
+					"PROMETHEUS_HOST": config.PrometheusHost,
+					"DEPLOYMENT_NAME": "deployment-name",
+					"TEAM":            group,
+					"TOPIC":           topic,
+					"environment":     "production", // TBA
+					"organization":    "de",         // TBA
+					"projectID":       project,
+				},
+				Command: []string{
+					"/bin/bash",
+				},
+				Args: []string{
+					"-c",
+					"telegraf & while [ ! -f /shared/job-finished ]; do sleep 5; done; sleep 20 && exit 0",
+				},
+				Limits: entropy.UsageSpec{
+					CPU:    "100m",  // user
+					Memory: "300Mi", // user
+				},
+				Requests: entropy.UsageSpec{
+					CPU:    "100m",  // user
+					Memory: "300Mi", // user
+				},
+			},
+		},
+		JobLabels: map[string]string{
+			"firehose": resourceID,
+			"topic":    topic,
+			"date":     date,
+		},
+		Volumes: []entropy.JobVolume{
+			{
+				Name: "firehose-bigquery-sink-credential",
+				Kind: "secret",
+			},
+			{
+				Name: "dlq-processor-telegraf",
+				Kind: "configMap",
+			},
+		},
+	})
+
+	dummyEntropyResources := []*entropyv1beta1.Resource{
+		{
+			Urn:  "test-urn-1",
+			Kind: entropy.ResourceKindJob,
+			Name: fmt.Sprintf(
+				"%s-%s-%s-%s",
+				"test1",    // firehose title
+				"firehose", // firehose / dagger
+				topic,      //
+				date,       //
+			),
+			Project: project,
+			Labels: map[string]string{
+				"resource_id":     resourceID,
+				"resource_type":   resourceType,
+				"date":            date,
+				"topic":           topic,
+				"job_type":        "dlq",
+				"group":           group,
+				"prometheus_host": config.PrometheusHost,
+			},
+			CreatedBy: "user@test.com",
+			UpdatedBy: "user@test.com",
+			Spec: &entropyv1beta1.ResourceSpec{
+				Configs: jobConfig,
+				Dependencies: []*entropyv1beta1.ResourceDependency{
+					{
+						Key:   "kube_cluster",
+						Value: kubeCluster, // from firehose configs.kube_cluster
+					},
+				},
+			},
+		},
+		{
+			Urn:  "test-urn-2",
+			Kind: entropy.ResourceKindJob,
+			Name: fmt.Sprintf(
+				"%s-%s-%s-%s",
+				"test2",    // firehose title
+				"firehose", // firehose / dagger
+				topic,      //
+				date,       //
+			),
+			Project: project,
+			Labels: map[string]string{
+				"resource_id":     resourceID,
+				"resource_type":   resourceType,
+				"date":            date,
+				"topic":           topic,
+				"job_type":        "dlq",
+				"group":           group,
+				"prometheus_host": config.PrometheusHost,
+			},
+			CreatedBy: "user@test.com",
+			UpdatedBy: "user@test.com",
+			Spec: &entropyv1beta1.ResourceSpec{
+				Configs: jobConfig,
+				Dependencies: []*entropyv1beta1.ResourceDependency{
+					{
+						Key:   "kube_cluster",
+						Value: kubeCluster, // from firehose configs.kube_cluster
+					},
+				},
+			},
+		},
+	}
+
+	expectedDlqJob := []models.DlqJob{
+		{
+			// from input
+			BatchSize:    int64(batchSize),
+			ResourceID:   resourceID,
+			ResourceType: resourceType,
+			Topic:        topic,
+			Name: fmt.Sprintf(
+				"%s-%s-%s-%s",
+				"test1",    // firehose title
+				"firehose", // firehose / dagger
+				topic,      //
+				date,       //
+			),
+
+			NumThreads: int64(numThreads),
+			Date:       date,
+			ErrorTypes: errorTypes,
+
+			// firehose resource
+			ContainerImage:       config.DlqJobImage,
+			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
+			EnvVars:              expectedEnvVars,
+			Group:                "", //
+			KubeCluster:          kubeCluster,
+			Namespace:            namespace,
+			Project:              project,
+			PrometheusHost:       config.PrometheusHost,
+
+			// hardcoded
+			Replicas: 1,
+
+			// job resource
+			Urn:       "test-urn-1",
+			Status:    dummyEntropyResources[0].GetState().GetStatus().String(),
+			CreatedAt: strfmt.DateTime(dummyEntropyResources[0].CreatedAt.AsTime()),
+			CreatedBy: "user@test.com",
+			UpdatedAt: strfmt.DateTime(dummyEntropyResources[0].UpdatedAt.AsTime()),
+			UpdatedBy: "user@test.com",
+		},
+		{
+			// from input
+			BatchSize:    int64(batchSize),
+			ResourceID:   resourceID,
+			ResourceType: resourceType,
+			Topic:        topic,
+			Name: fmt.Sprintf(
+				"%s-%s-%s-%s",
+				"test2",    // firehose title
+				"firehose", // firehose / dagger
+				topic,      //
+				date,       //
+			),
+
+			NumThreads: int64(numThreads),
+			Date:       date,
+			ErrorTypes: errorTypes,
+
+			// firehose resource
+			ContainerImage:       config.DlqJobImage,
+			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
+			EnvVars:              expectedEnvVars,
+			Group:                "", //
+			KubeCluster:          kubeCluster,
+			Namespace:            namespace,
+			Project:              project,
+			PrometheusHost:       config.PrometheusHost,
+
+			// hardcoded
+			Replicas: 1,
+
+			// job resource
+			Urn:       "test-urn-2",
+			Status:    dummyEntropyResources[0].GetState().GetStatus().String(),
+			CreatedAt: strfmt.DateTime(dummyEntropyResources[0].CreatedAt.AsTime()),
+			CreatedBy: "user@test.com",
+			UpdatedAt: strfmt.DateTime(dummyEntropyResources[0].UpdatedAt.AsTime()),
+			UpdatedBy: "user@test.com",
+		},
+	}
+
+	t.Run("should return dlqjob list", func(t *testing.T) {
+		ctx := context.TODO()
+
+		expectedRPCResp := &entropyv1beta1.ListResourcesResponse{
+			Resources: dummyEntropyResources,
+		}
+
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"ListResources", ctx, &entropyv1beta1.ListResourcesRequest{
+				Kind: entropy.ResourceKindJob,
+			},
+		).Return(expectedRPCResp, nil)
+		defer entropyClient.AssertExpectations(t)
+
+		service := dlq.NewService(entropyClient, nil, config)
+
+		dlqJob, err := service.ListDlqJob(ctx)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedDlqJob, dlqJob)
+	})
+}
+
 func TestServiceCreateDLQJob(t *testing.T) {
 	t.Run("should return ErrFirehoseNotFound if resource cannot be found in entropy", func(t *testing.T) {
 		// inputs

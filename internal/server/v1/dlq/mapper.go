@@ -243,7 +243,7 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 		Project:              r.Project,
 		CreatedBy:            r.CreatedBy,
 		UpdatedBy:            r.UpdatedBy,
-		Status:               string(r.GetState().Status),
+		Status:               r.GetState().GetStatus().String(),
 		CreatedAt:            strfmt.DateTime(r.CreatedAt.AsTime()),
 		UpdatedAt:            strfmt.DateTime(r.UpdatedAt.AsTime()),
 		EnvVars:              envVars,

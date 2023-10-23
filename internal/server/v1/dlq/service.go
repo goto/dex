@@ -68,8 +68,8 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *mo
 	return nil
 }
 
-func (s *Service) listDlqJob(ctx context.Context, firehoseUrn string) ([]*models.DlqJob, error) {
-	dlqJob := []*models.DlqJob{}
+func (s *Service) ListDlqJob(ctx context.Context) ([]models.DlqJob, error) {
+	dlqJob := []models.DlqJob{}
 
 	rpcReq := &entropyv1beta1.ListResourcesRequest{
 		Kind: entropy.ResourceKindJob,
@@ -88,7 +88,7 @@ func (s *Service) listDlqJob(ctx context.Context, firehoseUrn string) ([]*models
 		if err != nil {
 			return nil, err
 		}
-		dlqJob = append(dlqJob, def)
+		dlqJob = append(dlqJob, *def)
 	}
 
 	return dlqJob, nil
