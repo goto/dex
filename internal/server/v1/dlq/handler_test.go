@@ -221,7 +221,6 @@ func TestListDlqJob(t *testing.T) {
 		group        = "test-group"
 	)
 	t.Run("Should return error firehose not found because labels", func(t *testing.T) {
-		// initt input
 		path := fmt.Sprintf("/jobs?resource_id=%s&resource_type=%s&date=%s", "test-resource-id2", resourceType, date)
 		expectedLabels := map[string]string{
 			"resource_id":   "test-resource-id2",
@@ -247,7 +246,6 @@ func TestListDlqJob(t *testing.T) {
 	})
 
 	t.Run("Should return error in firehose mapping", func(t *testing.T) {
-		// initt input
 		path := fmt.Sprintf("/jobs?resource_id=")
 		expectedErr := status.Error(codes.Internal, "Not found")
 		expectedLabels := map[string]string{}
@@ -548,8 +546,70 @@ func TestCreateDlqJob(t *testing.T) {
 		}`, resourceID, resourceType, errorTypes, batchSize, numThreads, topic, date, group)
 	)
 
+	t.Run("Should return error user header is required", func(t *testing.T) {
+
+		requestBody := bytes.NewReader([]byte(jsonPayload))
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, requestBody)
+		router := getRouter()
+		dlq.Routes(nil, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+	})
+
+	t.Run("Should return error validation resource type not firehose", func(t *testing.T) {
+		jsonBody := `{
+			"resource_id": "test-resource-id",
+			"resource_type": "dlq",
+			"error_types": "test-error",
+			"batch_size": 1,
+			"num_threads": 2,
+			"topic": "test-topic",
+			"date": "2022-10-21",
+			"group": "test-group"
+		}`
+		userEmail := "test@example.com"
+
+		requestBody := bytes.NewReader([]byte(jsonBody))
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		dlq.Routes(nil, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
+	t.Run("Should return error validation missing required fields", func(t *testing.T) {
+		jsonBody := `{
+			"resource_id": "",
+			"resource_type": "firehose",
+			"error_types": "test-error",
+			"batch_size": 1,
+			"num_threads": 2,
+			"topic": "test-topic",
+			"date": "2022-10-21",
+			"group": "test-group"
+		}`
+		userEmail := "test@example.com"
+
+		requestBody := bytes.NewReader([]byte(jsonBody))
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, requestBody)
+		request.Header.Set(emailHeaderKey, userEmail)
+		router := getRouter()
+		dlq.Routes(nil, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+	})
+
 	t.Run("Should return error firehose not Found", func(t *testing.T) {
-		// initt input
 		expectedErr := status.Error(codes.NotFound, "Not found")
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
@@ -569,7 +629,6 @@ func TestCreateDlqJob(t *testing.T) {
 	})
 
 	t.Run("Should return error in firehose mapping", func(t *testing.T) {
-		// initt input
 		expectedErr := status.Error(codes.Internal, "Not found")
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
@@ -589,7 +648,6 @@ func TestCreateDlqJob(t *testing.T) {
 	})
 
 	t.Run("Should return resource urn", func(t *testing.T) {
-		// initt input
 		namespace := "test-namespace"
 		kubeCluster := "test-kube-cluster"
 		userEmail := "test@example.com"
