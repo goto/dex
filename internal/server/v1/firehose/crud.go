@@ -70,7 +70,9 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		labelTeam:        groupSlug,
 		labelStream:      *def.Configs.StreamName,
 		labelDescription: def.Description,
-		labelSinkType:    def.Configs.EnvVars["SINK_TYPE"],
+		labelSinkType:    def.Configs.EnvVars[configSinkType],
+		labelTopic:       def.Configs.EnvVars[configSourceKafkaTopic],
+		labelKubeCluster: *def.Configs.KubeCluster,
 	})
 
 	prj, err := project.GetProject(ctx, def.Project, api.Shield)
@@ -180,12 +182,6 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	includeEnv := []string{
-		configSinkType,
-		configSourceKafkaTopic,
-		configSourceKafkaConsumerGroup,
-	}
-
 	topicName := q.Get("topic_name")
 	kubeCluster := q.Get("kube_cluster")
 	sinkTypes := sinkTypeSet(q.Get("sink_type"))
@@ -197,25 +193,18 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if kubeCluster != "" && *def.Configs.KubeCluster != kubeCluster {
+		if kubeCluster != "" && def.Labels[labelKubeCluster] != kubeCluster {
 			continue
 		}
 
-		if topicName != "" && def.Configs.EnvVars[configSourceKafkaTopic] != topicName {
+		if topicName != "" && def.Labels[labelTopic] != topicName {
 			continue
 		}
 
-		_, include := sinkTypes[def.Configs.EnvVars[configSinkType]]
+		_, include := sinkTypes[def.Labels[labelSinkType]]
 		if len(sinkTypes) > 0 && !include {
 			continue
 		}
-
-		// only return selected keys to reduce list response-size.
-		returnEnv := map[string]string{}
-		for _, key := range includeEnv {
-			returnEnv[key] = def.Configs.EnvVars[key]
-		}
-		def.Configs.EnvVars = returnEnv
 
 		arr = append(arr, def)
 	}
@@ -385,6 +374,10 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 
 	if existing.Configs.EnvVars["SINK_TYPE"] != req.Configs.EnvVars["SINK_TYPE"] {
 		labels[labelSinkType] = req.Configs.EnvVars["SINK_TYPE"]
+	}
+
+	if existing.Configs.EnvVars[configSourceKafkaTopic] != req.Configs.EnvVars[configSourceKafkaTopic] {
+		labels[labelTopic] = req.Configs.EnvVars[configSourceKafkaTopic]
 	}
 
 	existing.Configs.EnvVars = cloneAndMergeMaps(
