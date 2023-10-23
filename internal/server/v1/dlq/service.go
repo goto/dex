@@ -59,11 +59,11 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *mo
 	entropyCtx := metadata.AppendToOutgoingContext(ctx, "user-id", userEmail)
 	rpcReq := &entropyv1beta1.CreateResourceRequest{Resource: res}
 	rpcResp, err := s.client.CreateResource(entropyCtx, rpcReq)
-	dlqJob.Urn = rpcResp.Resource.Urn
 	if err != nil {
-		outErr := ErrInternal
-		return outErr
+		return err
 	}
+
+	dlqJob.Urn = rpcResp.Resource.Urn
 
 	return nil
 }

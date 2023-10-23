@@ -74,17 +74,33 @@ func (h *Handler) listDlqJobs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
-	// transform request body into DlqJob (validation?)
 	ctx := r.Context()
 	reqCtx := reqctx.From(ctx)
-	var dlqJob models.DlqJob
-
-	if err := utils.ReadJSON(r, &dlqJob); err != nil {
-		utils.WriteErr(w, err)
+	if reqCtx.UserEmail == "" {
+		utils.WriteErrMsg(w, http.StatusUnauthorized, "user header is required")
 		return
 	}
 
-	// call service.CreateDLQJob
+	var body models.DlqJobForm
+	if err := utils.ReadJSON(r, &body); err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+	if err := body.Validate(nil); err != nil {
+		utils.WriteErrMsg(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	dlqJob := models.DlqJob{
+		BatchSize:    *body.BatchSize,
+		Date:         *body.Date,
+		ErrorTypes:   body.ErrorTypes,
+		NumThreads:   *body.NumThreads,
+		ResourceID:   *body.ResourceID,
+		ResourceType: *body.ResourceType,
+		Topic:        *body.Topic,
+	}
+
 	err := h.service.CreateDLQJob(ctx, reqCtx.UserEmail, &dlqJob)
 	if err != nil {
 		if errors.Is(err, ErrFirehoseNotFound) {
@@ -94,7 +110,7 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, err)
 		return
 	}
-	// return
+
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"dlq_job": dlqJob,
 	})
