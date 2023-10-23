@@ -71,7 +71,7 @@ func (*Handler) createDlqJob(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
-func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetDlqJob(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	jobURN := h.jobURN(r)
 

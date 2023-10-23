@@ -18,7 +18,7 @@ func Routes(
 	return func(r chi.Router) {
 		r.Get("/firehose/{firehose_urn}", handler.ListFirehoseDLQ)
 		r.Get("/jobs", handler.listDlqJobs)
-		r.Get("/jobs/{job_urn}", handler.getDlqJob)
+		r.Get("/jobs/{job_urn}", handler.GetDlqJob)
 		r.Post("/jobs", handler.createDlqJob)
 	}
 }

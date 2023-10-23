@@ -186,3 +186,20 @@ func TestErrorFromFirehoseResource(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "test-error", expectedMap["cause"])
 }
+
+func TestErrorFromDlqJob(t *testing.T) {
+	eService := &mocks.ResourceServiceClient{}
+	gClient := &mocks.BlobStorageClient{}
+	handler := dlq.NewHandler(dlq.NewService(eService, gClient, &dlq.DlqJobConfig{}))
+	httpWriter := &testHTTPWriter{}
+	httpRequest := &http.Request{}
+	eService.On(
+		"GetResource",
+		context.Background(),
+		mock.Anything).Return(nil, fmt.Errorf("test-dlq-error"))
+	handler.GetDlqJob(httpWriter, httpRequest)
+	expectedMap := make(map[string]interface{})
+	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
+	require.NoError(t, err)
+	assert.Equal(t, "error getting entropy resource: test-dlq-error", expectedMap["cause"])
+}
