@@ -49,7 +49,7 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobCo
 	job.Status = status
 	job.CreatedAt = strfmt.DateTime(res.CreatedAt.AsTime())
 	job.UpdatedAt = strfmt.DateTime(res.UpdatedAt.AsTime())
-
+	job.Project = res.Project
 	job.KubeCluster = kubeCluster
 	job.ContainerImage = cfg.DlqJobImage
 	job.PrometheusHost = cfg.PrometheusHost
