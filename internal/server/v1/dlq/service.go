@@ -68,11 +68,12 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *mo
 	return nil
 }
 
-func (s *Service) ListDlqJob(ctx context.Context) ([]models.DlqJob, error) {
+func (s *Service) ListDlqJob(ctx context.Context, labelFilter map[string]string) ([]models.DlqJob, error) {
 	dlqJob := []models.DlqJob{}
 
 	rpcReq := &entropyv1beta1.ListResourcesRequest{
-		Kind: entropy.ResourceKindJob,
+		Kind:   entropy.ResourceKindJob,
+		Labels: labelFilter,
 	}
 
 	rpcResp, err := s.client.ListResources(ctx, rpcReq)

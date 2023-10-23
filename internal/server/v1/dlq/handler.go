@@ -61,16 +61,31 @@ func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) listDlqJobs(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// firehoseUrn := chi.URLParam(r, "firehoseURN")
-	// fetch py resource (kind = job)
-	// mapToDlqJob(entropyResource) -> DqlJob
-	dlqJob, err := h.service.ListDlqJob(ctx)
+	labelFilter := map[string]string{}
+	if resourceID := r.URL.Query().Get("resource_id"); resourceID != "" {
+		labelFilter["resource_id"] = resourceID
+	}
+	if resourceType := r.URL.Query().Get("resource_type"); resourceType != "" {
+		labelFilter["resource_type"] = resourceType
+	}
+	if date := r.URL.Query().Get("date"); date != "" {
+		labelFilter["date"] = date
+	}
+
+	dlqJob, err := h.service.ListDlqJob(ctx, labelFilter)
 	if err != nil {
+		if errors.Is(err, ErrFirehoseNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+			return
+		}
 		utils.WriteErr(w, err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, dlqJob)
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"dlq_jobs": dlqJob,
+	},
+	)
 }
 
 func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {

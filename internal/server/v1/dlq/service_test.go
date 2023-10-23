@@ -33,7 +33,7 @@ func TestServiceListDLQJob(t *testing.T) {
 		batchSize    = 1
 		numThreads   = 1
 		topic        = "test-topic"
-		group        = ""
+		group        = "test-group"
 		config       = dlq.DlqJobConfig{
 			PrometheusHost: "http://sample-prom-host",
 			DlqJobImage:    "test-image",
@@ -256,27 +256,20 @@ func TestServiceListDLQJob(t *testing.T) {
 	expectedDlqJob := []models.DlqJob{
 		{
 			// from input
-			BatchSize:    int64(batchSize),
-			ResourceID:   resourceID,
-			ResourceType: resourceType,
-			Topic:        topic,
-			Name: fmt.Sprintf(
-				"%s-%s-%s-%s",
-				"test1",    // firehose title
-				"firehose", // firehose / dagger
-				topic,      //
-				date,       //
-			),
-
-			NumThreads: int64(numThreads),
-			Date:       date,
-			ErrorTypes: errorTypes,
+			BatchSize:    1,
+			ResourceID:   "test-resource-id",
+			ResourceType: "test-resource-type",
+			Topic:        "test-topic",
+			Name:         "test1-firehose-test-topic-2022-10-21",
+			NumThreads:   1,
+			Date:         "2022-10-21",
+			ErrorTypes:   "DESERIALIZATION_ERROR",
 
 			// firehose resource
 			ContainerImage:       config.DlqJobImage,
 			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
 			EnvVars:              expectedEnvVars,
-			Group:                "", //
+			Group:                "test-group", //
 			KubeCluster:          kubeCluster,
 			Namespace:            namespace,
 			Project:              project,
@@ -287,7 +280,7 @@ func TestServiceListDLQJob(t *testing.T) {
 
 			// job resource
 			Urn:       "test-urn-1",
-			Status:    dummyEntropyResources[0].GetState().GetStatus().String(),
+			Status:    "STATUS_UNSPECIFIED",
 			CreatedAt: strfmt.DateTime(dummyEntropyResources[0].CreatedAt.AsTime()),
 			CreatedBy: "user@test.com",
 			UpdatedAt: strfmt.DateTime(dummyEntropyResources[0].UpdatedAt.AsTime()),
@@ -295,27 +288,20 @@ func TestServiceListDLQJob(t *testing.T) {
 		},
 		{
 			// from input
-			BatchSize:    int64(batchSize),
-			ResourceID:   resourceID,
-			ResourceType: resourceType,
-			Topic:        topic,
-			Name: fmt.Sprintf(
-				"%s-%s-%s-%s",
-				"test2",    // firehose title
-				"firehose", // firehose / dagger
-				topic,      //
-				date,       //
-			),
-
-			NumThreads: int64(numThreads),
-			Date:       date,
-			ErrorTypes: errorTypes,
+			BatchSize:    1,
+			ResourceID:   "test-resource-id",
+			ResourceType: "test-resource-type",
+			Topic:        "test-topic",
+			Name:         "test2-firehose-test-topic-2022-10-21",
+			NumThreads:   1,
+			Date:         "2022-10-21",
+			ErrorTypes:   "DESERIALIZATION_ERROR",
 
 			// firehose resource
 			ContainerImage:       config.DlqJobImage,
 			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
 			EnvVars:              expectedEnvVars,
-			Group:                "", //
+			Group:                "test-group", //
 			KubeCluster:          kubeCluster,
 			Namespace:            namespace,
 			Project:              project,
@@ -326,13 +312,35 @@ func TestServiceListDLQJob(t *testing.T) {
 
 			// job resource
 			Urn:       "test-urn-2",
-			Status:    dummyEntropyResources[0].GetState().GetStatus().String(),
+			Status:    "STATUS_UNSPECIFIED",
 			CreatedAt: strfmt.DateTime(dummyEntropyResources[0].CreatedAt.AsTime()),
 			CreatedBy: "user@test.com",
 			UpdatedAt: strfmt.DateTime(dummyEntropyResources[0].UpdatedAt.AsTime()),
 			UpdatedBy: "user@test.com",
 		},
 	}
+
+	t.Run("Should return error firehose not found because labels", func(t *testing.T) {
+		ctx := context.TODO()
+
+		labelFilter := map[string]string{
+			"resource_id":   "test-resource-id2",
+			"resource_type": "test-resource-type",
+			"date":          "2022-10-21",
+		}
+		expectedErr := status.Error(codes.NotFound, "Not found")
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"ListResources", ctx, &entropyv1beta1.ListResourcesRequest{
+				Kind: entropy.ResourceKindJob, Labels: labelFilter,
+			},
+		).Return(nil, expectedErr)
+		defer entropyClient.AssertExpectations(t)
+		service := dlq.NewService(entropyClient, nil, config)
+
+		_, err := service.ListDlqJob(ctx, labelFilter)
+		assert.ErrorIs(t, err, dlq.ErrFirehoseNotFound)
+	})
 
 	t.Run("should return dlqjob list", func(t *testing.T) {
 		ctx := context.TODO()
@@ -341,17 +349,22 @@ func TestServiceListDLQJob(t *testing.T) {
 			Resources: dummyEntropyResources,
 		}
 
+		labelFilter := map[string]string{
+			"resource_id":   resourceID,
+			"resource_type": resourceType,
+			"date":          date,
+		}
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
 			"ListResources", ctx, &entropyv1beta1.ListResourcesRequest{
-				Kind: entropy.ResourceKindJob,
+				Kind: entropy.ResourceKindJob, Labels: labelFilter,
 			},
 		).Return(expectedRPCResp, nil)
 		defer entropyClient.AssertExpectations(t)
 
 		service := dlq.NewService(entropyClient, nil, config)
 
-		dlqJob, err := service.ListDlqJob(ctx)
+		dlqJob, err := service.ListDlqJob(ctx, labelFilter)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedDlqJob, dlqJob)
 	})

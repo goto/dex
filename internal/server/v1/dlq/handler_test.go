@@ -3,11 +3,13 @@ package dlq_test
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-chi/chi/v5"
@@ -18,6 +20,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/goto/dex/entropy"
 	"github.com/goto/dex/generated/models"
@@ -28,6 +31,9 @@ import (
 	"github.com/goto/dex/internal/server/v1/firehose"
 	"github.com/goto/dex/mocks"
 )
+
+//go:embed fixtures/list_dlq_jobs.json
+var listDlqJobsFixtureJSON []byte
 
 const (
 	emailHeaderKey = "X-Auth-Email"
@@ -201,9 +207,7 @@ func TestErrorFromFirehoseResource(t *testing.T) {
 
 func TestListDlqJob(t *testing.T) {
 	var (
-		userEmail    = "user@test.com"
 		method       = http.MethodGet
-		path         = "/jobs"
 		project      = "test-project-1"
 		namespace    = "test-namespace"
 		resourceID   = "test-resource-id"
@@ -214,10 +218,58 @@ func TestListDlqJob(t *testing.T) {
 		batchSize    = 1
 		numThreads   = 1
 		topic        = "test-topic"
-		group        = ""
+		group        = "test-group"
 	)
+	t.Run("Should return error firehose not found because labels", func(t *testing.T) {
+		// initt input
+		path := fmt.Sprintf("/jobs?resource_id=%s&resource_type=%s&date=%s", "test-resource-id2", resourceType, date)
+		expectedLabels := map[string]string{
+			"resource_id":   "test-resource-id2",
+			"resource_type": "test-resource-type",
+			"date":          "2022-10-21",
+		}
+		expectedErr := status.Error(codes.NotFound, "Not found")
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"ListResources", mock.Anything, &entropyv1beta1.ListResourcesRequest{
+				Kind: entropy.ResourceKindJob, Labels: expectedLabels,
+			},
+		).Return(nil, expectedErr)
+		defer entropyClient.AssertExpectations(t)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := getRouter()
+		dlq.Routes(entropyClient, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+
+	t.Run("Should return error in firehose mapping", func(t *testing.T) {
+		// initt input
+		path := fmt.Sprintf("/jobs?resource_id=")
+		expectedErr := status.Error(codes.Internal, "Not found")
+		expectedLabels := map[string]string{}
+		entropyClient := new(mocks.ResourceServiceClient)
+		entropyClient.On(
+			"ListResources", mock.Anything, &entropyv1beta1.ListResourcesRequest{
+				Kind: entropy.ResourceKindJob, Labels: expectedLabels,
+			},
+		).Return(nil, expectedErr)
+
+		response := httptest.NewRecorder()
+		request := httptest.NewRequest(method, path, nil)
+		router := getRouter()
+		dlq.Routes(entropyClient, nil, dlq.DlqJobConfig{})(router)
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+	})
 
 	t.Run("Should return list of dlqJobs", func(t *testing.T) {
+		path := fmt.Sprintf("/jobs?resource_id=%s&resource_type=%s&date=%s", resourceID, resourceType, date)
+
 		config := dlq.DlqJobConfig{
 			PrometheusHost: "http://sample-prom-host",
 			DlqJobImage:    "test-image",
@@ -392,6 +444,8 @@ func TestListDlqJob(t *testing.T) {
 				},
 				CreatedBy: "user@test.com",
 				UpdatedBy: "user@test.com",
+				CreatedAt: timestamppb.New(time.Date(2022, time.December, 10, 0, 0, 0, 0, time.UTC)),
+				UpdatedAt: timestamppb.New(time.Date(2023, time.December, 10, 2, 0, 0, 0, time.UTC)),
 				Spec: &entropyv1beta1.ResourceSpec{
 					Configs: jobConfig,
 					Dependencies: []*entropyv1beta1.ResourceDependency{
@@ -424,6 +478,8 @@ func TestListDlqJob(t *testing.T) {
 				},
 				CreatedBy: "user@test.com",
 				UpdatedBy: "user@test.com",
+				CreatedAt: timestamppb.New(time.Date(2012, time.October, 10, 4, 0, 0, 0, time.UTC)),
+				UpdatedAt: timestamppb.New(time.Date(2013, time.February, 12, 2, 4, 0, 0, time.UTC)),
 				Spec: &entropyv1beta1.ResourceSpec{
 					Configs: jobConfig,
 					Dependencies: []*entropyv1beta1.ResourceDependency{
@@ -436,110 +492,35 @@ func TestListDlqJob(t *testing.T) {
 			},
 		}
 
-		expectedDlqJob := []models.DlqJob{
-			{
-				// from input
-				BatchSize:    int64(batchSize),
-				ResourceID:   resourceID,
-				ResourceType: resourceType,
-				Topic:        topic,
-				Name: fmt.Sprintf(
-					"%s-%s-%s-%s",
-					"test1",    // firehose title
-					"firehose", // firehose / dagger
-					topic,      //
-					date,       //
-				),
-
-				NumThreads: int64(numThreads),
-				Date:       date,
-				ErrorTypes: errorTypes,
-
-				// firehose resource
-				ContainerImage:       config.DlqJobImage,
-				DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
-				EnvVars:              expectedEnvVars,
-				Group:                "", //
-				KubeCluster:          kubeCluster,
-				Namespace:            namespace,
-				Project:              project,
-				PrometheusHost:       config.PrometheusHost,
-
-				// hardcoded
-				Replicas: 1,
-
-				// job resource
-				Urn:       "test-urn-1",
-				Status:    dummyEntropyResources[0].GetState().GetStatus().String(),
-				CreatedAt: strfmt.DateTime(dummyEntropyResources[0].CreatedAt.AsTime()),
-				CreatedBy: "user@test.com",
-				UpdatedAt: strfmt.DateTime(dummyEntropyResources[0].UpdatedAt.AsTime()),
-				UpdatedBy: "user@test.com",
-			},
-			{
-				// from input
-				BatchSize:    int64(batchSize),
-				ResourceID:   resourceID,
-				ResourceType: resourceType,
-				Topic:        topic,
-				Name: fmt.Sprintf(
-					"%s-%s-%s-%s",
-					"test2",    // firehose title
-					"firehose", // firehose / dagger
-					topic,      //
-					date,       //
-				),
-
-				NumThreads: int64(numThreads),
-				Date:       date,
-				ErrorTypes: errorTypes,
-
-				// firehose resource
-				ContainerImage:       config.DlqJobImage,
-				DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
-				EnvVars:              expectedEnvVars,
-				Group:                "", //
-				KubeCluster:          kubeCluster,
-				Namespace:            namespace,
-				Project:              project,
-				PrometheusHost:       config.PrometheusHost,
-
-				// hardcoded
-				Replicas: 1,
-
-				// job resource
-				Urn:       "test-urn-2",
-				Status:    dummyEntropyResources[0].GetState().GetStatus().String(),
-				CreatedAt: strfmt.DateTime(dummyEntropyResources[0].CreatedAt.AsTime()),
-				CreatedBy: "user@test.com",
-				UpdatedAt: strfmt.DateTime(dummyEntropyResources[0].UpdatedAt.AsTime()),
-				UpdatedBy: "user@test.com",
-			},
-		}
-
 		expectedRPCResp := &entropyv1beta1.ListResourcesResponse{
 			Resources: dummyEntropyResources,
+		}
+
+		expectedLabels := map[string]string{
+			"resource_id":   "test-resource-id",
+			"resource_type": "test-resource-type",
+			"date":          "2022-10-21",
 		}
 
 		entropyClient := new(mocks.ResourceServiceClient)
 		entropyClient.On(
 			"ListResources", mock.Anything, &entropyv1beta1.ListResourcesRequest{
-				Kind: entropy.ResourceKindJob,
+				Kind: entropy.ResourceKindJob, Labels: expectedLabels,
 			},
 		).Return(expectedRPCResp, nil)
 		defer entropyClient.AssertExpectations(t)
 
 		response := httptest.NewRecorder()
 		request := httptest.NewRequest(method, path, nil)
-		request.Header.Set(emailHeaderKey, userEmail)
 		router := getRouter()
 		dlq.Routes(entropyClient, nil, config)(router)
 		router.ServeHTTP(response, request)
+
 		assert.Equal(t, http.StatusOK, response.Code)
 		resultJSON := response.Body.Bytes()
-		expectedJSON, err := json.Marshal(expectedDlqJob)
-		require.NoError(t, err)
-		assert.JSONEq(t, string(expectedJSON), string(resultJSON))
+
+		expectedPayload := string(listDlqJobsFixtureJSON)
+		assert.JSONEq(t, expectedPayload, string(resultJSON))
 	})
 }
 

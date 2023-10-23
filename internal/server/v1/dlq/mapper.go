@@ -233,6 +233,7 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 		Date:                 labels["date"],
 		Topic:                labels["topic"],
 		PrometheusHost:       labels["prometheus_host"],
+		Group:                labels["group"],
 		Namespace:            modConf.Namespace,
 		ContainerImage:       modConf.Containers[0].Image,
 		ErrorTypes:           errorTypes,
