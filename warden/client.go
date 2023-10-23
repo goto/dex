@@ -44,7 +44,7 @@ func (c *Client) ListUserTeams(ctx context.Context, req TeamListRequest) ([]Team
 			return nil, fmt.Errorf("error reading response body: %w", err)
 		}
 		bodyString := string(bodyBytes)
-		return nil, errors.New(fmt.Errorf("got non-200 http status code=(%d) body=%s", resp.StatusCode, bodyString).Error())
+		return nil, errors.New(fmt.Sprintf("got non-200 http status code=(%d) body=%s", resp.StatusCode, bodyString))
 	}
 
 	var data teamListResponse
@@ -78,7 +78,7 @@ func (c *Client) TeamByUUID(ctx context.Context, req TeamByUUIDRequest) (*Team, 
 			return nil, fmt.Errorf("error reading response body: %w", err)
 		}
 		bodyString := string(bodyBytes)
-		return nil, errors.New(fmt.Errorf("got non-200 http status code=(%d) body=%s", resp.StatusCode, bodyString).Error())
+		return nil, errors.New(fmt.Sprintf("got non-200 http status code=(%d) body=%s", resp.StatusCode, bodyString))
 	}
 
 	var data teamResponse
