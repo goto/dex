@@ -28,6 +28,8 @@ const (
 	labelStream      = "stream_name"
 	labelDescription = "description"
 	labelSinkType    = "sink_type"
+	labelKubeCluster = "kube_cluster"
+	labelTopic       = "topic"
 )
 
 var nonAlphaNumPattern = regexp.MustCompile("[^a-zA-Z0-9]+")

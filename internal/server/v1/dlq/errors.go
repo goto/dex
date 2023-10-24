@@ -5,5 +5,8 @@ import "errors"
 var (
 	ErrFirehoseNamespaceNotFound = errors.New("could not find firehose namespace from resource output")
 	ErrFirehoseNamespaceInvalid  = errors.New("invalid firehose namespace from resource output")
-	ErrJobNotFound               = errors.New("no job found for this URN")
+	ErrFirehoseNotFound          = errors.New("firehose not found")
+	ErrEmptyConfigImage          = errors.New("empty dlq job image")
+	ErrEmptyConfigPrometheusHost = errors.New("empty prometheus host")
+	ErrJobNotFound               = errors.New("no dlq job is found for this URN")
 )
