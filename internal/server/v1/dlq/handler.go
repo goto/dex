@@ -1,6 +1,7 @@
 package dlq
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -8,7 +9,9 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/goto/dex/entropy"
+	"github.com/goto/dex/generated/models"
 	"github.com/goto/dex/internal/server/gcs"
+	"github.com/goto/dex/internal/server/reqctx"
 	"github.com/goto/dex/internal/server/utils"
 	"github.com/goto/dex/internal/server/v1/firehose"
 )
@@ -55,18 +58,76 @@ func (h *Handler) ListFirehoseDLQ(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (*Handler) listDlqJobs(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) listDlqJobs(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	labelFilter := map[string]string{}
+	if resourceID := r.URL.Query().Get("resource_id"); resourceID != "" {
+		labelFilter["resource_id"] = resourceID
+	}
+	if resourceType := r.URL.Query().Get("resource_type"); resourceType != "" {
+		labelFilter["resource_type"] = resourceType
+	}
+	if date := r.URL.Query().Get("date"); date != "" {
+		labelFilter["date"] = date
+	}
+
+	dlqJob, err := h.service.ListDlqJob(ctx, labelFilter)
+	if err != nil {
+		if errors.Is(err, ErrFirehoseNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+			return
+		}
+		utils.WriteErr(w, err)
+		return
+	}
+
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_jobs": []interface{}{},
-	})
+		"dlq_jobs": dlqJob,
+	},
+	)
 }
 
-func (*Handler) createDlqJob(w http.ResponseWriter, _ *http.Request) {
-	// transform request body into DlqJob (validation?)
-	// call service.CreateDLQJob
+func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	reqCtx := reqctx.From(ctx)
+	if reqCtx.UserEmail == "" {
+		utils.WriteErrMsg(w, http.StatusUnauthorized, "user header is required")
+		return
+	}
+
+	var body models.DlqJobForm
+	if err := utils.ReadJSON(r, &body); err != nil {
+		utils.WriteErr(w, err)
+		return
+	}
+	if err := body.Validate(nil); err != nil {
+		utils.WriteErrMsg(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	dlqJob := models.DlqJob{
+		BatchSize:    *body.BatchSize,
+		Date:         *body.Date,
+		ErrorTypes:   body.ErrorTypes,
+		NumThreads:   *body.NumThreads,
+		ResourceID:   *body.ResourceID,
+		ResourceType: *body.ResourceType,
+		Topic:        *body.Topic,
+	}
+
+	updatedDlqJob, err := h.service.CreateDLQJob(ctx, reqCtx.UserEmail, dlqJob)
+	if err != nil {
+		if errors.Is(err, ErrFirehoseNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
+			return
+		}
+		utils.WriteErr(w, err)
+		return
+	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_job": nil,
+		"dlq_job": updatedDlqJob,
 	})
 }
 

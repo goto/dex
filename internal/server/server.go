@@ -40,7 +40,7 @@ func Serve(ctx context.Context, addr string,
 	odinAddr string,
 	stencilAddr string,
 	wardenClient *warden.Client,
-	dlqConfig *dlqv1.DlqJobConfig,
+	dlqConfig dlqv1.DlqJobConfig,
 ) error {
 	alertSvc := alertsv1.NewService(sirenClient)
 

@@ -1287,6 +1287,8 @@ definitions:
   DlqJob:
     type: object
     properties:
+      name:
+        type: string
       urn:
         type: string
       project:
@@ -1345,6 +1347,37 @@ definitions:
         type: string
       dlq_gcs_credential_path:
         type: string
+  DlqJobForm:
+    type: object
+    required:
+      - date
+      - topic
+      - resource_id
+      - resource_type
+      - batch_size
+      - num_threads
+    properties:
+      date:
+        type: string
+        example: "2012-10-30"
+        minLength: 1
+      topic:
+        type: string
+        minLength: 1
+      resource_id:
+        type: string
+        minLength: 1
+      resource_type:
+        type: string
+        enum:
+          - firehose
+      error_types:
+        type: string
+        description: "List of firehose error types, comma separated"
+      batch_size:
+        type: integer
+      num_threads:
+        type: integer
   Subscription:
     type: object
     description: "Siren subscription model: https://github.com/goto/siren/blob/v0.6.4/proto/siren.swagger.yaml#L1325"

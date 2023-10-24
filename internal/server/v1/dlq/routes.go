@@ -10,7 +10,7 @@ import (
 func Routes(
 	entropyClient entropyv1beta1rpc.ResourceServiceClient,
 	gcsClient gcs.BlobStorageClient,
-	cfg *DlqJobConfig,
+	cfg DlqJobConfig,
 ) func(r chi.Router) {
 	service := NewService(entropyClient, gcsClient, cfg)
 	handler := NewHandler(service)

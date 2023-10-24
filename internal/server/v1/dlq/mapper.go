@@ -3,6 +3,7 @@ package dlq
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-openapi/strfmt"
@@ -20,7 +21,7 @@ const (
 	dlqTelegrafConfigName    = "dlq-processor-telegraf"
 )
 
-func EnrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobConfig) error {
+func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobConfig) error {
 	var kubeCluster string
 	for _, dep := range res.Spec.GetDependencies() {
 		if dep.GetKey() == kubeClusterDependenciesKey {
@@ -41,10 +42,15 @@ func EnrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobC
 	if !ok {
 		return ErrFirehoseNamespaceInvalid
 	}
+	status := res.GetState().GetStatus().String()
 
 	envs := modConf.EnvVariables
-	job.ResourceID = res.GetUrn()
+	job.Name = buildEntropyResourceName(res.Name, "firehose", job.Topic, job.Date)
 	job.Namespace = namespace
+	job.Status = status
+	job.CreatedAt = strfmt.DateTime(res.CreatedAt.AsTime())
+	job.UpdatedAt = strfmt.DateTime(res.UpdatedAt.AsTime())
+	job.Project = res.Project
 	job.KubeCluster = kubeCluster
 	job.ContainerImage = cfg.DlqJobImage
 	job.PrometheusHost = cfg.PrometheusHost
@@ -88,7 +94,7 @@ func EnrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg *DlqJobC
 }
 
 // DlqJob param here is expected to have been enriched with firehose config
-func MapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
+func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 	cfgStruct, err := makeConfigStruct(job)
 	if err != nil {
 		return nil, err
@@ -97,7 +103,7 @@ func MapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 	return &entropyv1beta1.Resource{
 		Urn:       job.Urn,
 		Kind:      entropy.ResourceKindJob,
-		Name:      buildEntropyResourceName(job),
+		Name:      job.Name,
 		Project:   job.Project,
 		Labels:    buildResourceLabels(job),
 		CreatedBy: job.CreatedBy,
@@ -194,12 +200,19 @@ func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 	})
 }
 
-func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
+func mapToDlqJob(r *entropyv1beta1.Resource) (models.DlqJob, error) {
 	labels := r.Labels
 
-	var modConf entropy.JobConfig
-	if err := utils.ProtoStructToGoVal(r.Spec.GetConfigs(), &modConf); err != nil {
-		return nil, err
+	var envVars map[string]string
+	if r.GetSpec().Configs != nil {
+		var modConf entropy.JobConfig
+		if err := utils.ProtoStructToGoVal(r.GetSpec().GetConfigs(), &modConf); err != nil {
+			return models.DlqJob{}, fmt.Errorf("error parsing proto value: %w", err)
+		}
+
+		if len(modConf.Containers) > 0 {
+			envVars = modConf.Containers[0].EnvVariables
+		}
 	}
 
 	var kubeCluster string
@@ -209,56 +222,78 @@ func MapToDlqJob(r *entropyv1beta1.Resource) (*models.DlqJob, error) {
 		}
 	}
 
-	envVars := modConf.Containers[0].EnvVariables
-	batchSize, err := strconv.ParseInt(envVars["DLQ_BATCH_SIZE"], 10, 64)
+	batchSize, err := strconv.Atoi(labels["batch_size"])
 	if err != nil {
-		return nil, err
+		batchSize = 0
 	}
-	numThreads, err := strconv.ParseInt(envVars["DLQ_NUM_THREADS"], 10, 64)
+
+	numThreads, err := strconv.Atoi(labels["num_threads"])
 	if err != nil {
-		return nil, err
+		numThreads = 0
 	}
-	errorTypes := envVars["DLQ_ERROR_TYPES"]
+
+	replicas, err := strconv.Atoi(labels["replicas"])
+	if err != nil {
+		replicas = 0
+	}
 
 	job := models.DlqJob{
-		Urn:          r.Urn,
-		ResourceID:   labels["resource_id"],
-		ResourceType: labels["resource_type"],
-		Date:         labels["date"],
-		Topic:        labels["topic"],
-		Namespace:    modConf.Namespace,
-		ErrorTypes:   errorTypes,
-		BatchSize:    batchSize,
-		NumThreads:   numThreads,
-		Replicas:     int64(modConf.Replicas),
-		KubeCluster:  kubeCluster,
-		Project:      r.Project,
-		CreatedBy:    r.CreatedBy,
-		UpdatedBy:    r.UpdatedBy,
-		Status:       string(r.GetState().Status),
-		CreatedAt:    strfmt.DateTime(r.CreatedAt.AsTime()),
-		UpdatedAt:    strfmt.DateTime(r.UpdatedAt.AsTime()),
+		Urn:                  r.Urn,
+		Name:                 r.Name,
+		ResourceID:           labels["resource_id"],
+		ResourceType:         labels["resource_type"],
+		Date:                 labels["date"],
+		Topic:                labels["topic"],
+		PrometheusHost:       labels["prometheus_host"],
+		Group:                labels["group"],
+		Namespace:            labels["namespace"],
+		ContainerImage:       labels["container_image"],
+		ErrorTypes:           labels["error_types"],
+		BatchSize:            int64(batchSize),
+		NumThreads:           int64(numThreads),
+		Replicas:             int64(replicas),
+		KubeCluster:          kubeCluster,
+		Project:              r.Project,
+		CreatedBy:            r.CreatedBy,
+		UpdatedBy:            r.UpdatedBy,
+		Status:               r.GetState().GetStatus().String(),
+		CreatedAt:            strfmt.DateTime(r.CreatedAt.AsTime()),
+		UpdatedAt:            strfmt.DateTime(r.UpdatedAt.AsTime()),
+		EnvVars:              envVars,
+		DlqGcsCredentialPath: labels["dlq_gcs_credential_path"],
 	}
 
-	return &job, nil
+	return job, nil
 }
 
 func buildResourceLabels(job models.DlqJob) map[string]string {
 	return map[string]string{
-		"resource_id": job.ResourceID,
-		"type":        job.ResourceType,
-		"date":        job.Date,
-		"topic":       job.Topic,
-		"job_type":    "dlq",
+		"resource_id":             job.ResourceID,
+		"resource_type":           job.ResourceType,
+		"date":                    job.Date,
+		"topic":                   job.Topic,
+		"job_type":                "dlq",
+		"group":                   job.Group,
+		"prometheus_host":         job.PrometheusHost,
+		"replicas":                fmt.Sprintf("%d", job.Replicas),
+		"batch_size":              fmt.Sprintf("%d", job.BatchSize),
+		"num_threads":             fmt.Sprintf("%d", job.NumThreads),
+		"error_types":             job.ErrorTypes,
+		"dlq_gcs_credential_path": job.DlqGcsCredentialPath,
+		"container_image":         job.ContainerImage,
+		"namespace":               job.Namespace,
 	}
 }
 
-func buildEntropyResourceName(job models.DlqJob) string {
+func buildEntropyResourceName(resourceTitle, resourceType, topic, date string) string {
+	timestamp := time.Now().Unix()
+
 	return fmt.Sprintf(
-		"%s-%s-%s-%s",
-		job.ResourceID,   // firehose urn
-		job.ResourceType, // firehose / dagger
-		job.Topic,        //
-		job.Date,         //
+		"%s-%s-%s-%s-%d",
+		resourceTitle, // firehose title
+		resourceType,  // firehose / dagger
+		topic,         //
+		date,          //
+		timestamp,
 	)
 }
