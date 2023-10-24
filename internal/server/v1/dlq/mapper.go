@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-openapi/strfmt"
@@ -68,7 +67,7 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource) error {
 	dataType := envs["INPUT_SCHEMA_PROTO_CLASS"]
 	groupID := firehoseLabels["group"]
 	groupSlug := firehoseLabels["team"]
-	dlqPrefixDirectory := strings.Replace(envs["DLQ_GCS_DIRECTORY_PREFIX"], "{{ .name }}", res.Name, 1)
+	dlqPrefixDirectory := buildDlqPrefixDirectory(envs["DLQ_GCS_DIRECTORY_PREFIX"], res.Name)
 	metricStatsDTag := fmt.Sprintf(
 		"namespace=%s,app=%s,sink=%s,team=%s,proto=%s,firehose=%s",
 		namespace,
