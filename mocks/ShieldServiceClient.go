@@ -17,6 +17,14 @@ type ShieldServiceClient struct {
 	mock.Mock
 }
 
+type ShieldServiceClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *ShieldServiceClient) EXPECT() *ShieldServiceClient_Expecter {
+	return &ShieldServiceClient_Expecter{mock: &_m.Mock}
+}
+
 // CheckResourcePermission provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) CheckResourcePermission(ctx context.Context, in *shieldv1beta1.CheckResourcePermissionRequest, opts ...grpc.CallOption) (*shieldv1beta1.CheckResourcePermissionResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -48,6 +56,43 @@ func (_m *ShieldServiceClient) CheckResourcePermission(ctx context.Context, in *
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_CheckResourcePermission_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckResourcePermission'
+type ShieldServiceClient_CheckResourcePermission_Call struct {
+	*mock.Call
+}
+
+// CheckResourcePermission is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CheckResourcePermissionRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CheckResourcePermission(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CheckResourcePermission_Call {
+	return &ShieldServiceClient_CheckResourcePermission_Call{Call: _e.mock.On("CheckResourcePermission",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CheckResourcePermission_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CheckResourcePermissionRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CheckResourcePermission_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CheckResourcePermissionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CheckResourcePermission_Call) Return(_a0 *shieldv1beta1.CheckResourcePermissionResponse, _a1 error) *ShieldServiceClient_CheckResourcePermission_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CheckResourcePermission_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CheckResourcePermissionRequest, ...grpc.CallOption) (*shieldv1beta1.CheckResourcePermissionResponse, error)) *ShieldServiceClient_CheckResourcePermission_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateAction provides a mock function with given fields: ctx, in, opts
@@ -83,6 +128,43 @@ func (_m *ShieldServiceClient) CreateAction(ctx context.Context, in *shieldv1bet
 	return r0, r1
 }
 
+// ShieldServiceClient_CreateAction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAction'
+type ShieldServiceClient_CreateAction_Call struct {
+	*mock.Call
+}
+
+// CreateAction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateActionRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateAction(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateAction_Call {
+	return &ShieldServiceClient_CreateAction_Call{Call: _e.mock.On("CreateAction",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateAction_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateActionRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateAction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateActionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateAction_Call) Return(_a0 *shieldv1beta1.CreateActionResponse, _a1 error) *ShieldServiceClient_CreateAction_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateAction_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateActionRequest, ...grpc.CallOption) (*shieldv1beta1.CreateActionResponse, error)) *ShieldServiceClient_CreateAction_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateGroup provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) CreateGroup(ctx context.Context, in *shieldv1beta1.CreateGroupRequest, opts ...grpc.CallOption) (*shieldv1beta1.CreateGroupResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -114,6 +196,43 @@ func (_m *ShieldServiceClient) CreateGroup(ctx context.Context, in *shieldv1beta
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_CreateGroup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateGroup'
+type ShieldServiceClient_CreateGroup_Call struct {
+	*mock.Call
+}
+
+// CreateGroup is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateGroupRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateGroup(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateGroup_Call {
+	return &ShieldServiceClient_CreateGroup_Call{Call: _e.mock.On("CreateGroup",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateGroup_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateGroupRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateGroup_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateGroupRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateGroup_Call) Return(_a0 *shieldv1beta1.CreateGroupResponse, _a1 error) *ShieldServiceClient_CreateGroup_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateGroup_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateGroupRequest, ...grpc.CallOption) (*shieldv1beta1.CreateGroupResponse, error)) *ShieldServiceClient_CreateGroup_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateMetadataKey provides a mock function with given fields: ctx, in, opts
@@ -149,6 +268,43 @@ func (_m *ShieldServiceClient) CreateMetadataKey(ctx context.Context, in *shield
 	return r0, r1
 }
 
+// ShieldServiceClient_CreateMetadataKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateMetadataKey'
+type ShieldServiceClient_CreateMetadataKey_Call struct {
+	*mock.Call
+}
+
+// CreateMetadataKey is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateMetadataKeyRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateMetadataKey(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateMetadataKey_Call {
+	return &ShieldServiceClient_CreateMetadataKey_Call{Call: _e.mock.On("CreateMetadataKey",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateMetadataKey_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateMetadataKeyRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateMetadataKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateMetadataKeyRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateMetadataKey_Call) Return(_a0 *shieldv1beta1.CreateMetadataKeyResponse, _a1 error) *ShieldServiceClient_CreateMetadataKey_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateMetadataKey_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateMetadataKeyRequest, ...grpc.CallOption) (*shieldv1beta1.CreateMetadataKeyResponse, error)) *ShieldServiceClient_CreateMetadataKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateNamespace provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) CreateNamespace(ctx context.Context, in *shieldv1beta1.CreateNamespaceRequest, opts ...grpc.CallOption) (*shieldv1beta1.CreateNamespaceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -180,6 +336,43 @@ func (_m *ShieldServiceClient) CreateNamespace(ctx context.Context, in *shieldv1
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_CreateNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateNamespace'
+type ShieldServiceClient_CreateNamespace_Call struct {
+	*mock.Call
+}
+
+// CreateNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateNamespace(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateNamespace_Call {
+	return &ShieldServiceClient_CreateNamespace_Call{Call: _e.mock.On("CreateNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateNamespace_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateNamespaceRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateNamespace_Call) Return(_a0 *shieldv1beta1.CreateNamespaceResponse, _a1 error) *ShieldServiceClient_CreateNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateNamespace_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateNamespaceRequest, ...grpc.CallOption) (*shieldv1beta1.CreateNamespaceResponse, error)) *ShieldServiceClient_CreateNamespace_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateOrganization provides a mock function with given fields: ctx, in, opts
@@ -215,6 +408,43 @@ func (_m *ShieldServiceClient) CreateOrganization(ctx context.Context, in *shiel
 	return r0, r1
 }
 
+// ShieldServiceClient_CreateOrganization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateOrganization'
+type ShieldServiceClient_CreateOrganization_Call struct {
+	*mock.Call
+}
+
+// CreateOrganization is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateOrganizationRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateOrganization(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateOrganization_Call {
+	return &ShieldServiceClient_CreateOrganization_Call{Call: _e.mock.On("CreateOrganization",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateOrganization_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateOrganizationRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateOrganization_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateOrganizationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateOrganization_Call) Return(_a0 *shieldv1beta1.CreateOrganizationResponse, _a1 error) *ShieldServiceClient_CreateOrganization_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateOrganization_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateOrganizationRequest, ...grpc.CallOption) (*shieldv1beta1.CreateOrganizationResponse, error)) *ShieldServiceClient_CreateOrganization_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreatePolicy provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) CreatePolicy(ctx context.Context, in *shieldv1beta1.CreatePolicyRequest, opts ...grpc.CallOption) (*shieldv1beta1.CreatePolicyResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -246,6 +476,43 @@ func (_m *ShieldServiceClient) CreatePolicy(ctx context.Context, in *shieldv1bet
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_CreatePolicy_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreatePolicy'
+type ShieldServiceClient_CreatePolicy_Call struct {
+	*mock.Call
+}
+
+// CreatePolicy is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreatePolicyRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreatePolicy(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreatePolicy_Call {
+	return &ShieldServiceClient_CreatePolicy_Call{Call: _e.mock.On("CreatePolicy",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreatePolicy_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreatePolicyRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreatePolicy_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreatePolicyRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreatePolicy_Call) Return(_a0 *shieldv1beta1.CreatePolicyResponse, _a1 error) *ShieldServiceClient_CreatePolicy_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreatePolicy_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreatePolicyRequest, ...grpc.CallOption) (*shieldv1beta1.CreatePolicyResponse, error)) *ShieldServiceClient_CreatePolicy_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateProject provides a mock function with given fields: ctx, in, opts
@@ -281,6 +548,43 @@ func (_m *ShieldServiceClient) CreateProject(ctx context.Context, in *shieldv1be
 	return r0, r1
 }
 
+// ShieldServiceClient_CreateProject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateProject'
+type ShieldServiceClient_CreateProject_Call struct {
+	*mock.Call
+}
+
+// CreateProject is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateProjectRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateProject(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateProject_Call {
+	return &ShieldServiceClient_CreateProject_Call{Call: _e.mock.On("CreateProject",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateProject_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateProjectRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateProject_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateProjectRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateProject_Call) Return(_a0 *shieldv1beta1.CreateProjectResponse, _a1 error) *ShieldServiceClient_CreateProject_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateProject_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateProjectRequest, ...grpc.CallOption) (*shieldv1beta1.CreateProjectResponse, error)) *ShieldServiceClient_CreateProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateRelation provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) CreateRelation(ctx context.Context, in *shieldv1beta1.CreateRelationRequest, opts ...grpc.CallOption) (*shieldv1beta1.CreateRelationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -312,6 +616,43 @@ func (_m *ShieldServiceClient) CreateRelation(ctx context.Context, in *shieldv1b
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_CreateRelation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateRelation'
+type ShieldServiceClient_CreateRelation_Call struct {
+	*mock.Call
+}
+
+// CreateRelation is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateRelationRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateRelation(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateRelation_Call {
+	return &ShieldServiceClient_CreateRelation_Call{Call: _e.mock.On("CreateRelation",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateRelation_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateRelationRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateRelation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateRelationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateRelation_Call) Return(_a0 *shieldv1beta1.CreateRelationResponse, _a1 error) *ShieldServiceClient_CreateRelation_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateRelation_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateRelationRequest, ...grpc.CallOption) (*shieldv1beta1.CreateRelationResponse, error)) *ShieldServiceClient_CreateRelation_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateResource provides a mock function with given fields: ctx, in, opts
@@ -347,6 +688,43 @@ func (_m *ShieldServiceClient) CreateResource(ctx context.Context, in *shieldv1b
 	return r0, r1
 }
 
+// ShieldServiceClient_CreateResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateResource'
+type ShieldServiceClient_CreateResource_Call struct {
+	*mock.Call
+}
+
+// CreateResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateResource(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateResource_Call {
+	return &ShieldServiceClient_CreateResource_Call{Call: _e.mock.On("CreateResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateResource_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateResourceRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateResource_Call) Return(_a0 *shieldv1beta1.CreateResourceResponse, _a1 error) *ShieldServiceClient_CreateResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateResource_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateResourceRequest, ...grpc.CallOption) (*shieldv1beta1.CreateResourceResponse, error)) *ShieldServiceClient_CreateResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateRole provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) CreateRole(ctx context.Context, in *shieldv1beta1.CreateRoleRequest, opts ...grpc.CallOption) (*shieldv1beta1.CreateRoleResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -378,6 +756,43 @@ func (_m *ShieldServiceClient) CreateRole(ctx context.Context, in *shieldv1beta1
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_CreateRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateRole'
+type ShieldServiceClient_CreateRole_Call struct {
+	*mock.Call
+}
+
+// CreateRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateRoleRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateRole(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateRole_Call {
+	return &ShieldServiceClient_CreateRole_Call{Call: _e.mock.On("CreateRole",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateRole_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateRoleRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateRoleRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateRole_Call) Return(_a0 *shieldv1beta1.CreateRoleResponse, _a1 error) *ShieldServiceClient_CreateRole_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateRole_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateRoleRequest, ...grpc.CallOption) (*shieldv1beta1.CreateRoleResponse, error)) *ShieldServiceClient_CreateRole_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateUser provides a mock function with given fields: ctx, in, opts
@@ -413,6 +828,43 @@ func (_m *ShieldServiceClient) CreateUser(ctx context.Context, in *shieldv1beta1
 	return r0, r1
 }
 
+// ShieldServiceClient_CreateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUser'
+type ShieldServiceClient_CreateUser_Call struct {
+	*mock.Call
+}
+
+// CreateUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.CreateUserRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) CreateUser(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_CreateUser_Call {
+	return &ShieldServiceClient_CreateUser_Call{Call: _e.mock.On("CreateUser",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_CreateUser_Call) Run(run func(ctx context.Context, in *shieldv1beta1.CreateUserRequest, opts ...grpc.CallOption)) *ShieldServiceClient_CreateUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.CreateUserRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateUser_Call) Return(_a0 *shieldv1beta1.CreateUserResponse, _a1 error) *ShieldServiceClient_CreateUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_CreateUser_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.CreateUserRequest, ...grpc.CallOption) (*shieldv1beta1.CreateUserResponse, error)) *ShieldServiceClient_CreateUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteRelation provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) DeleteRelation(ctx context.Context, in *shieldv1beta1.DeleteRelationRequest, opts ...grpc.CallOption) (*shieldv1beta1.DeleteRelationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -444,6 +896,43 @@ func (_m *ShieldServiceClient) DeleteRelation(ctx context.Context, in *shieldv1b
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_DeleteRelation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteRelation'
+type ShieldServiceClient_DeleteRelation_Call struct {
+	*mock.Call
+}
+
+// DeleteRelation is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.DeleteRelationRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) DeleteRelation(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_DeleteRelation_Call {
+	return &ShieldServiceClient_DeleteRelation_Call{Call: _e.mock.On("DeleteRelation",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_DeleteRelation_Call) Run(run func(ctx context.Context, in *shieldv1beta1.DeleteRelationRequest, opts ...grpc.CallOption)) *ShieldServiceClient_DeleteRelation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.DeleteRelationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_DeleteRelation_Call) Return(_a0 *shieldv1beta1.DeleteRelationResponse, _a1 error) *ShieldServiceClient_DeleteRelation_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_DeleteRelation_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.DeleteRelationRequest, ...grpc.CallOption) (*shieldv1beta1.DeleteRelationResponse, error)) *ShieldServiceClient_DeleteRelation_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetCurrentUser provides a mock function with given fields: ctx, in, opts
@@ -479,6 +968,43 @@ func (_m *ShieldServiceClient) GetCurrentUser(ctx context.Context, in *shieldv1b
 	return r0, r1
 }
 
+// ShieldServiceClient_GetCurrentUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCurrentUser'
+type ShieldServiceClient_GetCurrentUser_Call struct {
+	*mock.Call
+}
+
+// GetCurrentUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetCurrentUserRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetCurrentUser(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetCurrentUser_Call {
+	return &ShieldServiceClient_GetCurrentUser_Call{Call: _e.mock.On("GetCurrentUser",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetCurrentUser_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetCurrentUserRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetCurrentUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetCurrentUserRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetCurrentUser_Call) Return(_a0 *shieldv1beta1.GetCurrentUserResponse, _a1 error) *ShieldServiceClient_GetCurrentUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetCurrentUser_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetCurrentUserRequest, ...grpc.CallOption) (*shieldv1beta1.GetCurrentUserResponse, error)) *ShieldServiceClient_GetCurrentUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetGroup provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) GetGroup(ctx context.Context, in *shieldv1beta1.GetGroupRequest, opts ...grpc.CallOption) (*shieldv1beta1.GetGroupResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -510,6 +1036,43 @@ func (_m *ShieldServiceClient) GetGroup(ctx context.Context, in *shieldv1beta1.G
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_GetGroup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetGroup'
+type ShieldServiceClient_GetGroup_Call struct {
+	*mock.Call
+}
+
+// GetGroup is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetGroupRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetGroup(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetGroup_Call {
+	return &ShieldServiceClient_GetGroup_Call{Call: _e.mock.On("GetGroup",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetGroup_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetGroupRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetGroup_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetGroupRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetGroup_Call) Return(_a0 *shieldv1beta1.GetGroupResponse, _a1 error) *ShieldServiceClient_GetGroup_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetGroup_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetGroupRequest, ...grpc.CallOption) (*shieldv1beta1.GetGroupResponse, error)) *ShieldServiceClient_GetGroup_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetNamespace provides a mock function with given fields: ctx, in, opts
@@ -545,6 +1108,43 @@ func (_m *ShieldServiceClient) GetNamespace(ctx context.Context, in *shieldv1bet
 	return r0, r1
 }
 
+// ShieldServiceClient_GetNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNamespace'
+type ShieldServiceClient_GetNamespace_Call struct {
+	*mock.Call
+}
+
+// GetNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetNamespace(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetNamespace_Call {
+	return &ShieldServiceClient_GetNamespace_Call{Call: _e.mock.On("GetNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetNamespace_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetNamespaceRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetNamespace_Call) Return(_a0 *shieldv1beta1.GetNamespaceResponse, _a1 error) *ShieldServiceClient_GetNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetNamespace_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetNamespaceRequest, ...grpc.CallOption) (*shieldv1beta1.GetNamespaceResponse, error)) *ShieldServiceClient_GetNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetOrganization provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) GetOrganization(ctx context.Context, in *shieldv1beta1.GetOrganizationRequest, opts ...grpc.CallOption) (*shieldv1beta1.GetOrganizationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -576,6 +1176,43 @@ func (_m *ShieldServiceClient) GetOrganization(ctx context.Context, in *shieldv1
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_GetOrganization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrganization'
+type ShieldServiceClient_GetOrganization_Call struct {
+	*mock.Call
+}
+
+// GetOrganization is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetOrganizationRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetOrganization(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetOrganization_Call {
+	return &ShieldServiceClient_GetOrganization_Call{Call: _e.mock.On("GetOrganization",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetOrganization_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetOrganizationRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetOrganization_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetOrganizationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetOrganization_Call) Return(_a0 *shieldv1beta1.GetOrganizationResponse, _a1 error) *ShieldServiceClient_GetOrganization_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetOrganization_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetOrganizationRequest, ...grpc.CallOption) (*shieldv1beta1.GetOrganizationResponse, error)) *ShieldServiceClient_GetOrganization_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetProject provides a mock function with given fields: ctx, in, opts
@@ -611,6 +1248,43 @@ func (_m *ShieldServiceClient) GetProject(ctx context.Context, in *shieldv1beta1
 	return r0, r1
 }
 
+// ShieldServiceClient_GetProject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProject'
+type ShieldServiceClient_GetProject_Call struct {
+	*mock.Call
+}
+
+// GetProject is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetProjectRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetProject(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetProject_Call {
+	return &ShieldServiceClient_GetProject_Call{Call: _e.mock.On("GetProject",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetProject_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetProjectRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetProject_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetProjectRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetProject_Call) Return(_a0 *shieldv1beta1.GetProjectResponse, _a1 error) *ShieldServiceClient_GetProject_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetProject_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetProjectRequest, ...grpc.CallOption) (*shieldv1beta1.GetProjectResponse, error)) *ShieldServiceClient_GetProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetRelation provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) GetRelation(ctx context.Context, in *shieldv1beta1.GetRelationRequest, opts ...grpc.CallOption) (*shieldv1beta1.GetRelationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -642,6 +1316,43 @@ func (_m *ShieldServiceClient) GetRelation(ctx context.Context, in *shieldv1beta
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_GetRelation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRelation'
+type ShieldServiceClient_GetRelation_Call struct {
+	*mock.Call
+}
+
+// GetRelation is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetRelationRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetRelation(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetRelation_Call {
+	return &ShieldServiceClient_GetRelation_Call{Call: _e.mock.On("GetRelation",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetRelation_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetRelationRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetRelation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetRelationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetRelation_Call) Return(_a0 *shieldv1beta1.GetRelationResponse, _a1 error) *ShieldServiceClient_GetRelation_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetRelation_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetRelationRequest, ...grpc.CallOption) (*shieldv1beta1.GetRelationResponse, error)) *ShieldServiceClient_GetRelation_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetResource provides a mock function with given fields: ctx, in, opts
@@ -677,6 +1388,43 @@ func (_m *ShieldServiceClient) GetResource(ctx context.Context, in *shieldv1beta
 	return r0, r1
 }
 
+// ShieldServiceClient_GetResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetResource'
+type ShieldServiceClient_GetResource_Call struct {
+	*mock.Call
+}
+
+// GetResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetResource(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetResource_Call {
+	return &ShieldServiceClient_GetResource_Call{Call: _e.mock.On("GetResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetResource_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetResourceRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetResource_Call) Return(_a0 *shieldv1beta1.GetResourceResponse, _a1 error) *ShieldServiceClient_GetResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetResource_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetResourceRequest, ...grpc.CallOption) (*shieldv1beta1.GetResourceResponse, error)) *ShieldServiceClient_GetResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUser provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) GetUser(ctx context.Context, in *shieldv1beta1.GetUserRequest, opts ...grpc.CallOption) (*shieldv1beta1.GetUserResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -708,6 +1456,43 @@ func (_m *ShieldServiceClient) GetUser(ctx context.Context, in *shieldv1beta1.Ge
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_GetUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUser'
+type ShieldServiceClient_GetUser_Call struct {
+	*mock.Call
+}
+
+// GetUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.GetUserRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) GetUser(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_GetUser_Call {
+	return &ShieldServiceClient_GetUser_Call{Call: _e.mock.On("GetUser",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_GetUser_Call) Run(run func(ctx context.Context, in *shieldv1beta1.GetUserRequest, opts ...grpc.CallOption)) *ShieldServiceClient_GetUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.GetUserRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetUser_Call) Return(_a0 *shieldv1beta1.GetUserResponse, _a1 error) *ShieldServiceClient_GetUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_GetUser_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.GetUserRequest, ...grpc.CallOption) (*shieldv1beta1.GetUserResponse, error)) *ShieldServiceClient_GetUser_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListActions provides a mock function with given fields: ctx, in, opts
@@ -743,6 +1528,43 @@ func (_m *ShieldServiceClient) ListActions(ctx context.Context, in *shieldv1beta
 	return r0, r1
 }
 
+// ShieldServiceClient_ListActions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListActions'
+type ShieldServiceClient_ListActions_Call struct {
+	*mock.Call
+}
+
+// ListActions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListActionsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListActions(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListActions_Call {
+	return &ShieldServiceClient_ListActions_Call{Call: _e.mock.On("ListActions",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListActions_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListActionsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListActions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListActionsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListActions_Call) Return(_a0 *shieldv1beta1.ListActionsResponse, _a1 error) *ShieldServiceClient_ListActions_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListActions_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListActionsRequest, ...grpc.CallOption) (*shieldv1beta1.ListActionsResponse, error)) *ShieldServiceClient_ListActions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListGroupRelations provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListGroupRelations(ctx context.Context, in *shieldv1beta1.ListGroupRelationsRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListGroupRelationsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -774,6 +1596,43 @@ func (_m *ShieldServiceClient) ListGroupRelations(ctx context.Context, in *shiel
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListGroupRelations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListGroupRelations'
+type ShieldServiceClient_ListGroupRelations_Call struct {
+	*mock.Call
+}
+
+// ListGroupRelations is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListGroupRelationsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListGroupRelations(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListGroupRelations_Call {
+	return &ShieldServiceClient_ListGroupRelations_Call{Call: _e.mock.On("ListGroupRelations",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListGroupRelations_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListGroupRelationsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListGroupRelations_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListGroupRelationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListGroupRelations_Call) Return(_a0 *shieldv1beta1.ListGroupRelationsResponse, _a1 error) *ShieldServiceClient_ListGroupRelations_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListGroupRelations_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListGroupRelationsRequest, ...grpc.CallOption) (*shieldv1beta1.ListGroupRelationsResponse, error)) *ShieldServiceClient_ListGroupRelations_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListGroups provides a mock function with given fields: ctx, in, opts
@@ -809,6 +1668,43 @@ func (_m *ShieldServiceClient) ListGroups(ctx context.Context, in *shieldv1beta1
 	return r0, r1
 }
 
+// ShieldServiceClient_ListGroups_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListGroups'
+type ShieldServiceClient_ListGroups_Call struct {
+	*mock.Call
+}
+
+// ListGroups is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListGroupsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListGroups(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListGroups_Call {
+	return &ShieldServiceClient_ListGroups_Call{Call: _e.mock.On("ListGroups",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListGroups_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListGroupsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListGroups_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListGroupsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListGroups_Call) Return(_a0 *shieldv1beta1.ListGroupsResponse, _a1 error) *ShieldServiceClient_ListGroups_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListGroups_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListGroupsRequest, ...grpc.CallOption) (*shieldv1beta1.ListGroupsResponse, error)) *ShieldServiceClient_ListGroups_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListNamespaces provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListNamespaces(ctx context.Context, in *shieldv1beta1.ListNamespacesRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListNamespacesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -840,6 +1736,43 @@ func (_m *ShieldServiceClient) ListNamespaces(ctx context.Context, in *shieldv1b
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListNamespaces_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListNamespaces'
+type ShieldServiceClient_ListNamespaces_Call struct {
+	*mock.Call
+}
+
+// ListNamespaces is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListNamespacesRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListNamespaces(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListNamespaces_Call {
+	return &ShieldServiceClient_ListNamespaces_Call{Call: _e.mock.On("ListNamespaces",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListNamespaces_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListNamespacesRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListNamespaces_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListNamespacesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListNamespaces_Call) Return(_a0 *shieldv1beta1.ListNamespacesResponse, _a1 error) *ShieldServiceClient_ListNamespaces_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListNamespaces_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListNamespacesRequest, ...grpc.CallOption) (*shieldv1beta1.ListNamespacesResponse, error)) *ShieldServiceClient_ListNamespaces_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListOrganizationAdmins provides a mock function with given fields: ctx, in, opts
@@ -875,6 +1808,43 @@ func (_m *ShieldServiceClient) ListOrganizationAdmins(ctx context.Context, in *s
 	return r0, r1
 }
 
+// ShieldServiceClient_ListOrganizationAdmins_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListOrganizationAdmins'
+type ShieldServiceClient_ListOrganizationAdmins_Call struct {
+	*mock.Call
+}
+
+// ListOrganizationAdmins is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListOrganizationAdminsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListOrganizationAdmins(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListOrganizationAdmins_Call {
+	return &ShieldServiceClient_ListOrganizationAdmins_Call{Call: _e.mock.On("ListOrganizationAdmins",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListOrganizationAdmins_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListOrganizationAdminsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListOrganizationAdmins_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListOrganizationAdminsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListOrganizationAdmins_Call) Return(_a0 *shieldv1beta1.ListOrganizationAdminsResponse, _a1 error) *ShieldServiceClient_ListOrganizationAdmins_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListOrganizationAdmins_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListOrganizationAdminsRequest, ...grpc.CallOption) (*shieldv1beta1.ListOrganizationAdminsResponse, error)) *ShieldServiceClient_ListOrganizationAdmins_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListOrganizations provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListOrganizations(ctx context.Context, in *shieldv1beta1.ListOrganizationsRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListOrganizationsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -906,6 +1876,43 @@ func (_m *ShieldServiceClient) ListOrganizations(ctx context.Context, in *shield
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListOrganizations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListOrganizations'
+type ShieldServiceClient_ListOrganizations_Call struct {
+	*mock.Call
+}
+
+// ListOrganizations is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListOrganizationsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListOrganizations(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListOrganizations_Call {
+	return &ShieldServiceClient_ListOrganizations_Call{Call: _e.mock.On("ListOrganizations",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListOrganizations_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListOrganizationsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListOrganizations_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListOrganizationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListOrganizations_Call) Return(_a0 *shieldv1beta1.ListOrganizationsResponse, _a1 error) *ShieldServiceClient_ListOrganizations_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListOrganizations_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListOrganizationsRequest, ...grpc.CallOption) (*shieldv1beta1.ListOrganizationsResponse, error)) *ShieldServiceClient_ListOrganizations_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListPolicies provides a mock function with given fields: ctx, in, opts
@@ -941,6 +1948,43 @@ func (_m *ShieldServiceClient) ListPolicies(ctx context.Context, in *shieldv1bet
 	return r0, r1
 }
 
+// ShieldServiceClient_ListPolicies_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListPolicies'
+type ShieldServiceClient_ListPolicies_Call struct {
+	*mock.Call
+}
+
+// ListPolicies is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListPoliciesRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListPolicies(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListPolicies_Call {
+	return &ShieldServiceClient_ListPolicies_Call{Call: _e.mock.On("ListPolicies",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListPolicies_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListPoliciesRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListPolicies_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListPoliciesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListPolicies_Call) Return(_a0 *shieldv1beta1.ListPoliciesResponse, _a1 error) *ShieldServiceClient_ListPolicies_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListPolicies_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListPoliciesRequest, ...grpc.CallOption) (*shieldv1beta1.ListPoliciesResponse, error)) *ShieldServiceClient_ListPolicies_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListProjectAdmins provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListProjectAdmins(ctx context.Context, in *shieldv1beta1.ListProjectAdminsRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListProjectAdminsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -972,6 +2016,43 @@ func (_m *ShieldServiceClient) ListProjectAdmins(ctx context.Context, in *shield
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListProjectAdmins_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListProjectAdmins'
+type ShieldServiceClient_ListProjectAdmins_Call struct {
+	*mock.Call
+}
+
+// ListProjectAdmins is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListProjectAdminsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListProjectAdmins(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListProjectAdmins_Call {
+	return &ShieldServiceClient_ListProjectAdmins_Call{Call: _e.mock.On("ListProjectAdmins",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListProjectAdmins_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListProjectAdminsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListProjectAdmins_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListProjectAdminsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListProjectAdmins_Call) Return(_a0 *shieldv1beta1.ListProjectAdminsResponse, _a1 error) *ShieldServiceClient_ListProjectAdmins_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListProjectAdmins_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListProjectAdminsRequest, ...grpc.CallOption) (*shieldv1beta1.ListProjectAdminsResponse, error)) *ShieldServiceClient_ListProjectAdmins_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListProjects provides a mock function with given fields: ctx, in, opts
@@ -1007,6 +2088,43 @@ func (_m *ShieldServiceClient) ListProjects(ctx context.Context, in *shieldv1bet
 	return r0, r1
 }
 
+// ShieldServiceClient_ListProjects_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListProjects'
+type ShieldServiceClient_ListProjects_Call struct {
+	*mock.Call
+}
+
+// ListProjects is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListProjectsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListProjects(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListProjects_Call {
+	return &ShieldServiceClient_ListProjects_Call{Call: _e.mock.On("ListProjects",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListProjects_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListProjectsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListProjects_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListProjectsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListProjects_Call) Return(_a0 *shieldv1beta1.ListProjectsResponse, _a1 error) *ShieldServiceClient_ListProjects_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListProjects_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListProjectsRequest, ...grpc.CallOption) (*shieldv1beta1.ListProjectsResponse, error)) *ShieldServiceClient_ListProjects_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListRelations provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListRelations(ctx context.Context, in *shieldv1beta1.ListRelationsRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListRelationsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1038,6 +2156,43 @@ func (_m *ShieldServiceClient) ListRelations(ctx context.Context, in *shieldv1be
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListRelations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRelations'
+type ShieldServiceClient_ListRelations_Call struct {
+	*mock.Call
+}
+
+// ListRelations is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListRelationsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListRelations(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListRelations_Call {
+	return &ShieldServiceClient_ListRelations_Call{Call: _e.mock.On("ListRelations",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListRelations_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListRelationsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListRelations_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListRelationsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListRelations_Call) Return(_a0 *shieldv1beta1.ListRelationsResponse, _a1 error) *ShieldServiceClient_ListRelations_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListRelations_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListRelationsRequest, ...grpc.CallOption) (*shieldv1beta1.ListRelationsResponse, error)) *ShieldServiceClient_ListRelations_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListResources provides a mock function with given fields: ctx, in, opts
@@ -1073,6 +2228,43 @@ func (_m *ShieldServiceClient) ListResources(ctx context.Context, in *shieldv1be
 	return r0, r1
 }
 
+// ShieldServiceClient_ListResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListResources'
+type ShieldServiceClient_ListResources_Call struct {
+	*mock.Call
+}
+
+// ListResources is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListResourcesRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListResources(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListResources_Call {
+	return &ShieldServiceClient_ListResources_Call{Call: _e.mock.On("ListResources",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListResources_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListResourcesRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListResources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListResourcesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListResources_Call) Return(_a0 *shieldv1beta1.ListResourcesResponse, _a1 error) *ShieldServiceClient_ListResources_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListResources_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListResourcesRequest, ...grpc.CallOption) (*shieldv1beta1.ListResourcesResponse, error)) *ShieldServiceClient_ListResources_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListRoles provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListRoles(ctx context.Context, in *shieldv1beta1.ListRolesRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListRolesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1104,6 +2296,43 @@ func (_m *ShieldServiceClient) ListRoles(ctx context.Context, in *shieldv1beta1.
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListRoles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRoles'
+type ShieldServiceClient_ListRoles_Call struct {
+	*mock.Call
+}
+
+// ListRoles is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListRolesRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListRoles(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListRoles_Call {
+	return &ShieldServiceClient_ListRoles_Call{Call: _e.mock.On("ListRoles",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListRoles_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListRolesRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListRoles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListRolesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListRoles_Call) Return(_a0 *shieldv1beta1.ListRolesResponse, _a1 error) *ShieldServiceClient_ListRoles_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListRoles_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListRolesRequest, ...grpc.CallOption) (*shieldv1beta1.ListRolesResponse, error)) *ShieldServiceClient_ListRoles_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListUserGroups provides a mock function with given fields: ctx, in, opts
@@ -1139,6 +2368,43 @@ func (_m *ShieldServiceClient) ListUserGroups(ctx context.Context, in *shieldv1b
 	return r0, r1
 }
 
+// ShieldServiceClient_ListUserGroups_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListUserGroups'
+type ShieldServiceClient_ListUserGroups_Call struct {
+	*mock.Call
+}
+
+// ListUserGroups is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListUserGroupsRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListUserGroups(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListUserGroups_Call {
+	return &ShieldServiceClient_ListUserGroups_Call{Call: _e.mock.On("ListUserGroups",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListUserGroups_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListUserGroupsRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListUserGroups_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListUserGroupsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListUserGroups_Call) Return(_a0 *shieldv1beta1.ListUserGroupsResponse, _a1 error) *ShieldServiceClient_ListUserGroups_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListUserGroups_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListUserGroupsRequest, ...grpc.CallOption) (*shieldv1beta1.ListUserGroupsResponse, error)) *ShieldServiceClient_ListUserGroups_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListUsers provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) ListUsers(ctx context.Context, in *shieldv1beta1.ListUsersRequest, opts ...grpc.CallOption) (*shieldv1beta1.ListUsersResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1170,6 +2436,43 @@ func (_m *ShieldServiceClient) ListUsers(ctx context.Context, in *shieldv1beta1.
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_ListUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListUsers'
+type ShieldServiceClient_ListUsers_Call struct {
+	*mock.Call
+}
+
+// ListUsers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.ListUsersRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) ListUsers(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_ListUsers_Call {
+	return &ShieldServiceClient_ListUsers_Call{Call: _e.mock.On("ListUsers",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_ListUsers_Call) Run(run func(ctx context.Context, in *shieldv1beta1.ListUsersRequest, opts ...grpc.CallOption)) *ShieldServiceClient_ListUsers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.ListUsersRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListUsers_Call) Return(_a0 *shieldv1beta1.ListUsersResponse, _a1 error) *ShieldServiceClient_ListUsers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_ListUsers_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.ListUsersRequest, ...grpc.CallOption) (*shieldv1beta1.ListUsersResponse, error)) *ShieldServiceClient_ListUsers_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateCurrentUser provides a mock function with given fields: ctx, in, opts
@@ -1205,6 +2508,43 @@ func (_m *ShieldServiceClient) UpdateCurrentUser(ctx context.Context, in *shield
 	return r0, r1
 }
 
+// ShieldServiceClient_UpdateCurrentUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCurrentUser'
+type ShieldServiceClient_UpdateCurrentUser_Call struct {
+	*mock.Call
+}
+
+// UpdateCurrentUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateCurrentUserRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateCurrentUser(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateCurrentUser_Call {
+	return &ShieldServiceClient_UpdateCurrentUser_Call{Call: _e.mock.On("UpdateCurrentUser",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateCurrentUser_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateCurrentUserRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateCurrentUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateCurrentUserRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateCurrentUser_Call) Return(_a0 *shieldv1beta1.UpdateCurrentUserResponse, _a1 error) *ShieldServiceClient_UpdateCurrentUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateCurrentUser_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateCurrentUserRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateCurrentUserResponse, error)) *ShieldServiceClient_UpdateCurrentUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateGroup provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) UpdateGroup(ctx context.Context, in *shieldv1beta1.UpdateGroupRequest, opts ...grpc.CallOption) (*shieldv1beta1.UpdateGroupResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1236,6 +2576,43 @@ func (_m *ShieldServiceClient) UpdateGroup(ctx context.Context, in *shieldv1beta
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_UpdateGroup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateGroup'
+type ShieldServiceClient_UpdateGroup_Call struct {
+	*mock.Call
+}
+
+// UpdateGroup is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateGroupRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateGroup(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateGroup_Call {
+	return &ShieldServiceClient_UpdateGroup_Call{Call: _e.mock.On("UpdateGroup",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateGroup_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateGroupRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateGroup_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateGroupRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateGroup_Call) Return(_a0 *shieldv1beta1.UpdateGroupResponse, _a1 error) *ShieldServiceClient_UpdateGroup_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateGroup_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateGroupRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateGroupResponse, error)) *ShieldServiceClient_UpdateGroup_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateNamespace provides a mock function with given fields: ctx, in, opts
@@ -1271,6 +2648,43 @@ func (_m *ShieldServiceClient) UpdateNamespace(ctx context.Context, in *shieldv1
 	return r0, r1
 }
 
+// ShieldServiceClient_UpdateNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateNamespace'
+type ShieldServiceClient_UpdateNamespace_Call struct {
+	*mock.Call
+}
+
+// UpdateNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateNamespace(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateNamespace_Call {
+	return &ShieldServiceClient_UpdateNamespace_Call{Call: _e.mock.On("UpdateNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateNamespace_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateNamespaceRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateNamespace_Call) Return(_a0 *shieldv1beta1.UpdateNamespaceResponse, _a1 error) *ShieldServiceClient_UpdateNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateNamespace_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateNamespaceRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateNamespaceResponse, error)) *ShieldServiceClient_UpdateNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateOrganization provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) UpdateOrganization(ctx context.Context, in *shieldv1beta1.UpdateOrganizationRequest, opts ...grpc.CallOption) (*shieldv1beta1.UpdateOrganizationResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1302,6 +2716,43 @@ func (_m *ShieldServiceClient) UpdateOrganization(ctx context.Context, in *shiel
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_UpdateOrganization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateOrganization'
+type ShieldServiceClient_UpdateOrganization_Call struct {
+	*mock.Call
+}
+
+// UpdateOrganization is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateOrganizationRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateOrganization(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateOrganization_Call {
+	return &ShieldServiceClient_UpdateOrganization_Call{Call: _e.mock.On("UpdateOrganization",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateOrganization_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateOrganizationRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateOrganization_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateOrganizationRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateOrganization_Call) Return(_a0 *shieldv1beta1.UpdateOrganizationResponse, _a1 error) *ShieldServiceClient_UpdateOrganization_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateOrganization_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateOrganizationRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateOrganizationResponse, error)) *ShieldServiceClient_UpdateOrganization_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateProject provides a mock function with given fields: ctx, in, opts
@@ -1337,6 +2788,43 @@ func (_m *ShieldServiceClient) UpdateProject(ctx context.Context, in *shieldv1be
 	return r0, r1
 }
 
+// ShieldServiceClient_UpdateProject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProject'
+type ShieldServiceClient_UpdateProject_Call struct {
+	*mock.Call
+}
+
+// UpdateProject is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateProjectRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateProject(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateProject_Call {
+	return &ShieldServiceClient_UpdateProject_Call{Call: _e.mock.On("UpdateProject",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateProject_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateProjectRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateProject_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateProjectRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateProject_Call) Return(_a0 *shieldv1beta1.UpdateProjectResponse, _a1 error) *ShieldServiceClient_UpdateProject_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateProject_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateProjectRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateProjectResponse, error)) *ShieldServiceClient_UpdateProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateResource provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) UpdateResource(ctx context.Context, in *shieldv1beta1.UpdateResourceRequest, opts ...grpc.CallOption) (*shieldv1beta1.UpdateResourceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1370,6 +2858,43 @@ func (_m *ShieldServiceClient) UpdateResource(ctx context.Context, in *shieldv1b
 	return r0, r1
 }
 
+// ShieldServiceClient_UpdateResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateResource'
+type ShieldServiceClient_UpdateResource_Call struct {
+	*mock.Call
+}
+
+// UpdateResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateResource(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateResource_Call {
+	return &ShieldServiceClient_UpdateResource_Call{Call: _e.mock.On("UpdateResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateResource_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateResourceRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateResource_Call) Return(_a0 *shieldv1beta1.UpdateResourceResponse, _a1 error) *ShieldServiceClient_UpdateResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateResource_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateResourceRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateResourceResponse, error)) *ShieldServiceClient_UpdateResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateUser provides a mock function with given fields: ctx, in, opts
 func (_m *ShieldServiceClient) UpdateUser(ctx context.Context, in *shieldv1beta1.UpdateUserRequest, opts ...grpc.CallOption) (*shieldv1beta1.UpdateUserResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1401,6 +2926,43 @@ func (_m *ShieldServiceClient) UpdateUser(ctx context.Context, in *shieldv1beta1
 	}
 
 	return r0, r1
+}
+
+// ShieldServiceClient_UpdateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUser'
+type ShieldServiceClient_UpdateUser_Call struct {
+	*mock.Call
+}
+
+// UpdateUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *shieldv1beta1.UpdateUserRequest
+//   - opts ...grpc.CallOption
+func (_e *ShieldServiceClient_Expecter) UpdateUser(ctx interface{}, in interface{}, opts ...interface{}) *ShieldServiceClient_UpdateUser_Call {
+	return &ShieldServiceClient_UpdateUser_Call{Call: _e.mock.On("UpdateUser",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ShieldServiceClient_UpdateUser_Call) Run(run func(ctx context.Context, in *shieldv1beta1.UpdateUserRequest, opts ...grpc.CallOption)) *ShieldServiceClient_UpdateUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*shieldv1beta1.UpdateUserRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateUser_Call) Return(_a0 *shieldv1beta1.UpdateUserResponse, _a1 error) *ShieldServiceClient_UpdateUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ShieldServiceClient_UpdateUser_Call) RunAndReturn(run func(context.Context, *shieldv1beta1.UpdateUserRequest, ...grpc.CallOption) (*shieldv1beta1.UpdateUserResponse, error)) *ShieldServiceClient_UpdateUser_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewShieldServiceClient creates a new instance of ShieldServiceClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

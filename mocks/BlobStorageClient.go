@@ -14,6 +14,14 @@ type BlobStorageClient struct {
 	mock.Mock
 }
 
+type BlobStorageClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *BlobStorageClient) EXPECT() *BlobStorageClient_Expecter {
+	return &BlobStorageClient_Expecter{mock: &_m.Mock}
+}
+
 // ListDlqMetadata provides a mock function with given fields: bucketInfo
 func (_m *BlobStorageClient) ListDlqMetadata(bucketInfo gcs.BucketInfo) ([]models.DlqMetadata, error) {
 	ret := _m.Called(bucketInfo)
@@ -38,6 +46,34 @@ func (_m *BlobStorageClient) ListDlqMetadata(bucketInfo gcs.BucketInfo) ([]model
 	}
 
 	return r0, r1
+}
+
+// BlobStorageClient_ListDlqMetadata_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListDlqMetadata'
+type BlobStorageClient_ListDlqMetadata_Call struct {
+	*mock.Call
+}
+
+// ListDlqMetadata is a helper method to define mock.On call
+//   - bucketInfo gcs.BucketInfo
+func (_e *BlobStorageClient_Expecter) ListDlqMetadata(bucketInfo interface{}) *BlobStorageClient_ListDlqMetadata_Call {
+	return &BlobStorageClient_ListDlqMetadata_Call{Call: _e.mock.On("ListDlqMetadata", bucketInfo)}
+}
+
+func (_c *BlobStorageClient_ListDlqMetadata_Call) Run(run func(bucketInfo gcs.BucketInfo)) *BlobStorageClient_ListDlqMetadata_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(gcs.BucketInfo))
+	})
+	return _c
+}
+
+func (_c *BlobStorageClient_ListDlqMetadata_Call) Return(_a0 []models.DlqMetadata, _a1 error) *BlobStorageClient_ListDlqMetadata_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *BlobStorageClient_ListDlqMetadata_Call) RunAndReturn(run func(gcs.BucketInfo) ([]models.DlqMetadata, error)) *BlobStorageClient_ListDlqMetadata_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewBlobStorageClient creates a new instance of BlobStorageClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

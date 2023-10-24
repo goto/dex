@@ -16,6 +16,14 @@ type BlobObjectClient struct {
 	mock.Mock
 }
 
+type BlobObjectClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *BlobObjectClient) EXPECT() *BlobObjectClient_Expecter {
+	return &BlobObjectClient_Expecter{mock: &_m.Mock}
+}
+
 // Objects provides a mock function with given fields: ctx, bucket, query
 func (_m *BlobObjectClient) Objects(ctx context.Context, bucket string, query *storage.Query) gcs.ObjectIterator {
 	ret := _m.Called(ctx, bucket, query)
@@ -30,6 +38,36 @@ func (_m *BlobObjectClient) Objects(ctx context.Context, bucket string, query *s
 	}
 
 	return r0
+}
+
+// BlobObjectClient_Objects_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Objects'
+type BlobObjectClient_Objects_Call struct {
+	*mock.Call
+}
+
+// Objects is a helper method to define mock.On call
+//   - ctx context.Context
+//   - bucket string
+//   - query *storage.Query
+func (_e *BlobObjectClient_Expecter) Objects(ctx interface{}, bucket interface{}, query interface{}) *BlobObjectClient_Objects_Call {
+	return &BlobObjectClient_Objects_Call{Call: _e.mock.On("Objects", ctx, bucket, query)}
+}
+
+func (_c *BlobObjectClient_Objects_Call) Run(run func(ctx context.Context, bucket string, query *storage.Query)) *BlobObjectClient_Objects_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(*storage.Query))
+	})
+	return _c
+}
+
+func (_c *BlobObjectClient_Objects_Call) Return(_a0 gcs.ObjectIterator) *BlobObjectClient_Objects_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *BlobObjectClient_Objects_Call) RunAndReturn(run func(context.Context, string, *storage.Query) gcs.ObjectIterator) *BlobObjectClient_Objects_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewBlobObjectClient creates a new instance of BlobObjectClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
