@@ -132,11 +132,21 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getDlqJob(w http.ResponseWriter, r *http.Request) {
-	// sample to get job urn from route params
-	_ = h.jobURN(r)
+	ctx := r.Context()
+	jobURN := h.jobURN(r)
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_job": nil,
+	dlqJob, err := h.service.GetDlqJob(ctx, jobURN)
+	if err != nil {
+		if errors.Is(err, ErrJobNotFound) {
+			utils.WriteErrMsg(w, http.StatusNotFound, ErrJobNotFound.Error())
+			return
+		}
+		utils.WriteErr(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]any{
+		"dlq_job": dlqJob,
 	})
 }
 

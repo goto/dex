@@ -258,8 +258,7 @@ func skipTestServiceCreateDLQJob(t *testing.T) {
 		kubeCluster := "test-kube-cluster"
 		userEmail := "test@example.com"
 		config := dlq.DlqJobConfig{
-			PrometheusHost: "http://sample-prom-host",
-			DlqJobImage:    "test-image",
+			JobImage: "test-image",
 		}
 
 		dlqJob := models.DlqJob{
@@ -366,7 +365,7 @@ func skipTestServiceCreateDLQJob(t *testing.T) {
 			Containers: []entropy.JobContainer{
 				{
 					Name:            "dlq-job",
-					Image:           config.DlqJobImage,
+					Image:           config.JobImage,
 					ImagePullPolicy: "Always",
 					SecretsVolumes: []entropy.JobSecret{
 						{
@@ -396,7 +395,7 @@ func skipTestServiceCreateDLQJob(t *testing.T) {
 					EnvVariables: map[string]string{
 						// To be updated by streaming
 						"APP_NAME":        "", // TBA
-						"PROMETHEUS_HOST": config.PrometheusHost,
+						"PROMETHEUS_HOST": "",
 						"DEPLOYMENT_NAME": "deployment-name",
 						"TEAM":            dlqJob.Group,
 						"TOPIC":           dlqJob.Topic,
@@ -449,12 +448,12 @@ func skipTestServiceCreateDLQJob(t *testing.T) {
 				"topic":                   dlqJob.Topic,
 				"job_type":                "dlq",
 				"group":                   dlqJob.Group,
-				"prometheus_host":         config.PrometheusHost,
+				"prometheus_host":         "",
 				"batch_size":              "5",
 				"num_threads":             "2",
 				"error_types":             "DESERILIAZATION_ERROR",
 				"dlq_gcs_credential_path": updatedEnvVars["DLQ_GCS_CREDENTIAL_PATH"],
-				"container_image":         config.DlqJobImage,
+				"container_image":         config.JobImage,
 				"namespace":               namespace,
 				"replicas":                "1",
 			},
@@ -511,13 +510,13 @@ func skipTestServiceCreateDLQJob(t *testing.T) {
 			ResourceID:           dlqJob.ResourceID,
 			ResourceType:         dlqJob.ResourceType,
 			Topic:                dlqJob.Topic,
-			ContainerImage:       config.DlqJobImage,
+			ContainerImage:       config.JobImage,
 			DlqGcsCredentialPath: updatedEnvVars["DLQ_GCS_CREDENTIAL_PATH"],
 			EnvVars:              updatedEnvVars,
 			KubeCluster:          kubeCluster,
 			Namespace:            namespace,
 			Project:              firehoseResource.Project,
-			PrometheusHost:       config.PrometheusHost,
+			PrometheusHost:       "",
 			CreatedAt:            strfmt.DateTime(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)),
 			UpdatedAt:            strfmt.DateTime(time.Date(2022, 2, 2, 1, 1, 1, 1, time.UTC)),
 			CreatedBy:            "test-created-by",

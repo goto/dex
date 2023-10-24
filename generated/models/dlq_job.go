@@ -81,6 +81,9 @@ type DlqJob struct {
 	// Enum: [pending error running stopped]
 	Status string `json:"status,omitempty"`
 
+	// team
+	Team string `json:"team,omitempty"`
+
 	// topic
 	Topic string `json:"topic,omitempty"`
 

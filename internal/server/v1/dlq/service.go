@@ -3,6 +3,7 @@ package dlq
 import (
 	"context"
 	"fmt"
+	"time"
 
 	entropyv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
@@ -16,8 +17,7 @@ import (
 )
 
 type DlqJobConfig struct {
-	DlqJobImage    string `mapstructure:"dlq_job_image"`
-	PrometheusHost string `mapstructure:"prometheus_host"`
+	JobImage string
 }
 
 type Service struct {
@@ -36,14 +36,14 @@ func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.Bl
 
 // TODO: replace *DlqJob with a generated models.DlqJob
 func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob models.DlqJob) (models.DlqJob, error) {
-	if s.cfg.DlqJobImage == "" {
+	if s.cfg.JobImage == "" {
 		return models.DlqJob{}, ErrEmptyConfigImage
 	}
-	if s.cfg.PrometheusHost == "" {
-		return models.DlqJob{}, ErrEmptyConfigPrometheusHost
-	}
 
+	timestamp := time.Now().Unix()
+	dlqJob.Name = fmt.Sprintf("dlq-%s-%d", dlqJob.Date, timestamp)
 	dlqJob.Replicas = 1
+	dlqJob.ContainerImage = s.cfg.JobImage
 
 	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID})
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob mod
 		return models.DlqJob{}, fmt.Errorf("error getting firehose resource: %w", err)
 	}
 	// enrich DlqJob with firehose details
-	if err := enrichDlqJob(&dlqJob, def.GetResource(), s.cfg); err != nil {
+	if err := enrichDlqJob(&dlqJob, def.GetResource()); err != nil {
 		return models.DlqJob{}, fmt.Errorf("error enriching dlq job: %w", err)
 	}
 
@@ -99,5 +99,22 @@ func (s *Service) ListDlqJob(ctx context.Context, labelFilter map[string]string)
 		dlqJob = append(dlqJob, def)
 	}
 
+	return dlqJob, nil
+}
+
+func (s *Service) GetDlqJob(ctx context.Context, jobURN string) (models.DlqJob, error) {
+	res, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: jobURN})
+	if err != nil {
+		st := status.Convert(err)
+		if st.Code() == codes.NotFound {
+			return models.DlqJob{}, ErrJobNotFound
+		}
+		return models.DlqJob{}, fmt.Errorf("error getting entropy resource: %w", err)
+	}
+
+	dlqJob, err := mapToDlqJob(res.GetResource())
+	if err != nil {
+		return models.DlqJob{}, fmt.Errorf("error mapping resource to dlq job: %w", err)
+	}
 	return dlqJob, nil
 }

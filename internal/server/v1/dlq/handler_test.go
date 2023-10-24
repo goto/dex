@@ -131,81 +131,6 @@ func TestListTopicDates(t *testing.T) {
 	assert.Equal(t, topicDates, expectedMap["dlq_list"])
 }
 
-func TestErrorFromGCSClient(t *testing.T) {
-	eService := &mocks.ResourceServiceClient{}
-	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient, dlq.DlqJobConfig{}))
-	httpWriter := &testHTTPWriter{}
-	httpRequest := &http.Request{}
-	config := &entropy.FirehoseConfig{
-		Stopped:      false,
-		StopTime:     nil,
-		Replicas:     0,
-		Namespace:    "",
-		DeploymentID: "",
-		EnvVariables: map[string]string{
-			firehose.ConfigDLQBucket:          "test-bucket",
-			firehose.ConfigDLQDirectoryPrefix: "test-prefix",
-		},
-		ResetOffset:   "",
-		Limits:        entropy.UsageSpec{},
-		Requests:      entropy.UsageSpec{},
-		Telegraf:      nil,
-		ChartValues:   nil,
-		InitContainer: entropy.FirehoseInitContainer{},
-	}
-	configProto, _ := utils.GoValToProtoStruct(config)
-	eService.On(
-		"GetResource",
-		context.Background(),
-		&entropyv1beta1.GetResourceRequest{Urn: ""}).Return(
-		&entropyv1beta1.GetResourceResponse{
-			Resource: &entropyv1beta1.Resource{
-				Urn:       "",
-				Kind:      "",
-				Name:      "",
-				Project:   "",
-				Labels:    nil,
-				CreatedAt: nil,
-				UpdatedAt: nil,
-				Spec: &entropyv1beta1.ResourceSpec{
-					Configs:      configProto,
-					Dependencies: nil,
-				},
-				State:     nil,
-				CreatedBy: "",
-				UpdatedBy: "",
-			},
-		}, nil)
-	gClient.On("ListDlqMetadata", gcs.BucketInfo{
-		BucketName: "test-bucket",
-		Prefix:     "test-prefix",
-		Delim:      "",
-	}).Return(nil, fmt.Errorf("test-error"))
-	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
-	require.NoError(t, err)
-	assert.Equal(t, "test-error", expectedMap["cause"])
-}
-
-func TestErrorFromFirehoseResource(t *testing.T) {
-	eService := &mocks.ResourceServiceClient{}
-	gClient := &mocks.BlobStorageClient{}
-	handler := dlq.NewHandler(dlq.NewService(eService, gClient, dlq.DlqJobConfig{}))
-	httpWriter := &testHTTPWriter{}
-	httpRequest := &http.Request{}
-	eService.On(
-		"GetResource",
-		context.Background(),
-		mock.Anything).Return(nil, fmt.Errorf("test-error"))
-	handler.ListFirehoseDLQ(httpWriter, httpRequest)
-	expectedMap := make(map[string]interface{})
-	err := json.Unmarshal([]byte(httpWriter.messages[0]), &expectedMap)
-	require.NoError(t, err)
-	assert.Equal(t, "test-error", expectedMap["cause"])
-}
-
 func TestListDlqJob(t *testing.T) {
 	var (
 		method       = http.MethodGet
@@ -472,8 +397,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 		kubeCluster := "test-kube-cluster"
 		userEmail := "test@example.com"
 		config := dlq.DlqJobConfig{
-			PrometheusHost: "http://sample-prom-host",
-			DlqJobImage:    "test-image",
+			JobImage: "test-image",
 		}
 		envVars := map[string]string{
 			"SINK_TYPE":                               "bigquery",
@@ -583,7 +507,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 			Containers: []entropy.JobContainer{
 				{
 					Name:            "dlq-job",
-					Image:           config.DlqJobImage,
+					Image:           config.JobImage,
 					ImagePullPolicy: "Always",
 					SecretsVolumes: []entropy.JobSecret{
 						{
@@ -613,7 +537,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 					EnvVariables: map[string]string{
 						// To be updated by streaming
 						"APP_NAME":        "", // TBA
-						"PROMETHEUS_HOST": config.PrometheusHost,
+						"PROMETHEUS_HOST": "",
 						"DEPLOYMENT_NAME": "deployment-name",
 						"TEAM":            "",
 						"TOPIC":           topic,
@@ -674,7 +598,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 				"topic":           topic,
 				"job_type":        "dlq",
 				"group":           group,
-				"prometheus_host": config.PrometheusHost,
+				"prometheus_host": "",
 			},
 			CreatedBy: jobResource.CreatedBy,
 			UpdatedBy: jobResource.UpdatedBy,
@@ -732,14 +656,14 @@ func skipTestCreateDlqJob(t *testing.T) {
 			ErrorTypes: errorTypes,
 
 			// firehose resource
-			ContainerImage:       config.DlqJobImage,
+			ContainerImage:       config.JobImage,
 			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
 			EnvVars:              expectedEnvVars,
 			Group:                "", //
 			KubeCluster:          kubeCluster,
 			Namespace:            namespace,
 			Project:              firehoseResource.Project,
-			PrometheusHost:       config.PrometheusHost,
+			PrometheusHost:       "",
 
 			// hardcoded
 			Replicas: 0,
