@@ -246,7 +246,7 @@ func TestListDlqJob(t *testing.T) {
 	})
 
 	t.Run("Should return error in firehose mapping", func(t *testing.T) {
-		path := fmt.Sprintf("/jobs?resource_id=")
+		path := "/jobs?resource_id="
 		expectedErr := status.Error(codes.Internal, "Not found")
 		expectedLabels := map[string]string{}
 		entropyClient := new(mocks.ResourceServiceClient)
@@ -547,7 +547,6 @@ func TestCreateDlqJob(t *testing.T) {
 	)
 
 	t.Run("Should return error user header is required", func(t *testing.T) {
-
 		requestBody := bytes.NewReader([]byte(jsonPayload))
 
 		response := httptest.NewRecorder()
