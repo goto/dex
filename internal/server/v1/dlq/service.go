@@ -2,6 +2,7 @@ package dlq
 
 import (
 	"context"
+	"fmt"
 
 	entropyv1beta1rpc "buf.build/gen/go/gotocompany/proton/grpc/go/gotocompany/entropy/v1beta1/entropyv1beta1grpc"
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
@@ -34,38 +35,41 @@ func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.Bl
 }
 
 // TODO: replace *DlqJob with a generated models.DlqJob
-func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob *models.DlqJob) error {
-	// validate dlqJob for creation
-	// fetch firehose details
+func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob models.DlqJob) (models.DlqJob, error) {
+	dlqJob.Replicas = 1
+
 	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID})
 	if err != nil {
 		st := status.Convert(err)
 		if st.Code() == codes.NotFound {
-			return ErrFirehoseNotFound
+			return models.DlqJob{}, ErrFirehoseNotFound
 		}
-		return err
+		return models.DlqJob{}, fmt.Errorf("error getting firehose resource: %w", err)
 	}
 	// enrich DlqJob with firehose details
-	if err := enrichDlqJob(dlqJob, def.GetResource(), s.cfg); err != nil {
-		return err
+	if err := enrichDlqJob(&dlqJob, def.GetResource(), s.cfg); err != nil {
+		return models.DlqJob{}, fmt.Errorf("error enriching dlq job: %w", err)
 	}
 
 	// map DlqJob to entropy resource -> return entropy.Resource (kind = job)
-	res, err := mapToEntropyResource(*dlqJob)
+	resource, err := mapToEntropyResource(dlqJob)
 	if err != nil {
-		return err
+		return models.DlqJob{}, fmt.Errorf("error mapping to entropy resource: %w", err)
 	}
 	// entropy create resource
-	entropyCtx := metadata.AppendToOutgoingContext(ctx, "user-id", userEmail)
-	rpcReq := &entropyv1beta1.CreateResourceRequest{Resource: res}
-	rpcResp, err := s.client.CreateResource(entropyCtx, rpcReq)
+	ctx = metadata.AppendToOutgoingContext(ctx, "user-id", userEmail)
+	req := &entropyv1beta1.CreateResourceRequest{Resource: resource}
+	res, err := s.client.CreateResource(ctx, req)
 	if err != nil {
-		return err
+		return models.DlqJob{}, fmt.Errorf("error creating resource: %w", err)
 	}
 
-	dlqJob.Urn = rpcResp.Resource.Urn
+	updatedDlqJob, err := mapToDlqJob(res.GetResource())
+	if err != nil {
+		return models.DlqJob{}, fmt.Errorf("error mapping back to dlq job: %w", err)
+	}
 
-	return nil
+	return updatedDlqJob, nil
 }
 
 func (s *Service) ListDlqJob(ctx context.Context, labelFilter map[string]string) ([]models.DlqJob, error) {
@@ -78,18 +82,14 @@ func (s *Service) ListDlqJob(ctx context.Context, labelFilter map[string]string)
 
 	rpcResp, err := s.client.ListResources(ctx, rpcReq)
 	if err != nil {
-		st := status.Convert(err)
-		if st.Code() == codes.NotFound {
-			return nil, ErrFirehoseNotFound
-		}
-		return nil, err
+		return nil, fmt.Errorf("error getting job resource list: %w", err)
 	}
 	for _, res := range rpcResp.GetResources() {
-		def, err := MapToDlqJob(res)
+		def, err := mapToDlqJob(res)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error mapping to dlq job: %w", err)
 		}
-		dlqJob = append(dlqJob, *def)
+		dlqJob = append(dlqJob, def)
 	}
 
 	return dlqJob, nil

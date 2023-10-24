@@ -116,7 +116,7 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 		Topic:        *body.Topic,
 	}
 
-	err := h.service.CreateDLQJob(ctx, reqCtx.UserEmail, &dlqJob)
+	updatedDlqJob, err := h.service.CreateDLQJob(ctx, reqCtx.UserEmail, dlqJob)
 	if err != nil {
 		if errors.Is(err, ErrFirehoseNotFound) {
 			utils.WriteErrMsg(w, http.StatusNotFound, err.Error())
@@ -127,7 +127,7 @@ func (h *Handler) createDlqJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"dlq_job": dlqJob,
+		"dlq_job": updatedDlqJob,
 	})
 }
 
