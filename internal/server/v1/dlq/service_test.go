@@ -207,6 +207,7 @@ func TestServiceListDLQJob(t *testing.T) {
 	})
 }
 
+// nolint
 func skipTestServiceCreateDLQJob(t *testing.T) {
 	t.Run("should return ErrFirehoseNotFound if resource cannot be found in entropy", func(t *testing.T) {
 		// inputs

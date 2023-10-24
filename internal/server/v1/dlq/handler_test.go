@@ -35,6 +35,7 @@ import (
 //go:embed fixtures/list_dlq_jobs.json
 var listDlqJobsFixtureJSON []byte
 
+// nolint
 const (
 	emailHeaderKey = "X-Auth-Email"
 )
@@ -341,6 +342,7 @@ func TestListDlqJob(t *testing.T) {
 	})
 }
 
+// nolint
 func skipTestCreateDlqJob(t *testing.T) {
 	var (
 		method       = http.MethodPost
