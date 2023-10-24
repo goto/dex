@@ -36,6 +36,13 @@ func NewService(client entropyv1beta1rpc.ResourceServiceClient, gcsClient gcs.Bl
 
 // TODO: replace *DlqJob with a generated models.DlqJob
 func (s *Service) CreateDLQJob(ctx context.Context, userEmail string, dlqJob models.DlqJob) (models.DlqJob, error) {
+	if s.cfg.DlqJobImage == "" {
+		return models.DlqJob{}, ErrEmptyConfigImage
+	}
+	if s.cfg.PrometheusHost == "" {
+		return models.DlqJob{}, ErrEmptyConfigPrometheusHost
+	}
+
 	dlqJob.Replicas = 1
 
 	def, err := s.client.GetResource(ctx, &entropyv1beta1.GetResourceRequest{Urn: dlqJob.ResourceID})
