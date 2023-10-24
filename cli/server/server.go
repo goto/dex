@@ -105,8 +105,7 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 
 	wardenClient := warden.NewClient(cfg.Warden.Addr)
 	dlqConfig := dlq.DlqJobConfig{
-		DlqJobImage:    cfg.Dlq.DlqJobImage,
-		PrometheusHost: cfg.Dlq.PrometheusHost,
+		JobImage: cfg.Dlq.JobImage,
 	}
 
 	return server.Serve(ctx, cfg.Service.Addr(), nrApp, zapLog,

@@ -1337,6 +1337,8 @@ definitions:
           type: string
       group:
         type: string
+      team:
+        type: string
       kube_cluster:
         type: string
       namespace:

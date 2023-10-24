@@ -397,8 +397,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 		kubeCluster := "test-kube-cluster"
 		userEmail := "test@example.com"
 		config := dlq.DlqJobConfig{
-			PrometheusHost: "http://sample-prom-host",
-			DlqJobImage:    "test-image",
+			JobImage: "test-image",
 		}
 		envVars := map[string]string{
 			"SINK_TYPE":                               "bigquery",
@@ -508,7 +507,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 			Containers: []entropy.JobContainer{
 				{
 					Name:            "dlq-job",
-					Image:           config.DlqJobImage,
+					Image:           config.JobImage,
 					ImagePullPolicy: "Always",
 					SecretsVolumes: []entropy.JobSecret{
 						{
@@ -538,7 +537,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 					EnvVariables: map[string]string{
 						// To be updated by streaming
 						"APP_NAME":        "", // TBA
-						"PROMETHEUS_HOST": config.PrometheusHost,
+						"PROMETHEUS_HOST": "",
 						"DEPLOYMENT_NAME": "deployment-name",
 						"TEAM":            "",
 						"TOPIC":           topic,
@@ -599,7 +598,7 @@ func skipTestCreateDlqJob(t *testing.T) {
 				"topic":           topic,
 				"job_type":        "dlq",
 				"group":           group,
-				"prometheus_host": config.PrometheusHost,
+				"prometheus_host": "",
 			},
 			CreatedBy: jobResource.CreatedBy,
 			UpdatedBy: jobResource.UpdatedBy,
@@ -657,14 +656,14 @@ func skipTestCreateDlqJob(t *testing.T) {
 			ErrorTypes: errorTypes,
 
 			// firehose resource
-			ContainerImage:       config.DlqJobImage,
+			ContainerImage:       config.JobImage,
 			DlqGcsCredentialPath: envVars["DLQ_GCS_CREDENTIAL_PATH"],
 			EnvVars:              expectedEnvVars,
 			Group:                "", //
 			KubeCluster:          kubeCluster,
 			Namespace:            namespace,
 			Project:              firehoseResource.Project,
-			PrometheusHost:       config.PrometheusHost,
+			PrometheusHost:       "",
 
 			// hardcoded
 			Replicas: 0,

@@ -54,7 +54,7 @@ type DlqJob struct {
 
 	// name
 	Name string `json:"name,omitempty"`
-	
+
 	// namespace
 	Namespace string `json:"namespace,omitempty"`
 
@@ -80,6 +80,9 @@ type DlqJob struct {
 	// status
 	// Enum: [pending error running stopped]
 	Status string `json:"status,omitempty"`
+
+	// team
+	Team string `json:"team,omitempty"`
 
 	// topic
 	Topic string `json:"topic,omitempty"`

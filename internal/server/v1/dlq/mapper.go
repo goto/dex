@@ -1,9 +1,10 @@
 package dlq
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
-	"time"
+	"strings"
 
 	entropyv1beta1 "buf.build/gen/go/gotocompany/proton/protocolbuffers/go/gotocompany/entropy/v1beta1"
 	"github.com/go-openapi/strfmt"
@@ -21,7 +22,7 @@ const (
 	dlqTelegrafConfigName    = "dlq-processor-telegraf"
 )
 
-func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobConfig) error {
+func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource) error {
 	var kubeCluster string
 	for _, dep := range res.Spec.GetDependencies() {
 		if dep.GetKey() == kubeClusterDependenciesKey {
@@ -42,34 +43,68 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobCo
 	if !ok {
 		return ErrFirehoseNamespaceInvalid
 	}
-	status := res.GetState().GetStatus().String()
+
+	// TODO: populate prometheus host using firehose's
+	promRemoteWriteAny, exists := modConf.Telegraf.Config.Output["prometheus_remote_write"]
+	if !exists {
+		return errors.New("missing prometheus_remote_write")
+	}
+	promRemoteWriteMap, ok := promRemoteWriteAny.(map[string]any)
+	if !ok {
+		return errors.New("invalid prometheus_remote_write")
+	}
+	promURLAny, exists := promRemoteWriteMap["url"]
+	if !exists {
+		return errors.New("missing prometheus_remote_write.url")
+	}
+	promURLString, ok := promURLAny.(string)
+	if !ok {
+		return errors.New("invalid prometheus_remote_write.url")
+	}
 
 	envs := modConf.EnvVariables
-	job.Name = buildEntropyResourceName(res.Name, "firehose", job.Topic, job.Date)
+	firehoseLabels := res.Labels
+	sinkType := envs["SINK_TYPE"]
+	dataType := envs["INPUT_SCHEMA_PROTO_CLASS"]
+	groupID := firehoseLabels["group"]
+	groupSlug := firehoseLabels["team"]
+	dlqPrefixDirectory := strings.Replace(envs["DLQ_GCS_DIRECTORY_PREFIX"], "{{ .name }}", res.Name, 1)
+	metricStatsDTag := fmt.Sprintf(
+		"namespace=%s,app=%s,sink=%s,team=%s,proto=%s,firehose=%s",
+		namespace,
+		job.Name,
+		sinkType,
+		groupSlug,
+		dataType,
+		res.Urn,
+	)
+
+	job.PrometheusHost = promURLString
 	job.Namespace = namespace
-	job.Status = status
-	job.CreatedAt = strfmt.DateTime(res.CreatedAt.AsTime())
-	job.UpdatedAt = strfmt.DateTime(res.UpdatedAt.AsTime())
 	job.Project = res.Project
 	job.KubeCluster = kubeCluster
-	job.ContainerImage = cfg.DlqJobImage
-	job.PrometheusHost = cfg.PrometheusHost
+	job.Group = groupID
+	job.Team = groupSlug
+	job.DlqGcsCredentialPath = envs["DLQ_GCS_CREDENTIAL_PATH"]
+	if job.DlqGcsCredentialPath == "" {
+		return errors.New("missing DLQ_GCS_CREDENTIAL_PATH")
+	}
 	job.EnvVars = map[string]string{
 		"DLQ_BATCH_SIZE":                          fmt.Sprintf("%d", job.BatchSize),
 		"DLQ_NUM_THREADS":                         fmt.Sprintf("%d", job.NumThreads),
 		"DLQ_ERROR_TYPES":                         job.ErrorTypes,
 		"DLQ_INPUT_DATE":                          job.Date,
 		"DLQ_TOPIC_NAME":                          job.Topic,
-		"METRIC_STATSD_TAGS":                      "a=b", // TBA
-		"SINK_TYPE":                               envs["SINK_TYPE"],
-		"DLQ_PREFIX_DIR":                          "test-firehose",
+		"METRIC_STATSD_TAGS":                      metricStatsDTag,
+		"SINK_TYPE":                               sinkType,
+		"DLQ_PREFIX_DIR":                          dlqPrefixDirectory,
 		"DLQ_FINISHED_STATUS_FILE":                "/shared/job-finished",
 		"DLQ_GCS_BUCKET_NAME":                     envs["DLQ_GCS_BUCKET_NAME"],
-		"DLQ_GCS_CREDENTIAL_PATH":                 envs["DLQ_GCS_CREDENTIAL_PATH"],
+		"DLQ_GCS_CREDENTIAL_PATH":                 job.DlqGcsCredentialPath,
 		"DLQ_GCS_GOOGLE_CLOUD_PROJECT_ID":         envs["DLQ_GCS_GOOGLE_CLOUD_PROJECT_ID"],
 		"JAVA_TOOL_OPTIONS":                       envs["JAVA_TOOL_OPTIONS"],
 		"_JAVA_OPTIONS":                           envs["_JAVA_OPTIONS"],
-		"INPUT_SCHEMA_PROTO_CLASS":                envs["INPUT_SCHEMA_PROTO_CLASS"],
+		"INPUT_SCHEMA_PROTO_CLASS":                dataType,
 		"SCHEMA_REGISTRY_STENCIL_ENABLE":          envs["SCHEMA_REGISTRY_STENCIL_ENABLE"],
 		"SCHEMA_REGISTRY_STENCIL_URLS":            envs["SCHEMA_REGISTRY_STENCIL_URLS"],
 		"SINK_BIGQUERY_ADD_METADATA_ENABLED":      envs["SINK_BIGQUERY_ADD_METADATA_ENABLED"],
@@ -88,7 +123,6 @@ func enrichDlqJob(job *models.DlqJob, res *entropyv1beta1.Resource, cfg DlqJobCo
 		"SINK_BIGQUERY_TABLE_PARTITION_KEY":       envs["SINK_BIGQUERY_TABLE_PARTITION_KEY"],
 		"SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE": envs["SINK_BIGQUERY_TABLE_PARTITIONING_ENABLE"],
 	}
-	job.DlqGcsCredentialPath = modConf.EnvVariables["DLQ_GCS_CREDENTIAL_PATH"]
 
 	return nil
 }
@@ -113,7 +147,7 @@ func mapToEntropyResource(job models.DlqJob) (*entropyv1beta1.Resource, error) {
 			Dependencies: []*entropyv1beta1.ResourceDependency{
 				{
 					Key:   "kube_cluster",
-					Value: job.KubeCluster, // from firehose configs.kube_cluster
+					Value: job.KubeCluster,
 				},
 			},
 		},
@@ -155,14 +189,11 @@ func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 					},
 				},
 				EnvVariables: map[string]string{
-					// To be updated by streaming
-					"APP_NAME":        "", // TBA
+					"APP_NAME":        job.ResourceID,
 					"PROMETHEUS_HOST": job.PrometheusHost,
-					"DEPLOYMENT_NAME": "deployment-name",
-					"TEAM":            job.Group,
+					"TEAM":            job.Team,
 					"TOPIC":           job.Topic,
-					"environment":     "production", // TBA
-					"organization":    "de",         // TBA
+					"environment":     "production",
 					"projectID":       job.Project,
 				},
 				Command: []string{
@@ -183,9 +214,8 @@ func makeConfigStruct(job models.DlqJob) (*structpb.Value, error) {
 			},
 		},
 		JobLabels: map[string]string{
-			"firehose": job.ResourceID,
-			"topic":    job.Topic,
-			"date":     job.Date,
+			"topic": job.Topic,
+			"date":  job.Date,
 		},
 		Volumes: []entropy.JobVolume{
 			{
@@ -283,17 +313,4 @@ func buildResourceLabels(job models.DlqJob) map[string]string {
 		"container_image":         job.ContainerImage,
 		"namespace":               job.Namespace,
 	}
-}
-
-func buildEntropyResourceName(resourceTitle, resourceType, topic, date string) string {
-	timestamp := time.Now().Unix()
-
-	return fmt.Sprintf(
-		"%s-%s-%s-%s-%d",
-		resourceTitle, // firehose title
-		resourceType,  // firehose / dagger
-		topic,         //
-		date,          //
-		timestamp,
-	)
 }
