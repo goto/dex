@@ -20,6 +20,7 @@ import (
 	"github.com/goto/dex/internal/server/v1/optimus"
 	"github.com/goto/dex/pkg/logger"
 	"github.com/goto/dex/pkg/telemetry"
+	"github.com/goto/dex/warden"
 )
 
 func Commands() *cobra.Command {
@@ -102,8 +103,8 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		return err
 	}
 
-	dlqConfig := &dlq.DlqJobConfig{
-		// TODO: map cfg.Dlq\
+	wardenClient := warden.NewClient(cfg.Warden.Addr)
+	dlqConfig := dlq.DlqJobConfig{
 		DlqJobImage:    cfg.Dlq.DlqJobImage,
 		PrometheusHost: cfg.Dlq.PrometheusHost,
 	}
@@ -117,6 +118,7 @@ func runServer(baseCtx context.Context, nrApp *newrelic.Application, zapLog *zap
 		&gcs.Client{StorageClient: gcsClient},
 		cfg.Odin.Addr,
 		cfg.StencilAddr,
-		*dlqConfig,
+		wardenClient,
+		dlqConfig,
 	)
 }

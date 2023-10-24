@@ -17,6 +17,14 @@ type SirenServiceClient struct {
 	mock.Mock
 }
 
+type SirenServiceClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *SirenServiceClient) EXPECT() *SirenServiceClient_Expecter {
+	return &SirenServiceClient_Expecter{mock: &_m.Mock}
+}
+
 // CreateAlerts provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) CreateAlerts(ctx context.Context, in *sirenv1beta1.CreateAlertsRequest, opts ...grpc.CallOption) (*sirenv1beta1.CreateAlertsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -48,6 +56,43 @@ func (_m *SirenServiceClient) CreateAlerts(ctx context.Context, in *sirenv1beta1
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_CreateAlerts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAlerts'
+type SirenServiceClient_CreateAlerts_Call struct {
+	*mock.Call
+}
+
+// CreateAlerts is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateAlertsRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateAlerts(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateAlerts_Call {
+	return &SirenServiceClient_CreateAlerts_Call{Call: _e.mock.On("CreateAlerts",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateAlerts_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateAlertsRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateAlerts_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateAlertsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateAlerts_Call) Return(_a0 *sirenv1beta1.CreateAlertsResponse, _a1 error) *SirenServiceClient_CreateAlerts_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateAlerts_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateAlertsRequest, ...grpc.CallOption) (*sirenv1beta1.CreateAlertsResponse, error)) *SirenServiceClient_CreateAlerts_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateAlertsWithNamespace provides a mock function with given fields: ctx, in, opts
@@ -83,6 +128,43 @@ func (_m *SirenServiceClient) CreateAlertsWithNamespace(ctx context.Context, in 
 	return r0, r1
 }
 
+// SirenServiceClient_CreateAlertsWithNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAlertsWithNamespace'
+type SirenServiceClient_CreateAlertsWithNamespace_Call struct {
+	*mock.Call
+}
+
+// CreateAlertsWithNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateAlertsWithNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateAlertsWithNamespace(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateAlertsWithNamespace_Call {
+	return &SirenServiceClient_CreateAlertsWithNamespace_Call{Call: _e.mock.On("CreateAlertsWithNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateAlertsWithNamespace_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateAlertsWithNamespaceRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateAlertsWithNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateAlertsWithNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateAlertsWithNamespace_Call) Return(_a0 *sirenv1beta1.CreateAlertsWithNamespaceResponse, _a1 error) *SirenServiceClient_CreateAlertsWithNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateAlertsWithNamespace_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateAlertsWithNamespaceRequest, ...grpc.CallOption) (*sirenv1beta1.CreateAlertsWithNamespaceResponse, error)) *SirenServiceClient_CreateAlertsWithNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateNamespace provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) CreateNamespace(ctx context.Context, in *sirenv1beta1.CreateNamespaceRequest, opts ...grpc.CallOption) (*sirenv1beta1.CreateNamespaceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -114,6 +196,43 @@ func (_m *SirenServiceClient) CreateNamespace(ctx context.Context, in *sirenv1be
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_CreateNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateNamespace'
+type SirenServiceClient_CreateNamespace_Call struct {
+	*mock.Call
+}
+
+// CreateNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateNamespace(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateNamespace_Call {
+	return &SirenServiceClient_CreateNamespace_Call{Call: _e.mock.On("CreateNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateNamespace_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateNamespaceRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateNamespace_Call) Return(_a0 *sirenv1beta1.CreateNamespaceResponse, _a1 error) *SirenServiceClient_CreateNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateNamespace_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateNamespaceRequest, ...grpc.CallOption) (*sirenv1beta1.CreateNamespaceResponse, error)) *SirenServiceClient_CreateNamespace_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateProvider provides a mock function with given fields: ctx, in, opts
@@ -149,6 +268,43 @@ func (_m *SirenServiceClient) CreateProvider(ctx context.Context, in *sirenv1bet
 	return r0, r1
 }
 
+// SirenServiceClient_CreateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateProvider'
+type SirenServiceClient_CreateProvider_Call struct {
+	*mock.Call
+}
+
+// CreateProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateProviderRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateProvider(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateProvider_Call {
+	return &SirenServiceClient_CreateProvider_Call{Call: _e.mock.On("CreateProvider",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateProvider_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateProviderRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateProviderRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateProvider_Call) Return(_a0 *sirenv1beta1.CreateProviderResponse, _a1 error) *SirenServiceClient_CreateProvider_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateProvider_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateProviderRequest, ...grpc.CallOption) (*sirenv1beta1.CreateProviderResponse, error)) *SirenServiceClient_CreateProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateReceiver provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) CreateReceiver(ctx context.Context, in *sirenv1beta1.CreateReceiverRequest, opts ...grpc.CallOption) (*sirenv1beta1.CreateReceiverResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -180,6 +336,43 @@ func (_m *SirenServiceClient) CreateReceiver(ctx context.Context, in *sirenv1bet
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_CreateReceiver_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateReceiver'
+type SirenServiceClient_CreateReceiver_Call struct {
+	*mock.Call
+}
+
+// CreateReceiver is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateReceiverRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateReceiver(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateReceiver_Call {
+	return &SirenServiceClient_CreateReceiver_Call{Call: _e.mock.On("CreateReceiver",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateReceiver_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateReceiverRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateReceiver_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateReceiverRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateReceiver_Call) Return(_a0 *sirenv1beta1.CreateReceiverResponse, _a1 error) *SirenServiceClient_CreateReceiver_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateReceiver_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateReceiverRequest, ...grpc.CallOption) (*sirenv1beta1.CreateReceiverResponse, error)) *SirenServiceClient_CreateReceiver_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateSilence provides a mock function with given fields: ctx, in, opts
@@ -215,6 +408,43 @@ func (_m *SirenServiceClient) CreateSilence(ctx context.Context, in *sirenv1beta
 	return r0, r1
 }
 
+// SirenServiceClient_CreateSilence_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateSilence'
+type SirenServiceClient_CreateSilence_Call struct {
+	*mock.Call
+}
+
+// CreateSilence is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateSilenceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateSilence(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateSilence_Call {
+	return &SirenServiceClient_CreateSilence_Call{Call: _e.mock.On("CreateSilence",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateSilence_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateSilenceRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateSilence_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateSilenceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateSilence_Call) Return(_a0 *sirenv1beta1.CreateSilenceResponse, _a1 error) *SirenServiceClient_CreateSilence_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateSilence_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateSilenceRequest, ...grpc.CallOption) (*sirenv1beta1.CreateSilenceResponse, error)) *SirenServiceClient_CreateSilence_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateSubscription provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) CreateSubscription(ctx context.Context, in *sirenv1beta1.CreateSubscriptionRequest, opts ...grpc.CallOption) (*sirenv1beta1.CreateSubscriptionResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -246,6 +476,43 @@ func (_m *SirenServiceClient) CreateSubscription(ctx context.Context, in *sirenv
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_CreateSubscription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateSubscription'
+type SirenServiceClient_CreateSubscription_Call struct {
+	*mock.Call
+}
+
+// CreateSubscription is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.CreateSubscriptionRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) CreateSubscription(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_CreateSubscription_Call {
+	return &SirenServiceClient_CreateSubscription_Call{Call: _e.mock.On("CreateSubscription",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_CreateSubscription_Call) Run(run func(ctx context.Context, in *sirenv1beta1.CreateSubscriptionRequest, opts ...grpc.CallOption)) *SirenServiceClient_CreateSubscription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.CreateSubscriptionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateSubscription_Call) Return(_a0 *sirenv1beta1.CreateSubscriptionResponse, _a1 error) *SirenServiceClient_CreateSubscription_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_CreateSubscription_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.CreateSubscriptionRequest, ...grpc.CallOption) (*sirenv1beta1.CreateSubscriptionResponse, error)) *SirenServiceClient_CreateSubscription_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // DeleteNamespace provides a mock function with given fields: ctx, in, opts
@@ -281,6 +548,43 @@ func (_m *SirenServiceClient) DeleteNamespace(ctx context.Context, in *sirenv1be
 	return r0, r1
 }
 
+// SirenServiceClient_DeleteNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteNamespace'
+type SirenServiceClient_DeleteNamespace_Call struct {
+	*mock.Call
+}
+
+// DeleteNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.DeleteNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) DeleteNamespace(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_DeleteNamespace_Call {
+	return &SirenServiceClient_DeleteNamespace_Call{Call: _e.mock.On("DeleteNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_DeleteNamespace_Call) Run(run func(ctx context.Context, in *sirenv1beta1.DeleteNamespaceRequest, opts ...grpc.CallOption)) *SirenServiceClient_DeleteNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.DeleteNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteNamespace_Call) Return(_a0 *sirenv1beta1.DeleteNamespaceResponse, _a1 error) *SirenServiceClient_DeleteNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteNamespace_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.DeleteNamespaceRequest, ...grpc.CallOption) (*sirenv1beta1.DeleteNamespaceResponse, error)) *SirenServiceClient_DeleteNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteProvider provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) DeleteProvider(ctx context.Context, in *sirenv1beta1.DeleteProviderRequest, opts ...grpc.CallOption) (*sirenv1beta1.DeleteProviderResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -312,6 +616,43 @@ func (_m *SirenServiceClient) DeleteProvider(ctx context.Context, in *sirenv1bet
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_DeleteProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteProvider'
+type SirenServiceClient_DeleteProvider_Call struct {
+	*mock.Call
+}
+
+// DeleteProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.DeleteProviderRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) DeleteProvider(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_DeleteProvider_Call {
+	return &SirenServiceClient_DeleteProvider_Call{Call: _e.mock.On("DeleteProvider",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_DeleteProvider_Call) Run(run func(ctx context.Context, in *sirenv1beta1.DeleteProviderRequest, opts ...grpc.CallOption)) *SirenServiceClient_DeleteProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.DeleteProviderRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteProvider_Call) Return(_a0 *sirenv1beta1.DeleteProviderResponse, _a1 error) *SirenServiceClient_DeleteProvider_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteProvider_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.DeleteProviderRequest, ...grpc.CallOption) (*sirenv1beta1.DeleteProviderResponse, error)) *SirenServiceClient_DeleteProvider_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // DeleteReceiver provides a mock function with given fields: ctx, in, opts
@@ -347,6 +688,43 @@ func (_m *SirenServiceClient) DeleteReceiver(ctx context.Context, in *sirenv1bet
 	return r0, r1
 }
 
+// SirenServiceClient_DeleteReceiver_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteReceiver'
+type SirenServiceClient_DeleteReceiver_Call struct {
+	*mock.Call
+}
+
+// DeleteReceiver is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.DeleteReceiverRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) DeleteReceiver(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_DeleteReceiver_Call {
+	return &SirenServiceClient_DeleteReceiver_Call{Call: _e.mock.On("DeleteReceiver",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_DeleteReceiver_Call) Run(run func(ctx context.Context, in *sirenv1beta1.DeleteReceiverRequest, opts ...grpc.CallOption)) *SirenServiceClient_DeleteReceiver_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.DeleteReceiverRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteReceiver_Call) Return(_a0 *sirenv1beta1.DeleteReceiverResponse, _a1 error) *SirenServiceClient_DeleteReceiver_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteReceiver_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.DeleteReceiverRequest, ...grpc.CallOption) (*sirenv1beta1.DeleteReceiverResponse, error)) *SirenServiceClient_DeleteReceiver_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteSubscription provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) DeleteSubscription(ctx context.Context, in *sirenv1beta1.DeleteSubscriptionRequest, opts ...grpc.CallOption) (*sirenv1beta1.DeleteSubscriptionResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -378,6 +756,43 @@ func (_m *SirenServiceClient) DeleteSubscription(ctx context.Context, in *sirenv
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_DeleteSubscription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteSubscription'
+type SirenServiceClient_DeleteSubscription_Call struct {
+	*mock.Call
+}
+
+// DeleteSubscription is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.DeleteSubscriptionRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) DeleteSubscription(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_DeleteSubscription_Call {
+	return &SirenServiceClient_DeleteSubscription_Call{Call: _e.mock.On("DeleteSubscription",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_DeleteSubscription_Call) Run(run func(ctx context.Context, in *sirenv1beta1.DeleteSubscriptionRequest, opts ...grpc.CallOption)) *SirenServiceClient_DeleteSubscription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.DeleteSubscriptionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteSubscription_Call) Return(_a0 *sirenv1beta1.DeleteSubscriptionResponse, _a1 error) *SirenServiceClient_DeleteSubscription_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteSubscription_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.DeleteSubscriptionRequest, ...grpc.CallOption) (*sirenv1beta1.DeleteSubscriptionResponse, error)) *SirenServiceClient_DeleteSubscription_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // DeleteTemplate provides a mock function with given fields: ctx, in, opts
@@ -413,6 +828,43 @@ func (_m *SirenServiceClient) DeleteTemplate(ctx context.Context, in *sirenv1bet
 	return r0, r1
 }
 
+// SirenServiceClient_DeleteTemplate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTemplate'
+type SirenServiceClient_DeleteTemplate_Call struct {
+	*mock.Call
+}
+
+// DeleteTemplate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.DeleteTemplateRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) DeleteTemplate(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_DeleteTemplate_Call {
+	return &SirenServiceClient_DeleteTemplate_Call{Call: _e.mock.On("DeleteTemplate",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_DeleteTemplate_Call) Run(run func(ctx context.Context, in *sirenv1beta1.DeleteTemplateRequest, opts ...grpc.CallOption)) *SirenServiceClient_DeleteTemplate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.DeleteTemplateRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteTemplate_Call) Return(_a0 *sirenv1beta1.DeleteTemplateResponse, _a1 error) *SirenServiceClient_DeleteTemplate_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_DeleteTemplate_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.DeleteTemplateRequest, ...grpc.CallOption) (*sirenv1beta1.DeleteTemplateResponse, error)) *SirenServiceClient_DeleteTemplate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ExpireSilence provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) ExpireSilence(ctx context.Context, in *sirenv1beta1.ExpireSilenceRequest, opts ...grpc.CallOption) (*sirenv1beta1.ExpireSilenceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -444,6 +896,43 @@ func (_m *SirenServiceClient) ExpireSilence(ctx context.Context, in *sirenv1beta
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_ExpireSilence_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExpireSilence'
+type SirenServiceClient_ExpireSilence_Call struct {
+	*mock.Call
+}
+
+// ExpireSilence is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ExpireSilenceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ExpireSilence(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ExpireSilence_Call {
+	return &SirenServiceClient_ExpireSilence_Call{Call: _e.mock.On("ExpireSilence",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ExpireSilence_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ExpireSilenceRequest, opts ...grpc.CallOption)) *SirenServiceClient_ExpireSilence_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ExpireSilenceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ExpireSilence_Call) Return(_a0 *sirenv1beta1.ExpireSilenceResponse, _a1 error) *SirenServiceClient_ExpireSilence_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ExpireSilence_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ExpireSilenceRequest, ...grpc.CallOption) (*sirenv1beta1.ExpireSilenceResponse, error)) *SirenServiceClient_ExpireSilence_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetNamespace provides a mock function with given fields: ctx, in, opts
@@ -479,6 +968,43 @@ func (_m *SirenServiceClient) GetNamespace(ctx context.Context, in *sirenv1beta1
 	return r0, r1
 }
 
+// SirenServiceClient_GetNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNamespace'
+type SirenServiceClient_GetNamespace_Call struct {
+	*mock.Call
+}
+
+// GetNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.GetNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) GetNamespace(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_GetNamespace_Call {
+	return &SirenServiceClient_GetNamespace_Call{Call: _e.mock.On("GetNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_GetNamespace_Call) Run(run func(ctx context.Context, in *sirenv1beta1.GetNamespaceRequest, opts ...grpc.CallOption)) *SirenServiceClient_GetNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.GetNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_GetNamespace_Call) Return(_a0 *sirenv1beta1.GetNamespaceResponse, _a1 error) *SirenServiceClient_GetNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_GetNamespace_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.GetNamespaceRequest, ...grpc.CallOption) (*sirenv1beta1.GetNamespaceResponse, error)) *SirenServiceClient_GetNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetProvider provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) GetProvider(ctx context.Context, in *sirenv1beta1.GetProviderRequest, opts ...grpc.CallOption) (*sirenv1beta1.GetProviderResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -510,6 +1036,43 @@ func (_m *SirenServiceClient) GetProvider(ctx context.Context, in *sirenv1beta1.
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_GetProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProvider'
+type SirenServiceClient_GetProvider_Call struct {
+	*mock.Call
+}
+
+// GetProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.GetProviderRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) GetProvider(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_GetProvider_Call {
+	return &SirenServiceClient_GetProvider_Call{Call: _e.mock.On("GetProvider",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_GetProvider_Call) Run(run func(ctx context.Context, in *sirenv1beta1.GetProviderRequest, opts ...grpc.CallOption)) *SirenServiceClient_GetProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.GetProviderRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_GetProvider_Call) Return(_a0 *sirenv1beta1.GetProviderResponse, _a1 error) *SirenServiceClient_GetProvider_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_GetProvider_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.GetProviderRequest, ...grpc.CallOption) (*sirenv1beta1.GetProviderResponse, error)) *SirenServiceClient_GetProvider_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetReceiver provides a mock function with given fields: ctx, in, opts
@@ -545,6 +1108,43 @@ func (_m *SirenServiceClient) GetReceiver(ctx context.Context, in *sirenv1beta1.
 	return r0, r1
 }
 
+// SirenServiceClient_GetReceiver_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReceiver'
+type SirenServiceClient_GetReceiver_Call struct {
+	*mock.Call
+}
+
+// GetReceiver is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.GetReceiverRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) GetReceiver(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_GetReceiver_Call {
+	return &SirenServiceClient_GetReceiver_Call{Call: _e.mock.On("GetReceiver",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_GetReceiver_Call) Run(run func(ctx context.Context, in *sirenv1beta1.GetReceiverRequest, opts ...grpc.CallOption)) *SirenServiceClient_GetReceiver_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.GetReceiverRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_GetReceiver_Call) Return(_a0 *sirenv1beta1.GetReceiverResponse, _a1 error) *SirenServiceClient_GetReceiver_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_GetReceiver_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.GetReceiverRequest, ...grpc.CallOption) (*sirenv1beta1.GetReceiverResponse, error)) *SirenServiceClient_GetReceiver_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetSilence provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) GetSilence(ctx context.Context, in *sirenv1beta1.GetSilenceRequest, opts ...grpc.CallOption) (*sirenv1beta1.GetSilenceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -576,6 +1176,43 @@ func (_m *SirenServiceClient) GetSilence(ctx context.Context, in *sirenv1beta1.G
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_GetSilence_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSilence'
+type SirenServiceClient_GetSilence_Call struct {
+	*mock.Call
+}
+
+// GetSilence is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.GetSilenceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) GetSilence(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_GetSilence_Call {
+	return &SirenServiceClient_GetSilence_Call{Call: _e.mock.On("GetSilence",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_GetSilence_Call) Run(run func(ctx context.Context, in *sirenv1beta1.GetSilenceRequest, opts ...grpc.CallOption)) *SirenServiceClient_GetSilence_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.GetSilenceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_GetSilence_Call) Return(_a0 *sirenv1beta1.GetSilenceResponse, _a1 error) *SirenServiceClient_GetSilence_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_GetSilence_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.GetSilenceRequest, ...grpc.CallOption) (*sirenv1beta1.GetSilenceResponse, error)) *SirenServiceClient_GetSilence_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetSubscription provides a mock function with given fields: ctx, in, opts
@@ -611,6 +1248,43 @@ func (_m *SirenServiceClient) GetSubscription(ctx context.Context, in *sirenv1be
 	return r0, r1
 }
 
+// SirenServiceClient_GetSubscription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSubscription'
+type SirenServiceClient_GetSubscription_Call struct {
+	*mock.Call
+}
+
+// GetSubscription is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.GetSubscriptionRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) GetSubscription(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_GetSubscription_Call {
+	return &SirenServiceClient_GetSubscription_Call{Call: _e.mock.On("GetSubscription",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_GetSubscription_Call) Run(run func(ctx context.Context, in *sirenv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption)) *SirenServiceClient_GetSubscription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.GetSubscriptionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_GetSubscription_Call) Return(_a0 *sirenv1beta1.GetSubscriptionResponse, _a1 error) *SirenServiceClient_GetSubscription_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_GetSubscription_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.GetSubscriptionRequest, ...grpc.CallOption) (*sirenv1beta1.GetSubscriptionResponse, error)) *SirenServiceClient_GetSubscription_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTemplate provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) GetTemplate(ctx context.Context, in *sirenv1beta1.GetTemplateRequest, opts ...grpc.CallOption) (*sirenv1beta1.GetTemplateResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -642,6 +1316,43 @@ func (_m *SirenServiceClient) GetTemplate(ctx context.Context, in *sirenv1beta1.
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_GetTemplate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTemplate'
+type SirenServiceClient_GetTemplate_Call struct {
+	*mock.Call
+}
+
+// GetTemplate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.GetTemplateRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) GetTemplate(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_GetTemplate_Call {
+	return &SirenServiceClient_GetTemplate_Call{Call: _e.mock.On("GetTemplate",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_GetTemplate_Call) Run(run func(ctx context.Context, in *sirenv1beta1.GetTemplateRequest, opts ...grpc.CallOption)) *SirenServiceClient_GetTemplate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.GetTemplateRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_GetTemplate_Call) Return(_a0 *sirenv1beta1.GetTemplateResponse, _a1 error) *SirenServiceClient_GetTemplate_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_GetTemplate_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.GetTemplateRequest, ...grpc.CallOption) (*sirenv1beta1.GetTemplateResponse, error)) *SirenServiceClient_GetTemplate_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListAlerts provides a mock function with given fields: ctx, in, opts
@@ -677,6 +1388,43 @@ func (_m *SirenServiceClient) ListAlerts(ctx context.Context, in *sirenv1beta1.L
 	return r0, r1
 }
 
+// SirenServiceClient_ListAlerts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAlerts'
+type SirenServiceClient_ListAlerts_Call struct {
+	*mock.Call
+}
+
+// ListAlerts is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListAlertsRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListAlerts(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListAlerts_Call {
+	return &SirenServiceClient_ListAlerts_Call{Call: _e.mock.On("ListAlerts",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListAlerts_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListAlertsRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListAlerts_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListAlertsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListAlerts_Call) Return(_a0 *sirenv1beta1.ListAlertsResponse, _a1 error) *SirenServiceClient_ListAlerts_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListAlerts_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListAlertsRequest, ...grpc.CallOption) (*sirenv1beta1.ListAlertsResponse, error)) *SirenServiceClient_ListAlerts_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListNamespaces provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) ListNamespaces(ctx context.Context, in *sirenv1beta1.ListNamespacesRequest, opts ...grpc.CallOption) (*sirenv1beta1.ListNamespacesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -708,6 +1456,43 @@ func (_m *SirenServiceClient) ListNamespaces(ctx context.Context, in *sirenv1bet
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_ListNamespaces_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListNamespaces'
+type SirenServiceClient_ListNamespaces_Call struct {
+	*mock.Call
+}
+
+// ListNamespaces is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListNamespacesRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListNamespaces(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListNamespaces_Call {
+	return &SirenServiceClient_ListNamespaces_Call{Call: _e.mock.On("ListNamespaces",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListNamespaces_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListNamespacesRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListNamespaces_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListNamespacesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListNamespaces_Call) Return(_a0 *sirenv1beta1.ListNamespacesResponse, _a1 error) *SirenServiceClient_ListNamespaces_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListNamespaces_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListNamespacesRequest, ...grpc.CallOption) (*sirenv1beta1.ListNamespacesResponse, error)) *SirenServiceClient_ListNamespaces_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListProviders provides a mock function with given fields: ctx, in, opts
@@ -743,6 +1528,43 @@ func (_m *SirenServiceClient) ListProviders(ctx context.Context, in *sirenv1beta
 	return r0, r1
 }
 
+// SirenServiceClient_ListProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListProviders'
+type SirenServiceClient_ListProviders_Call struct {
+	*mock.Call
+}
+
+// ListProviders is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListProvidersRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListProviders(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListProviders_Call {
+	return &SirenServiceClient_ListProviders_Call{Call: _e.mock.On("ListProviders",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListProviders_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListProvidersRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListProviders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListProvidersRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListProviders_Call) Return(_a0 *sirenv1beta1.ListProvidersResponse, _a1 error) *SirenServiceClient_ListProviders_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListProviders_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListProvidersRequest, ...grpc.CallOption) (*sirenv1beta1.ListProvidersResponse, error)) *SirenServiceClient_ListProviders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListReceivers provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) ListReceivers(ctx context.Context, in *sirenv1beta1.ListReceiversRequest, opts ...grpc.CallOption) (*sirenv1beta1.ListReceiversResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -774,6 +1596,43 @@ func (_m *SirenServiceClient) ListReceivers(ctx context.Context, in *sirenv1beta
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_ListReceivers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListReceivers'
+type SirenServiceClient_ListReceivers_Call struct {
+	*mock.Call
+}
+
+// ListReceivers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListReceiversRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListReceivers(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListReceivers_Call {
+	return &SirenServiceClient_ListReceivers_Call{Call: _e.mock.On("ListReceivers",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListReceivers_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListReceiversRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListReceivers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListReceiversRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListReceivers_Call) Return(_a0 *sirenv1beta1.ListReceiversResponse, _a1 error) *SirenServiceClient_ListReceivers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListReceivers_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListReceiversRequest, ...grpc.CallOption) (*sirenv1beta1.ListReceiversResponse, error)) *SirenServiceClient_ListReceivers_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListRules provides a mock function with given fields: ctx, in, opts
@@ -809,6 +1668,43 @@ func (_m *SirenServiceClient) ListRules(ctx context.Context, in *sirenv1beta1.Li
 	return r0, r1
 }
 
+// SirenServiceClient_ListRules_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRules'
+type SirenServiceClient_ListRules_Call struct {
+	*mock.Call
+}
+
+// ListRules is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListRulesRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListRules(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListRules_Call {
+	return &SirenServiceClient_ListRules_Call{Call: _e.mock.On("ListRules",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListRules_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListRulesRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListRules_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListRulesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListRules_Call) Return(_a0 *sirenv1beta1.ListRulesResponse, _a1 error) *SirenServiceClient_ListRules_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListRules_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListRulesRequest, ...grpc.CallOption) (*sirenv1beta1.ListRulesResponse, error)) *SirenServiceClient_ListRules_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListSilences provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) ListSilences(ctx context.Context, in *sirenv1beta1.ListSilencesRequest, opts ...grpc.CallOption) (*sirenv1beta1.ListSilencesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -840,6 +1736,43 @@ func (_m *SirenServiceClient) ListSilences(ctx context.Context, in *sirenv1beta1
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_ListSilences_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListSilences'
+type SirenServiceClient_ListSilences_Call struct {
+	*mock.Call
+}
+
+// ListSilences is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListSilencesRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListSilences(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListSilences_Call {
+	return &SirenServiceClient_ListSilences_Call{Call: _e.mock.On("ListSilences",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListSilences_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListSilencesRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListSilences_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListSilencesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListSilences_Call) Return(_a0 *sirenv1beta1.ListSilencesResponse, _a1 error) *SirenServiceClient_ListSilences_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListSilences_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListSilencesRequest, ...grpc.CallOption) (*sirenv1beta1.ListSilencesResponse, error)) *SirenServiceClient_ListSilences_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListSubscriptions provides a mock function with given fields: ctx, in, opts
@@ -875,6 +1808,43 @@ func (_m *SirenServiceClient) ListSubscriptions(ctx context.Context, in *sirenv1
 	return r0, r1
 }
 
+// SirenServiceClient_ListSubscriptions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListSubscriptions'
+type SirenServiceClient_ListSubscriptions_Call struct {
+	*mock.Call
+}
+
+// ListSubscriptions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListSubscriptionsRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListSubscriptions(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListSubscriptions_Call {
+	return &SirenServiceClient_ListSubscriptions_Call{Call: _e.mock.On("ListSubscriptions",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListSubscriptions_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListSubscriptions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListSubscriptionsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListSubscriptions_Call) Return(_a0 *sirenv1beta1.ListSubscriptionsResponse, _a1 error) *SirenServiceClient_ListSubscriptions_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListSubscriptions_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListSubscriptionsRequest, ...grpc.CallOption) (*sirenv1beta1.ListSubscriptionsResponse, error)) *SirenServiceClient_ListSubscriptions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListTemplates provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) ListTemplates(ctx context.Context, in *sirenv1beta1.ListTemplatesRequest, opts ...grpc.CallOption) (*sirenv1beta1.ListTemplatesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -906,6 +1876,43 @@ func (_m *SirenServiceClient) ListTemplates(ctx context.Context, in *sirenv1beta
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_ListTemplates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListTemplates'
+type SirenServiceClient_ListTemplates_Call struct {
+	*mock.Call
+}
+
+// ListTemplates is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.ListTemplatesRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) ListTemplates(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_ListTemplates_Call {
+	return &SirenServiceClient_ListTemplates_Call{Call: _e.mock.On("ListTemplates",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_ListTemplates_Call) Run(run func(ctx context.Context, in *sirenv1beta1.ListTemplatesRequest, opts ...grpc.CallOption)) *SirenServiceClient_ListTemplates_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.ListTemplatesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_ListTemplates_Call) Return(_a0 *sirenv1beta1.ListTemplatesResponse, _a1 error) *SirenServiceClient_ListTemplates_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_ListTemplates_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.ListTemplatesRequest, ...grpc.CallOption) (*sirenv1beta1.ListTemplatesResponse, error)) *SirenServiceClient_ListTemplates_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NotifyReceiver provides a mock function with given fields: ctx, in, opts
@@ -941,6 +1948,43 @@ func (_m *SirenServiceClient) NotifyReceiver(ctx context.Context, in *sirenv1bet
 	return r0, r1
 }
 
+// SirenServiceClient_NotifyReceiver_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NotifyReceiver'
+type SirenServiceClient_NotifyReceiver_Call struct {
+	*mock.Call
+}
+
+// NotifyReceiver is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.NotifyReceiverRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) NotifyReceiver(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_NotifyReceiver_Call {
+	return &SirenServiceClient_NotifyReceiver_Call{Call: _e.mock.On("NotifyReceiver",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_NotifyReceiver_Call) Run(run func(ctx context.Context, in *sirenv1beta1.NotifyReceiverRequest, opts ...grpc.CallOption)) *SirenServiceClient_NotifyReceiver_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.NotifyReceiverRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_NotifyReceiver_Call) Return(_a0 *sirenv1beta1.NotifyReceiverResponse, _a1 error) *SirenServiceClient_NotifyReceiver_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_NotifyReceiver_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.NotifyReceiverRequest, ...grpc.CallOption) (*sirenv1beta1.NotifyReceiverResponse, error)) *SirenServiceClient_NotifyReceiver_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // RenderTemplate provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) RenderTemplate(ctx context.Context, in *sirenv1beta1.RenderTemplateRequest, opts ...grpc.CallOption) (*sirenv1beta1.RenderTemplateResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -972,6 +2016,43 @@ func (_m *SirenServiceClient) RenderTemplate(ctx context.Context, in *sirenv1bet
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_RenderTemplate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenderTemplate'
+type SirenServiceClient_RenderTemplate_Call struct {
+	*mock.Call
+}
+
+// RenderTemplate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.RenderTemplateRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) RenderTemplate(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_RenderTemplate_Call {
+	return &SirenServiceClient_RenderTemplate_Call{Call: _e.mock.On("RenderTemplate",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_RenderTemplate_Call) Run(run func(ctx context.Context, in *sirenv1beta1.RenderTemplateRequest, opts ...grpc.CallOption)) *SirenServiceClient_RenderTemplate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.RenderTemplateRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_RenderTemplate_Call) Return(_a0 *sirenv1beta1.RenderTemplateResponse, _a1 error) *SirenServiceClient_RenderTemplate_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_RenderTemplate_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.RenderTemplateRequest, ...grpc.CallOption) (*sirenv1beta1.RenderTemplateResponse, error)) *SirenServiceClient_RenderTemplate_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateNamespace provides a mock function with given fields: ctx, in, opts
@@ -1007,6 +2088,43 @@ func (_m *SirenServiceClient) UpdateNamespace(ctx context.Context, in *sirenv1be
 	return r0, r1
 }
 
+// SirenServiceClient_UpdateNamespace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateNamespace'
+type SirenServiceClient_UpdateNamespace_Call struct {
+	*mock.Call
+}
+
+// UpdateNamespace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.UpdateNamespaceRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) UpdateNamespace(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_UpdateNamespace_Call {
+	return &SirenServiceClient_UpdateNamespace_Call{Call: _e.mock.On("UpdateNamespace",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_UpdateNamespace_Call) Run(run func(ctx context.Context, in *sirenv1beta1.UpdateNamespaceRequest, opts ...grpc.CallOption)) *SirenServiceClient_UpdateNamespace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.UpdateNamespaceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateNamespace_Call) Return(_a0 *sirenv1beta1.UpdateNamespaceResponse, _a1 error) *SirenServiceClient_UpdateNamespace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateNamespace_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.UpdateNamespaceRequest, ...grpc.CallOption) (*sirenv1beta1.UpdateNamespaceResponse, error)) *SirenServiceClient_UpdateNamespace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateProvider provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) UpdateProvider(ctx context.Context, in *sirenv1beta1.UpdateProviderRequest, opts ...grpc.CallOption) (*sirenv1beta1.UpdateProviderResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1038,6 +2156,43 @@ func (_m *SirenServiceClient) UpdateProvider(ctx context.Context, in *sirenv1bet
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_UpdateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProvider'
+type SirenServiceClient_UpdateProvider_Call struct {
+	*mock.Call
+}
+
+// UpdateProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.UpdateProviderRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) UpdateProvider(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_UpdateProvider_Call {
+	return &SirenServiceClient_UpdateProvider_Call{Call: _e.mock.On("UpdateProvider",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_UpdateProvider_Call) Run(run func(ctx context.Context, in *sirenv1beta1.UpdateProviderRequest, opts ...grpc.CallOption)) *SirenServiceClient_UpdateProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.UpdateProviderRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateProvider_Call) Return(_a0 *sirenv1beta1.UpdateProviderResponse, _a1 error) *SirenServiceClient_UpdateProvider_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateProvider_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.UpdateProviderRequest, ...grpc.CallOption) (*sirenv1beta1.UpdateProviderResponse, error)) *SirenServiceClient_UpdateProvider_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateReceiver provides a mock function with given fields: ctx, in, opts
@@ -1073,6 +2228,43 @@ func (_m *SirenServiceClient) UpdateReceiver(ctx context.Context, in *sirenv1bet
 	return r0, r1
 }
 
+// SirenServiceClient_UpdateReceiver_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateReceiver'
+type SirenServiceClient_UpdateReceiver_Call struct {
+	*mock.Call
+}
+
+// UpdateReceiver is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.UpdateReceiverRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) UpdateReceiver(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_UpdateReceiver_Call {
+	return &SirenServiceClient_UpdateReceiver_Call{Call: _e.mock.On("UpdateReceiver",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_UpdateReceiver_Call) Run(run func(ctx context.Context, in *sirenv1beta1.UpdateReceiverRequest, opts ...grpc.CallOption)) *SirenServiceClient_UpdateReceiver_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.UpdateReceiverRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateReceiver_Call) Return(_a0 *sirenv1beta1.UpdateReceiverResponse, _a1 error) *SirenServiceClient_UpdateReceiver_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateReceiver_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.UpdateReceiverRequest, ...grpc.CallOption) (*sirenv1beta1.UpdateReceiverResponse, error)) *SirenServiceClient_UpdateReceiver_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateRule provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) UpdateRule(ctx context.Context, in *sirenv1beta1.UpdateRuleRequest, opts ...grpc.CallOption) (*sirenv1beta1.UpdateRuleResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1104,6 +2296,43 @@ func (_m *SirenServiceClient) UpdateRule(ctx context.Context, in *sirenv1beta1.U
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_UpdateRule_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRule'
+type SirenServiceClient_UpdateRule_Call struct {
+	*mock.Call
+}
+
+// UpdateRule is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.UpdateRuleRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) UpdateRule(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_UpdateRule_Call {
+	return &SirenServiceClient_UpdateRule_Call{Call: _e.mock.On("UpdateRule",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_UpdateRule_Call) Run(run func(ctx context.Context, in *sirenv1beta1.UpdateRuleRequest, opts ...grpc.CallOption)) *SirenServiceClient_UpdateRule_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.UpdateRuleRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateRule_Call) Return(_a0 *sirenv1beta1.UpdateRuleResponse, _a1 error) *SirenServiceClient_UpdateRule_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateRule_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.UpdateRuleRequest, ...grpc.CallOption) (*sirenv1beta1.UpdateRuleResponse, error)) *SirenServiceClient_UpdateRule_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // UpdateSubscription provides a mock function with given fields: ctx, in, opts
@@ -1139,6 +2368,43 @@ func (_m *SirenServiceClient) UpdateSubscription(ctx context.Context, in *sirenv
 	return r0, r1
 }
 
+// SirenServiceClient_UpdateSubscription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateSubscription'
+type SirenServiceClient_UpdateSubscription_Call struct {
+	*mock.Call
+}
+
+// UpdateSubscription is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.UpdateSubscriptionRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) UpdateSubscription(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_UpdateSubscription_Call {
+	return &SirenServiceClient_UpdateSubscription_Call{Call: _e.mock.On("UpdateSubscription",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_UpdateSubscription_Call) Run(run func(ctx context.Context, in *sirenv1beta1.UpdateSubscriptionRequest, opts ...grpc.CallOption)) *SirenServiceClient_UpdateSubscription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.UpdateSubscriptionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateSubscription_Call) Return(_a0 *sirenv1beta1.UpdateSubscriptionResponse, _a1 error) *SirenServiceClient_UpdateSubscription_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_UpdateSubscription_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.UpdateSubscriptionRequest, ...grpc.CallOption) (*sirenv1beta1.UpdateSubscriptionResponse, error)) *SirenServiceClient_UpdateSubscription_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpsertTemplate provides a mock function with given fields: ctx, in, opts
 func (_m *SirenServiceClient) UpsertTemplate(ctx context.Context, in *sirenv1beta1.UpsertTemplateRequest, opts ...grpc.CallOption) (*sirenv1beta1.UpsertTemplateResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -1170,6 +2436,43 @@ func (_m *SirenServiceClient) UpsertTemplate(ctx context.Context, in *sirenv1bet
 	}
 
 	return r0, r1
+}
+
+// SirenServiceClient_UpsertTemplate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertTemplate'
+type SirenServiceClient_UpsertTemplate_Call struct {
+	*mock.Call
+}
+
+// UpsertTemplate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *sirenv1beta1.UpsertTemplateRequest
+//   - opts ...grpc.CallOption
+func (_e *SirenServiceClient_Expecter) UpsertTemplate(ctx interface{}, in interface{}, opts ...interface{}) *SirenServiceClient_UpsertTemplate_Call {
+	return &SirenServiceClient_UpsertTemplate_Call{Call: _e.mock.On("UpsertTemplate",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *SirenServiceClient_UpsertTemplate_Call) Run(run func(ctx context.Context, in *sirenv1beta1.UpsertTemplateRequest, opts ...grpc.CallOption)) *SirenServiceClient_UpsertTemplate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*sirenv1beta1.UpsertTemplateRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *SirenServiceClient_UpsertTemplate_Call) Return(_a0 *sirenv1beta1.UpsertTemplateResponse, _a1 error) *SirenServiceClient_UpsertTemplate_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *SirenServiceClient_UpsertTemplate_Call) RunAndReturn(run func(context.Context, *sirenv1beta1.UpsertTemplateRequest, ...grpc.CallOption) (*sirenv1beta1.UpsertTemplateResponse, error)) *SirenServiceClient_UpsertTemplate_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewSirenServiceClient creates a new instance of SirenServiceClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

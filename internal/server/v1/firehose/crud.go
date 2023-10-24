@@ -64,13 +64,7 @@ func (api *firehoseAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	def.Labels = cloneAndMergeMaps(def.Labels, map[string]string{
-		labelTitle:       *def.Title,
-		labelGroup:       groupID,
-		labelTeam:        groupSlug,
-		labelStream:      *def.Configs.StreamName,
-		labelDescription: def.Description,
-	})
+	def.Labels = cloneAndMergeMaps(def.Labels, api.buildLabels(def, groupSlug))
 
 	prj, err := project.GetProject(ctx, def.Project, api.Shield)
 	if err != nil {
@@ -179,16 +173,11 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	includeEnv := []string{
-		configSinkType,
-		configSourceKafkaTopic,
-		configSourceKafkaConsumerGroup,
-	}
-
 	topicName := q.Get("topic_name")
 	kubeCluster := q.Get("kube_cluster")
 	sinkTypes := sinkTypeSet(q.Get("sink_type"))
-	var arr []models.Firehose
+
+	arr := []models.Firehose{}
 	for _, res := range rpcResp.GetResources() {
 		def, err := mapEntropyResourceToFirehose(res)
 		if err != nil {
@@ -196,25 +185,18 @@ func (api *firehoseAPI) handleList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if kubeCluster != "" && *def.Configs.KubeCluster != kubeCluster {
+		if kubeCluster != "" && def.Labels[labelKubeCluster] != kubeCluster {
 			continue
 		}
 
-		if topicName != "" && def.Configs.EnvVars[configSourceKafkaTopic] != topicName {
+		if topicName != "" && def.Labels[labelTopic] != topicName {
 			continue
 		}
 
-		_, include := sinkTypes[def.Configs.EnvVars[configSinkType]]
+		_, include := sinkTypes[def.Labels[labelSinkType]]
 		if len(sinkTypes) > 0 && !include {
 			continue
 		}
-
-		// only return selected keys to reduce list response-size.
-		returnEnv := map[string]string{}
-		for _, key := range includeEnv {
-			returnEnv[key] = def.Configs.EnvVars[key]
-		}
-		def.Configs.EnvVars = returnEnv
 
 		arr = append(arr, def)
 	}
@@ -263,19 +245,14 @@ func (api *firehoseAPI) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErr(w, err)
 		return
 	}
-	labels := cloneAndMergeMaps(existingFirehose.Labels, map[string]string{
-		labelGroup: groupID,
-		labelTeam:  groupSlug,
-	})
-	if updates.Description != "" {
-		labels[labelDescription] = existingFirehose.Description
-	}
 
 	err = api.buildEnvVars(r.Context(), &existingFirehose, reqCtx.UserID, false)
 	if err != nil {
 		utils.WriteErr(w, fmt.Errorf("error building env vars: %w", err))
 		return
 	}
+
+	labels := cloneAndMergeMaps(existingFirehose.Labels, api.buildLabels(existingFirehose, groupSlug))
 
 	cfgStruct, err := makeConfigStruct(existingFirehose.Configs)
 	if err != nil {
@@ -334,19 +311,16 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	labels := existing.Labels
-	if req.Description != "" {
-		labels[labelDescription] = req.Description
-	}
+	var groupSlug string
 	if req.Group != "" {
 		groupID := req.Group
-		groupSlug, err := api.getGroupSlug(ctx, groupID)
+		groupSlug, err = api.getGroupSlug(ctx, groupID)
 		if err != nil {
 			utils.WriteErr(w, err)
 			return
 		}
-		labels[labelGroup] = groupID
-		labels[labelTeam] = groupSlug
+	} else {
+		groupSlug = existing.Labels[labelGroup]
 	}
 
 	if req.Configs.Stopped != nil {
@@ -394,6 +368,8 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	labels := cloneAndMergeMaps(existing.Labels, api.buildLabels(existing, groupSlug))
+
 	cfgStruct, err := makeConfigStruct(existing.Configs)
 	if err != nil {
 		utils.WriteErr(w, err)
@@ -428,6 +404,19 @@ func (api *firehoseAPI) handlePartialUpdate(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, updatedFirehose)
+}
+
+func (*firehoseAPI) buildLabels(firehose models.Firehose, groupSlug string) map[string]string {
+	return map[string]string{
+		labelTitle:       *firehose.Title,
+		labelGroup:       string(*firehose.Group),
+		labelTeam:        groupSlug,
+		labelStream:      *firehose.Configs.StreamName,
+		labelDescription: firehose.Description,
+		labelSinkType:    firehose.Configs.EnvVars[configSinkType],
+		labelTopic:       firehose.Configs.EnvVars[configSourceKafkaTopic],
+		labelKubeCluster: *firehose.Configs.KubeCluster,
+	}
 }
 
 func (api *firehoseAPI) handleGetHistory(w http.ResponseWriter, r *http.Request) {

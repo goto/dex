@@ -18,6 +18,14 @@ type ResourceServiceClient struct {
 	mock.Mock
 }
 
+type ResourceServiceClient_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *ResourceServiceClient) EXPECT() *ResourceServiceClient_Expecter {
+	return &ResourceServiceClient_Expecter{mock: &_m.Mock}
+}
+
 // ApplyAction provides a mock function with given fields: ctx, in, opts
 func (_m *ResourceServiceClient) ApplyAction(ctx context.Context, in *entropyv1beta1.ApplyActionRequest, opts ...grpc.CallOption) (*entropyv1beta1.ApplyActionResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -49,6 +57,43 @@ func (_m *ResourceServiceClient) ApplyAction(ctx context.Context, in *entropyv1b
 	}
 
 	return r0, r1
+}
+
+// ResourceServiceClient_ApplyAction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ApplyAction'
+type ResourceServiceClient_ApplyAction_Call struct {
+	*mock.Call
+}
+
+// ApplyAction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.ApplyActionRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) ApplyAction(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_ApplyAction_Call {
+	return &ResourceServiceClient_ApplyAction_Call{Call: _e.mock.On("ApplyAction",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_ApplyAction_Call) Run(run func(ctx context.Context, in *entropyv1beta1.ApplyActionRequest, opts ...grpc.CallOption)) *ResourceServiceClient_ApplyAction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.ApplyActionRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_ApplyAction_Call) Return(_a0 *entropyv1beta1.ApplyActionResponse, _a1 error) *ResourceServiceClient_ApplyAction_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_ApplyAction_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.ApplyActionRequest, ...grpc.CallOption) (*entropyv1beta1.ApplyActionResponse, error)) *ResourceServiceClient_ApplyAction_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateResource provides a mock function with given fields: ctx, in, opts
@@ -84,6 +129,43 @@ func (_m *ResourceServiceClient) CreateResource(ctx context.Context, in *entropy
 	return r0, r1
 }
 
+// ResourceServiceClient_CreateResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateResource'
+type ResourceServiceClient_CreateResource_Call struct {
+	*mock.Call
+}
+
+// CreateResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.CreateResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) CreateResource(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_CreateResource_Call {
+	return &ResourceServiceClient_CreateResource_Call{Call: _e.mock.On("CreateResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_CreateResource_Call) Run(run func(ctx context.Context, in *entropyv1beta1.CreateResourceRequest, opts ...grpc.CallOption)) *ResourceServiceClient_CreateResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.CreateResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_CreateResource_Call) Return(_a0 *entropyv1beta1.CreateResourceResponse, _a1 error) *ResourceServiceClient_CreateResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_CreateResource_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.CreateResourceRequest, ...grpc.CallOption) (*entropyv1beta1.CreateResourceResponse, error)) *ResourceServiceClient_CreateResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteResource provides a mock function with given fields: ctx, in, opts
 func (_m *ResourceServiceClient) DeleteResource(ctx context.Context, in *entropyv1beta1.DeleteResourceRequest, opts ...grpc.CallOption) (*entropyv1beta1.DeleteResourceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -115,6 +197,43 @@ func (_m *ResourceServiceClient) DeleteResource(ctx context.Context, in *entropy
 	}
 
 	return r0, r1
+}
+
+// ResourceServiceClient_DeleteResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteResource'
+type ResourceServiceClient_DeleteResource_Call struct {
+	*mock.Call
+}
+
+// DeleteResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.DeleteResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) DeleteResource(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_DeleteResource_Call {
+	return &ResourceServiceClient_DeleteResource_Call{Call: _e.mock.On("DeleteResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_DeleteResource_Call) Run(run func(ctx context.Context, in *entropyv1beta1.DeleteResourceRequest, opts ...grpc.CallOption)) *ResourceServiceClient_DeleteResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.DeleteResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_DeleteResource_Call) Return(_a0 *entropyv1beta1.DeleteResourceResponse, _a1 error) *ResourceServiceClient_DeleteResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_DeleteResource_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.DeleteResourceRequest, ...grpc.CallOption) (*entropyv1beta1.DeleteResourceResponse, error)) *ResourceServiceClient_DeleteResource_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetLog provides a mock function with given fields: ctx, in, opts
@@ -150,6 +269,43 @@ func (_m *ResourceServiceClient) GetLog(ctx context.Context, in *entropyv1beta1.
 	return r0, r1
 }
 
+// ResourceServiceClient_GetLog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetLog'
+type ResourceServiceClient_GetLog_Call struct {
+	*mock.Call
+}
+
+// GetLog is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.GetLogRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) GetLog(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_GetLog_Call {
+	return &ResourceServiceClient_GetLog_Call{Call: _e.mock.On("GetLog",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_GetLog_Call) Run(run func(ctx context.Context, in *entropyv1beta1.GetLogRequest, opts ...grpc.CallOption)) *ResourceServiceClient_GetLog_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.GetLogRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_GetLog_Call) Return(_a0 entropyv1beta1grpc.ResourceService_GetLogClient, _a1 error) *ResourceServiceClient_GetLog_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_GetLog_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.GetLogRequest, ...grpc.CallOption) (entropyv1beta1grpc.ResourceService_GetLogClient, error)) *ResourceServiceClient_GetLog_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetResource provides a mock function with given fields: ctx, in, opts
 func (_m *ResourceServiceClient) GetResource(ctx context.Context, in *entropyv1beta1.GetResourceRequest, opts ...grpc.CallOption) (*entropyv1beta1.GetResourceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -181,6 +337,43 @@ func (_m *ResourceServiceClient) GetResource(ctx context.Context, in *entropyv1b
 	}
 
 	return r0, r1
+}
+
+// ResourceServiceClient_GetResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetResource'
+type ResourceServiceClient_GetResource_Call struct {
+	*mock.Call
+}
+
+// GetResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.GetResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) GetResource(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_GetResource_Call {
+	return &ResourceServiceClient_GetResource_Call{Call: _e.mock.On("GetResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_GetResource_Call) Run(run func(ctx context.Context, in *entropyv1beta1.GetResourceRequest, opts ...grpc.CallOption)) *ResourceServiceClient_GetResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.GetResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_GetResource_Call) Return(_a0 *entropyv1beta1.GetResourceResponse, _a1 error) *ResourceServiceClient_GetResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_GetResource_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.GetResourceRequest, ...grpc.CallOption) (*entropyv1beta1.GetResourceResponse, error)) *ResourceServiceClient_GetResource_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetResourceRevisions provides a mock function with given fields: ctx, in, opts
@@ -216,6 +409,43 @@ func (_m *ResourceServiceClient) GetResourceRevisions(ctx context.Context, in *e
 	return r0, r1
 }
 
+// ResourceServiceClient_GetResourceRevisions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetResourceRevisions'
+type ResourceServiceClient_GetResourceRevisions_Call struct {
+	*mock.Call
+}
+
+// GetResourceRevisions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.GetResourceRevisionsRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) GetResourceRevisions(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_GetResourceRevisions_Call {
+	return &ResourceServiceClient_GetResourceRevisions_Call{Call: _e.mock.On("GetResourceRevisions",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_GetResourceRevisions_Call) Run(run func(ctx context.Context, in *entropyv1beta1.GetResourceRevisionsRequest, opts ...grpc.CallOption)) *ResourceServiceClient_GetResourceRevisions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.GetResourceRevisionsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_GetResourceRevisions_Call) Return(_a0 *entropyv1beta1.GetResourceRevisionsResponse, _a1 error) *ResourceServiceClient_GetResourceRevisions_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_GetResourceRevisions_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.GetResourceRevisionsRequest, ...grpc.CallOption) (*entropyv1beta1.GetResourceRevisionsResponse, error)) *ResourceServiceClient_GetResourceRevisions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListResources provides a mock function with given fields: ctx, in, opts
 func (_m *ResourceServiceClient) ListResources(ctx context.Context, in *entropyv1beta1.ListResourcesRequest, opts ...grpc.CallOption) (*entropyv1beta1.ListResourcesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -249,6 +479,43 @@ func (_m *ResourceServiceClient) ListResources(ctx context.Context, in *entropyv
 	return r0, r1
 }
 
+// ResourceServiceClient_ListResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListResources'
+type ResourceServiceClient_ListResources_Call struct {
+	*mock.Call
+}
+
+// ListResources is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.ListResourcesRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) ListResources(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_ListResources_Call {
+	return &ResourceServiceClient_ListResources_Call{Call: _e.mock.On("ListResources",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_ListResources_Call) Run(run func(ctx context.Context, in *entropyv1beta1.ListResourcesRequest, opts ...grpc.CallOption)) *ResourceServiceClient_ListResources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.ListResourcesRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_ListResources_Call) Return(_a0 *entropyv1beta1.ListResourcesResponse, _a1 error) *ResourceServiceClient_ListResources_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_ListResources_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.ListResourcesRequest, ...grpc.CallOption) (*entropyv1beta1.ListResourcesResponse, error)) *ResourceServiceClient_ListResources_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateResource provides a mock function with given fields: ctx, in, opts
 func (_m *ResourceServiceClient) UpdateResource(ctx context.Context, in *entropyv1beta1.UpdateResourceRequest, opts ...grpc.CallOption) (*entropyv1beta1.UpdateResourceResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -280,6 +547,43 @@ func (_m *ResourceServiceClient) UpdateResource(ctx context.Context, in *entropy
 	}
 
 	return r0, r1
+}
+
+// ResourceServiceClient_UpdateResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateResource'
+type ResourceServiceClient_UpdateResource_Call struct {
+	*mock.Call
+}
+
+// UpdateResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *entropyv1beta1.UpdateResourceRequest
+//   - opts ...grpc.CallOption
+func (_e *ResourceServiceClient_Expecter) UpdateResource(ctx interface{}, in interface{}, opts ...interface{}) *ResourceServiceClient_UpdateResource_Call {
+	return &ResourceServiceClient_UpdateResource_Call{Call: _e.mock.On("UpdateResource",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *ResourceServiceClient_UpdateResource_Call) Run(run func(ctx context.Context, in *entropyv1beta1.UpdateResourceRequest, opts ...grpc.CallOption)) *ResourceServiceClient_UpdateResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*entropyv1beta1.UpdateResourceRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ResourceServiceClient_UpdateResource_Call) Return(_a0 *entropyv1beta1.UpdateResourceResponse, _a1 error) *ResourceServiceClient_UpdateResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ResourceServiceClient_UpdateResource_Call) RunAndReturn(run func(context.Context, *entropyv1beta1.UpdateResourceRequest, ...grpc.CallOption) (*entropyv1beta1.UpdateResourceResponse, error)) *ResourceServiceClient_UpdateResource_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // NewResourceServiceClient creates a new instance of ResourceServiceClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
